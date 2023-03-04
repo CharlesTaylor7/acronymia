@@ -38,3 +38,62 @@ By default, `cargo-leptos` uses `nightly` Rust, `cargo-generate`, and `sass`. If
 3. `rustup target add wasm32-unknown-unknown` - add the ability to compile Rust to WebAssembly
 4. `cargo install cargo-generate` - install `cargo-generate` binary (should be installed automatically in future)
 5. `npm install -g sass` - install `dart-sass` (should be optional in future)
+
+
+# Acronymia
+
+## What is?
+
+Acroynymia is a game you play with your friends.
+It's like party games such as Apples to apples or quiplash.
+
+
+## Scrabble bag
+There's a scrabble (ish) bag of letters.
+
+1 of each letter for now.
+
+Future:
+ratio matches the ratio of first letters in the english language
+
+## Pick a judge ( rotates)
+
+The judge pulls out letters at random from the bag.
+
+Always 3 for now.
+
+Future:
+Roll a 1 d6. Add 2. So a random range from 3 to 8.
+
+
+## People submit 
+
+Private submission of choices. 
+They get an input box per letter and type words.
+
+
+## Judge selects
+
+Points assigned, next round. 
+each person is judge twice. 
+
+### Architecture
+
+Web sockets or Polling?
+> whichever the framework makes easier
+
+No database.
+
+Central server thread with in memory state.
+
+
+Pages:
+(1) Lobby (/) (root)
+(2) Active Game (SPA) (/game/<code>/)
+(3) Game configaration (Future) (/game/<code>/config)
+
+
+### TODO 
+
+- [ ] Lobby with no passcode
+- [ ] passcode
