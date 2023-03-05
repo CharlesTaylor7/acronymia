@@ -1,29 +1,59 @@
-<picture>
-    <source srcset="https://raw.githubusercontent.com/leptos-rs/leptos/main/docs/logos/Leptos_logo_Solid_White.svg" media="(prefers-color-scheme: dark)">
-    <img src="https://raw.githubusercontent.com/leptos-rs/leptos/main/docs/logos/Leptos_logo_RGB.svg" alt="Leptos Logo">
-</picture>
+# Acronymia
 
-# Leptos Starter Template
+Welcome to Acronymia, a party game based aroud, you guessed it, acronyms.
 
-This is a template for use with the [Leptos](https://github.com/leptos-rs/leptos) web framework and the [cargo-leptos](https://github.com/akesson/cargo-leptos) tool.
+In each round, players will be given a prompt and corresponding acronym. Players will then come up with and submit a breakdown for the acronym that corresponds with the prompt. Per round, one player will be designated as the judge rather than submit an answer and will choose their favorite answer. The player with their answer chosen will be awarded points based on the length of the acronym needed.
 
-## Creating your template repo
+The game will either run until one player reaches a score threshold or until the designated number of rounds passes. In the latter case, the highest score wins.
 
-If you don't have `cargo-leptos` installed you can install it with
+In order to play, a host will need to install and run the game. Once the game is up and running, players can join through their web browser (whether or not room codes or passwords will be used is to be determined.)
 
-`cargo install cargo-leptos`
+Potential features include choosing themes for the game, which could change prompts given and icons players can choose to represent themselves while playing, as well as acronym length and round limit modifiers.
 
-Then run
+## Features
 
-`cargo leptos new --git leptos-rs/start`
+### Bag
+There's a scrabble (ish) bag of letters.
 
-to generate a new project template.
+1 of each letter for now.
 
-`cd {projectname}`
+Future:
+ratio matches the ratio of first letters in the english language
 
-to go to your newly created project.
+### Acronym selection
+The judge pulls out letters at random from the bag.
 
-Of course you should explore around the project structure, but the best place to start with your application code is in `src/app.rs`.
+Always 3 for now.
+
+Future Ideas:
+- [ ] Roll a 1 d6. Add 2. So a random range from 3 to 8.
+
+- [ ] Make acronyms pronounceable. (For now the game could be called initialismia).
+
+
+## Implementation Notes
+
+Web sockets or Polling?
+> whichever the framework makes easier
+
+No database.
+
+Central server thread with in memory state.
+
+Pages:
+(1) Lobby (/) (root)
+(2) Active Game (SPA) (/game/<code>/)
+(3) Game configaration (Future) (/game/<code>/config)
+
+
+### TODO 
+
+- [ ] Lobby with no passcode
+- [ ] passcode
+
+# Development
+
+This project was bootstrapped with the [Leptos](https://github.com/leptos-rs/leptos) web framework and the [cargo-leptos](https://github.com/akesson/cargo-leptos) tool.
 
 ## Running your project
 
@@ -38,62 +68,3 @@ By default, `cargo-leptos` uses `nightly` Rust, `cargo-generate`, and `sass`. If
 3. `rustup target add wasm32-unknown-unknown` - add the ability to compile Rust to WebAssembly
 4. `cargo install cargo-generate` - install `cargo-generate` binary (should be installed automatically in future)
 5. `npm install -g sass` - install `dart-sass` (should be optional in future)
-
-
-# Acronymia
-
-## What is?
-
-Acroynymia is a game you play with your friends.
-It's like party games such as Apples to apples or quiplash.
-
-
-## Scrabble bag
-There's a scrabble (ish) bag of letters.
-
-1 of each letter for now.
-
-Future:
-ratio matches the ratio of first letters in the english language
-
-## Pick a judge ( rotates)
-
-The judge pulls out letters at random from the bag.
-
-Always 3 for now.
-
-Future:
-Roll a 1 d6. Add 2. So a random range from 3 to 8.
-
-
-## People submit 
-
-Private submission of choices. 
-They get an input box per letter and type words.
-
-
-## Judge selects
-
-Points assigned, next round. 
-each person is judge twice. 
-
-### Architecture
-
-Web sockets or Polling?
-> whichever the framework makes easier
-
-No database.
-
-Central server thread with in memory state.
-
-
-Pages:
-(1) Lobby (/) (root)
-(2) Active Game (SPA) (/game/<code>/)
-(3) Game configaration (Future) (/game/<code>/config)
-
-
-### TODO 
-
-- [ ] Lobby with no passcode
-- [ ] passcode
