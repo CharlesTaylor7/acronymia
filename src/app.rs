@@ -1,3 +1,4 @@
+use core::time::Duration;
 use leptos::html::Input;
 use leptos::*;
 use leptos_meta::*;
@@ -36,10 +37,10 @@ pub fn App(cx: Scope) -> impl IntoView {
 }
 
 enum GameState {
-    Setup, // Player's joining and game config
+    Setup,      // Player's joining and game config
     Submission, // Player's submit acronyms
-    Judging, // Judge judges
-    Results, // Scoreboard at game end
+    Judging,    // Judge judges
+    Results,    // Scoreboard at game end
 }
 
 /// The home page allows you to:
@@ -58,8 +59,8 @@ fn HomePage(cx: Scope) -> impl IntoView {
 
         "Enter your room code: "
         <TextInput signal=room_code />
-        <A 
-            href=move|| format!("/game/{}", room_code.get())        
+        <A
+            href=move|| format!("/game/{}", room_code.get())
         >
         //"/game/on:click=join >
             "Join!"
@@ -73,9 +74,19 @@ fn Game(cx: Scope) -> impl IntoView {
     let params = use_params_map(cx);
     let room_code = params.with(|p| p.get("room_code").cloned().unwrap_or_default());
 
+    let seconds = create_rw_signal(cx, 0);
+    let result = set_interval(
+        move || seconds.update(|s| seconds.set(*s + 1)),
+        Duration::new(1, 0),
+    );
+
+    println!("{:?}", result);
+
     view! {
         cx,
         <p>"Room Code: "{room_code}</p>
+
+        <p>"Counter: "{seconds}</p>
 
     }
 }
