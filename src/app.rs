@@ -78,7 +78,8 @@ fn Game(cx: Scope) -> impl IntoView {
 
     create_effect(cx, move |_| {
         let result = set_interval(
-            move || seconds.update(|s| seconds.set(*s + 1)),
+            // move || seconds.update(|s| seconds.set(*s + 1)),
+            move || seconds.set(10),
             Duration::new(1, 0),
         );
 
