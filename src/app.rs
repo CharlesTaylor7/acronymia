@@ -1,10 +1,7 @@
-#[allow(unused_imports)]
-
+use leptos::html::Input;
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
-use leptos::html::Input;
-
 
 #[component]
 pub fn App(cx: Scope) -> impl IntoView {
@@ -32,12 +29,10 @@ pub fn App(cx: Scope) -> impl IntoView {
     }
 }
 
-const ENTER_KEY: u32 = 13;
-
 /// Renders the home page of your application.
 #[component]
 fn HomePage(cx: Scope) -> impl IntoView {
-    view! { 
+    view! {
         cx,
         <h1>"Welcome to Leptos!"</h1>
         <Counter initial_value=0 />
@@ -68,17 +63,16 @@ fn Counter(cx: Scope, initial_value: i32) -> impl IntoView {
     }
 }
 
-
 #[component]
 fn Name(cx: Scope) -> impl IntoView {
     let input_ref = create_node_ref::<Input>(cx);
     let (text, set_text) = create_signal(cx, "");
-    view! { 
+    view! {
         cx,
         <div>
-            <input 
+            <input
                 type="text"
-                node_ref=input_ref 
+                node_ref=input_ref
                 on:keyup=move |event| {
                     let key = event.key();
                     if key == "Enter" {
@@ -91,4 +85,3 @@ fn Name(cx: Scope) -> impl IntoView {
         </div>
     }
 }
-
