@@ -107,7 +107,7 @@ fn Game(cx: Scope) -> impl IntoView {
             GameState::Results => view! { cx, <><GameResults /></> },
         }
     } else {
-        view! {cx, <>"Something went wrong"</> }
+        view! {cx, <><GameNotFound /></>}
     }
 
     /*
