@@ -35,17 +35,33 @@ pub fn App(cx: Scope) -> impl IntoView {
     }
 }
 
-/// Renders the home page of your application.
+enum GameState {
+    Setup, // Player's joining and game config
+    Submission, // Player's submit acronyms
+    Judging, // Judge judges
+    Results, // Scoreboard at game end
+}
+
+/// The home page allows you to:
+/// - Set your nickname
+/// - Join a game
 #[component]
 fn HomePage(cx: Scope) -> impl IntoView {
-    let (name, set_name) = create_signal::<String>(cx, "boaty mcboatface".to_owned());
-    provide_context(cx, set_name);
+    let name = create_rw_signal::<String>(cx, "boaty mcboatface".to_owned());
+    let room_code = create_rw_signal::<String>(cx, "".to_owned());
+    let join = move |_| println!("joined");
+    // provide_context(cx, set_name);
 
     view! {
         cx,
         <h1>"Welcome to Acronymia!"</h1>
-
-        <NameInput />
+        "Enter your nickname:"
+        <TextInput signal=name />
+        "Enter your room code: "
+        //<TextInput set_text=set_room_code initial=room_code />
+        <button on:click=join >
+            "Join!"
+        </button>
         <p>{ name }</p>
     }
 }
@@ -86,23 +102,22 @@ fn Counter(cx: Scope) -> impl IntoView {
 }
 
 #[component]
-fn NameInput(cx: Scope) -> impl IntoView {
+fn TextInput(cx: Scope, signal: RwSignal<String>) -> impl IntoView {
     let input_ref = create_node_ref::<Input>(cx);
-    let set_name = use_context::<WriteSignal<String>>(cx).unwrap();
     view! {
         cx,
         <div>
             <input
                 type="text"
                 node_ref=input_ref
+                value=signal.get()
                 on:keyup=move |event| {
                     let key = event.key();
                     if key == "Enter" {
                         let val = input_ref.get().expect("input ref is rendered");
 
-                        log::debug!("keyboard");
                         let name = val.value();
-                        set_name(name);
+                        signal.set(name);
                     }
                 }
             />
