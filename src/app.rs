@@ -26,7 +26,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                         view=move |cx| view! { cx, <HomePage/> }
                     />
                     <Route
-                        path="game/:id"
+                        path="game/:room_code"
                         view=move |cx| view! { cx, <Game/> }
                     />
                 </Routes>
@@ -49,19 +49,21 @@ enum GameState {
 fn HomePage(cx: Scope) -> impl IntoView {
     let name = create_rw_signal::<String>(cx, "boaty mcboatface".to_owned());
     let room_code = create_rw_signal::<String>(cx, "".to_owned());
-    let join = move |_| println!("joined");
-    // provide_context(cx, set_name);
 
     view! {
         cx,
         <h1>"Welcome to Acronymia!"</h1>
         "Enter your nickname:"
         <TextInput signal=name />
+
         "Enter your room code: "
-        //<TextInput set_text=set_room_code initial=room_code />
-        <button on:click=join >
+        <TextInput signal=room_code />
+        <A 
+            href=move|| format!("/game/{}", room_code.get())        
+        >
+        //"/game/on:click=join >
             "Join!"
-        </button>
+        </A>
         <p>{ name }</p>
     }
 }
@@ -69,11 +71,11 @@ fn HomePage(cx: Scope) -> impl IntoView {
 #[component]
 fn Game(cx: Scope) -> impl IntoView {
     let params = use_params_map(cx);
-    let game_id = params.with(|p| p.get("id").cloned().unwrap_or_default());
+    let room_code = params.with(|p| p.get("room_code").cloned().unwrap_or_default());
 
     view! {
         cx,
-        <p>"Game Id: "{game_id}</p>
+        <p>"Room Code: "{room_code}</p>
 
     }
 }
