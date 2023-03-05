@@ -1195,9 +1195,7 @@ dependencies = [
  "leptos_router",
  "log",
  "simple_logger",
- "uuid",
  "wasm-bindgen",
- "web-sys",
 ]
 
 [[package]]

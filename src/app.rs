@@ -73,25 +73,22 @@ fn Counter(cx: Scope, initial_value: i32) -> impl IntoView {
 fn Name(cx: Scope) -> impl IntoView {
     let input_ref = create_node_ref::<Input>(cx);
     let (text, set_text) = create_signal(cx, "");
-    let on_enter_name = move |event: web_sys::KeyboardEvent| {
-        event.stop_propagation();
-        let key_code = event.key_code();
-        if key_code == ENTER_KEY {
-            println! ("{}", "32")
-            // let el = input_ref.get().unwrap()
-            // let val = el.value();
-            // set_text(val.trim())
-        }
-    };
     view! { 
         cx,
-        <input 
-            type="text"
-            node_ref=input_ref 
-            on:keyboard=on_enter_name
-        />
-        "Echo:"
-        <p>{text}</p>
+        <div>
+            <input 
+                type="text"
+                node_ref=input_ref 
+                on:keyup=move |event| {
+                    let key = event.key();
+                    if key == "Enter" {
+                        log::debug!("keyboard");
+                    }
+                }
+            />
+            "Echo:"
+            <p>{text}</p>
+        </div>
     }
 }
 
