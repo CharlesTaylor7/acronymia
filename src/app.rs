@@ -3,6 +3,7 @@ use leptos::html::Input;
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
+use serde::{Deserialize, Serialize};
 
 #[component]
 pub fn App(cx: Scope) -> impl IntoView {
@@ -36,6 +37,7 @@ pub fn App(cx: Scope) -> impl IntoView {
     }
 }
 
+#[derive(Serialize, Deserialize, Clone)]
 enum GameState {
     Setup,      // Player's joining and game config
     Submission, // Player's submit acronyms
@@ -60,22 +62,16 @@ fn HomePage(cx: Scope) -> impl IntoView {
         "Enter your room code: "
         <TextInput signal=room_code />
         <A
-            href=move|| format!("/game/{}", room_code.get())
+            href=move|| format!("/game/{}?name={}", room_code.get(), name.get())
         >
-        //"/game/on:click=join >
             "Join!"
         </A>
         <p>{ name }</p>
     }
 }
 
-#[component]
-fn Game(cx: Scope) -> impl IntoView {
-    let params = use_params_map(cx);
-    let room_code = params.with(|p| p.get("room_code").cloned().unwrap_or_default());
-
+fn timer(cx: Scope) -> RwSignal<u32> {
     let seconds = create_rw_signal(cx, 60);
-
     create_effect(cx, move |_| {
         let handle = set_interval(
             move || {
@@ -84,26 +80,47 @@ fn Game(cx: Scope) -> impl IntoView {
                     seconds.set(s - 1);
                 }
             },
-
             //move || seconds.update(|s| seconds.set(s.cloned() + 1)),
             Duration::new(1, 0),
         );
 
         println!("{:?}", handle);
     });
+    seconds
+}
 
+#[component]
+fn Game(cx: Scope) -> impl IntoView {
+    let params = use_params_map(cx);
+    let room_code = params.with(|p| p.get("room_code").cloned().unwrap_or_default());
+
+    let seconds = timer(cx);
+
+    // poll for the game state
+    let game_state = create_resource(cx, seconds, move |_| fetch_game_state(""));
+
+    match game_state.read(cx) {
+        None => view! {cx, <GameNotFound />},
+
+        Some(GameState::Setup) => view! {cx, <GameSetup /> },
+
+        Some(GameState::Submission) => view! {cx, <GameSubmission /> },
+
+        Some(GameState::Judging) => view! {cx, <GameJudging /> },
+
+        Some(GameState::Results) => view! {cx, <GameResults /> },
+    }
+
+    /*
     // poll for the player names
-    let players = create_resource(
-        cx,
-        seconds,
-        move |_| fetch_players("")
-    );
+    let players = create_resource(cx, seconds, move |_| fetch_players(""));
+
 
     view! {
         cx,
         //<p>"Room Code: "{&room_code}</p>
 
-        <p>"Counter: "{seconds}</p>
+        <p>{seconds}" left to submit!"</p>
 
         <For
             each=move || players.read(cx)
@@ -115,39 +132,60 @@ fn Game(cx: Scope) -> impl IntoView {
                 }
             }
         />
+    }
+    */
+}
 
+#[component]
+fn GameNotFound(cx: Scope) -> impl IntoView {
+    view! {
+        cx,
+        "Game not found!"
+    }
+}
 
+#[component]
+fn GameSetup(cx: Scope) -> impl IntoView {
+    view! {
+        cx,
+        "Setup!"
+    }
+}
 
+#[component]
+fn GameSubmission(cx: Scope) -> impl IntoView {
+    view! {
+        cx,
+        "Submission!"
+    }
+}
+
+#[component]
+fn GameJudging(cx: Scope) -> impl IntoView {
+    view! {
+        cx,
+        "Judging!"
+    }
+}
+
+#[component]
+fn GameResults(cx: Scope) -> impl IntoView {
+    view! {
+        cx,
+        "Results!"
     }
 }
 
 // get the players in the game
 async fn fetch_players(room_code: &str) -> Vec<String> {
-  // pretend we're fetching people
-  vec!["karl".to_string(), "marx".to_string()]
+    // pretend we're fetching people
+    vec!["karl".to_string(), "marx".to_string()]
 }
 
-#[component]
-fn Counter(cx: Scope) -> impl IntoView {
-    // create a reactive signal with the initial value
-    let (value, set_value) = create_signal(cx, 0);
-
-    // create event handlers for our buttons
-    // note that `value` and `set_value` are `Copy`, so it's super easy to move them into closures
-    let clear = move |_| set_value(0);
-    let decrement = move |_| set_value.update(|value| *value -= 1);
-    let increment = move |_| set_value.update(|value| *value += 1);
-
-    // create user interfaces with the declarative `view!` macro
-    view! {
-        cx,
-        <div>
-            <button on:click=clear>"Clear"</button>
-            <button on:click=decrement>"-1"</button>
-            <span>"Value: " {value} "!"</span>
-            <button on:click=increment>"+1"</button>
-        </div>
-    }
+// get the players in the game
+async fn fetch_game_state(room_code: &str) -> GameState {
+    // pretend we're fetching game state
+    GameState::Submission
 }
 
 #[component]
