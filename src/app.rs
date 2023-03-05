@@ -124,7 +124,7 @@ fn Game(cx: Scope) -> impl IntoView {
 // get the players in the game
 async fn fetch_players(room_code: &str) -> Vec<String> {
   // pretend we're fetching people
-  vec!["carl".to_string(), "marx".to_string()]
+  vec!["karl".to_string(), "marx".to_string()]
 }
 
 #[component]
