@@ -100,7 +100,6 @@ fn Game(cx: Scope) -> impl IntoView {
     let game_state = create_resource(cx, seconds, move |_| fetch_game_state(""));
 
     if let Some(game_state) = game_state.read(cx) {
-        let game_state: GameState = game_state.into();
         match game_state {
             GameState::Setup => view! { cx, <><GameSetup /></> },
             GameState::Submission => view! { cx, <><GameSubmission /></> },
