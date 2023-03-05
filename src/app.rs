@@ -75,12 +75,15 @@ fn Game(cx: Scope) -> impl IntoView {
     let room_code = params.with(|p| p.get("room_code").cloned().unwrap_or_default());
 
     let seconds = create_rw_signal(cx, 0);
-    let result = set_interval(
-        move || seconds.update(|s| seconds.set(*s + 1)),
-        Duration::new(1, 0),
-    );
 
-    println!("{:?}", result);
+    create_effect(cx, move |_| {
+        let result = set_interval(
+            move || seconds.update(|s| seconds.set(*s + 1)),
+            Duration::new(1, 0),
+        );
+
+        println!("{:?}", result);
+    });
 
     view! {
         cx,
