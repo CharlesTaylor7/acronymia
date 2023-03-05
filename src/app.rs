@@ -22,7 +22,14 @@ pub fn App(cx: Scope) -> impl IntoView {
         <Router>
             <main>
                 <Routes>
-                    <Route path="" view=|cx| view! { cx, <HomePage/> }/>
+                    <Route
+                        path=""
+                        view=move |cx| view! { cx, <HomePage/> }
+                    />
+                    <Route
+                        path="game/:id"
+                        view=move |cx| view! { cx, <Game/> }
+                    />
                 </Routes>
             </main>
         </Router>
@@ -32,18 +39,33 @@ pub fn App(cx: Scope) -> impl IntoView {
 /// Renders the home page of your application.
 #[component]
 fn HomePage(cx: Scope) -> impl IntoView {
+    let (name, set_name) = create_signal::<&str>(cx, "boaty mcboatface");
+    provide_context(cx, set_name);
+
     view! {
         cx,
-        <h1>"Welcome to Leptos!"</h1>
-        <Counter initial_value=0 />
-        <Name />
+        <h1>"Welcome to Acronymia!"</h1>
+
+        <NameInput />
     }
 }
 
 #[component]
-fn Counter(cx: Scope, initial_value: i32) -> impl IntoView {
+fn Game(cx: Scope) -> impl IntoView {
+    let params = use_params_map(cx);
+    let game_id = params.with(|p| p.get("id").cloned().unwrap_or_default());
+
+    view! {
+        cx,
+        <p>"Game Id: "{game_id}</p>
+
+    }
+}
+
+#[component]
+fn Counter(cx: Scope) -> impl IntoView {
     // create a reactive signal with the initial value
-    let (value, set_value) = create_signal(cx, initial_value);
+    let (value, set_value) = create_signal(cx, 0);
 
     // create event handlers for our buttons
     // note that `value` and `set_value` are `Copy`, so it's super easy to move them into closures
@@ -64,9 +86,9 @@ fn Counter(cx: Scope, initial_value: i32) -> impl IntoView {
 }
 
 #[component]
-fn Name(cx: Scope) -> impl IntoView {
+fn NameInput(cx: Scope) -> impl IntoView {
     let input_ref = create_node_ref::<Input>(cx);
-    let (text, set_text) = create_signal(cx, "");
+    let set_name = use_context::<WriteSignal<&str>>(cx).unwrap();
     view! {
         cx,
         <div>
@@ -76,12 +98,14 @@ fn Name(cx: Scope) -> impl IntoView {
                 on:keyup=move |event| {
                     let key = event.key();
                     if key == "Enter" {
+                        let val = input_ref.get().expect("input ref is rendered");
+
                         log::debug!("keyboard");
+                        let name = val.value();
+                        set_name(&name)
                     }
                 }
             />
-            "Echo:"
-            <p>{text}</p>
         </div>
     }
 }
