@@ -104,6 +104,12 @@ fn Counter(cx: Scope) -> impl IntoView {
 #[component]
 fn TextInput(cx: Scope, signal: RwSignal<String>) -> impl IntoView {
     let input_ref = create_node_ref::<Input>(cx);
+    let callback = move || {
+        let val = input_ref.get().expect("input ref is rendered");
+
+        let name = val.value();
+        signal.set(name);
+    }
     view! {
         cx,
         <div>
@@ -112,18 +118,12 @@ fn TextInput(cx: Scope, signal: RwSignal<String>) -> impl IntoView {
                 node_ref=input_ref
                 value=signal.get()
                 on:blur=move|_| {
-                    let val = input_ref.get().expect("input ref is rendered");
-
-                    let name = val.value();
-                    signal.set(name);
+                    callback();
                 }
                 on:keyup=move |event| {
                     let key = event.key();
                     if key == "Enter" {
-                        let val = input_ref.get().expect("input ref is rendered");
-
-                        let name = val.value();
-                        signal.set(name);
+                        callback();
                     }
                 }
             />
