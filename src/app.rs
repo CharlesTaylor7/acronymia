@@ -7,7 +7,6 @@ use leptos_router::*;
 pub fn App(cx: Scope) -> impl IntoView {
     // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context(cx);
-
     view! {
         cx,
 
@@ -39,7 +38,7 @@ pub fn App(cx: Scope) -> impl IntoView {
 /// Renders the home page of your application.
 #[component]
 fn HomePage(cx: Scope) -> impl IntoView {
-    let (name, set_name) = create_signal::<&str>(cx, "boaty mcboatface");
+    let (name, set_name) = create_signal::<String>(cx, "boaty mcboatface".to_owned());
     provide_context(cx, set_name);
 
     view! {
@@ -47,6 +46,7 @@ fn HomePage(cx: Scope) -> impl IntoView {
         <h1>"Welcome to Acronymia!"</h1>
 
         <NameInput />
+        <p>{ name }</p>
     }
 }
 
@@ -88,7 +88,7 @@ fn Counter(cx: Scope) -> impl IntoView {
 #[component]
 fn NameInput(cx: Scope) -> impl IntoView {
     let input_ref = create_node_ref::<Input>(cx);
-    let set_name = use_context::<WriteSignal<&str>>(cx).unwrap();
+    let set_name = use_context::<WriteSignal<String>>(cx).unwrap();
     view! {
         cx,
         <div>
@@ -102,7 +102,7 @@ fn NameInput(cx: Scope) -> impl IntoView {
 
                         log::debug!("keyboard");
                         let name = val.value();
-                        set_name(&name)
+                        set_name(name);
                     }
                 }
             />
