@@ -99,16 +99,16 @@ fn Game(cx: Scope) -> impl IntoView {
     // poll for the game state
     let game_state = create_resource(cx, seconds, move |_| fetch_game_state(""));
 
-    match game_state.read(cx) {
-        None => view! {cx, <GameNotFound />},
-
-        Some(GameState::Setup) => view! {cx, <GameSetup /> },
-
-        Some(GameState::Submission) => view! {cx, <GameSubmission /> },
-
-        Some(GameState::Judging) => view! {cx, <GameJudging /> },
-
-        Some(GameState::Results) => view! {cx, <GameResults /> },
+    if let Some(game_state) = game_state.read(cx) {
+        let game_state: GameState = game_state.into();
+        match game_state {
+            GameState::Setup => view! { cx, <><GameSetup /></> },
+            GameState::Submission => view! { cx, <><GameSubmission /></> },
+            GameState::Judging => view! { cx, <><GameJudging /></> },
+            GameState::Results => view! { cx, <><GameResults /></> },
+        }
+    } else {
+        view! {cx, <>"Something went wrong"</> }
     }
 
     /*
