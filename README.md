@@ -41,9 +41,9 @@ No database.
 Central server thread with in memory state.
 
 Pages:
-(1) Lobby (/) (root)
-(2) Active Game (SPA) (/game/<code>/)
-(3) Game configaration (Future) (/game/<code>/config)
+- Lobby: "/"
+- Active Game (SPA): `/game/<id>/`
+- Game configaration `/game/<id>/config`
 
 
 ### TODO 
