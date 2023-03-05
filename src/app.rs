@@ -109,7 +109,7 @@ fn TextInput(cx: Scope, signal: RwSignal<String>) -> impl IntoView {
 
         let name = val.value();
         signal.set(name);
-    }
+    };
     view! {
         cx,
         <div>
@@ -117,9 +117,7 @@ fn TextInput(cx: Scope, signal: RwSignal<String>) -> impl IntoView {
                 type="text"
                 node_ref=input_ref
                 value=signal.get()
-                on:blur=move|_| {
-                    callback();
-                }
+                on:blur=move|_| callback()
                 on:keyup=move |event| {
                     let key = event.key();
                     if key == "Enter" {
