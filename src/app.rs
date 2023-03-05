@@ -74,26 +74,57 @@ fn Game(cx: Scope) -> impl IntoView {
     let params = use_params_map(cx);
     let room_code = params.with(|p| p.get("room_code").cloned().unwrap_or_default());
 
-    let seconds = create_rw_signal(cx, 0);
+    let seconds = create_rw_signal(cx, 60);
 
     create_effect(cx, move |_| {
-        let result = set_interval(
-            move || seconds.set(seconds.get() + 1),
+        let handle = set_interval(
+            move || {
+                let s = seconds.get();
+                if s > 0 {
+                    seconds.set(s - 1);
+                }
+            },
+
             //move || seconds.update(|s| seconds.set(s.cloned() + 1)),
-            //move || seconds.set(10),
             Duration::new(1, 0),
         );
 
-        println!("{:?}", result);
+        println!("{:?}", handle);
     });
+
+    // poll for the player names
+    let players = create_resource(
+        cx,
+        seconds,
+        move |_| fetch_players("")
+    );
 
     view! {
         cx,
-        <p>"Room Code: "{room_code}</p>
+        //<p>"Room Code: "{&room_code}</p>
 
         <p>"Counter: "{seconds}</p>
 
+        <For
+            each=move || players.read(cx)
+            key=|x| ""
+            view=move |cx, x| {
+                view! {
+                    cx,
+                    <p>{x}</p>
+                }
+            }
+        />
+
+
+
     }
+}
+
+// get the players in the game
+async fn fetch_players(room_code: &str) -> Vec<String> {
+  // pretend we're fetching people
+  vec!["carl".to_string(), "marx".to_string()]
 }
 
 #[component]
