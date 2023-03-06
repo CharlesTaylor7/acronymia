@@ -1,10 +1,9 @@
+use core::time::Duration;
 use leptos::html::Input;
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
 use serde::{Deserialize, Serialize};
-//use crate::Timer;
-use crate::components::Timer;
 
 // Types
 
@@ -67,7 +66,10 @@ pub fn App(cx: Scope) -> impl IntoView {
                 <Routes>
                     <Route
                         path="timer-demo"
-                        view=move |cx| view! { cx, <Timer /> }
+                        view=move |cx| {
+                            let seconds = timer(cx, 60);
+                            view! { cx, "Seconds: "{seconds} }
+                        }
                     />
                     <Route
                         path=""
@@ -107,6 +109,28 @@ fn HomePage(cx: Scope) -> impl IntoView {
         <p>{ name }</p>
     }
 }
+
+fn timer(cx: Scope, initial: u32) -> RwSignal<u32> {
+    let seconds = create_rw_signal(cx, initial);
+    create_effect(cx, move |_| {
+        let handle = set_interval(
+            move || {
+                let s = seconds.get();
+                if s > 0 {
+                    seconds.set(s - 1);
+                }
+            },
+            Duration::new(1, 0),
+        );
+        log::debug!("{:?}", &handle);
+        on_cleanup(cx, move || {
+            handle.map(|h| h.clear());
+        });
+    });
+
+    seconds
+}
+
 #[component]
 fn Game(cx: Scope) -> impl IntoView {
     let params = use_params_map(cx);
