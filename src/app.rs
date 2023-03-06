@@ -7,17 +7,25 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 // Types
+// user submitted pick
 pub type Submission = Vec<String>;
-pub type Round = u32;
-pub type PlayerId = u32; // maybe change to UUID?
+// maybe change to UUID?
+pub type RoundId = u32;
+pub type PlayerId = u32;
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Round {
+    id: RoundId,
+    judge: PlayerId,
+    acronym: String,
+}
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct GameState {
-    judge: PlayerId,
     step: GameStep,
-    acronym: Option<String>,
-    players: Vec<Player>,
-    submissions: HashMap<(Round, PlayerId), Submission>,
+    players: Vec<Player>, // list of registered players
+    rounds: Vec<Round>,   // list of rounds, records past or present chosen judge and acronym
+    submissions: HashMap<(RoundId, PlayerId), Submission>,
     winners: Vec<PlayerId>, // list of winning player indexed by round
 }
 
