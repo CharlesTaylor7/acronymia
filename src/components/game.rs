@@ -56,9 +56,6 @@ where
 
 #[component]
 fn GameSetup(cx: Scope, players: Res<Server<Vec<Player>>>) -> impl IntoView {
-    let params = use_params_map(cx);
-    let _room_code = params.with(|p| p.get("room_code").cloned().unwrap_or_default());
-
     view! {
         cx,
         <Transition

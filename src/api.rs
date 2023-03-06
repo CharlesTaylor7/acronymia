@@ -1,5 +1,6 @@
 use crate::types::*;
 use leptos::*;
+use std::sync::*;
 
 
 #[cfg(feature = "ssr")]
