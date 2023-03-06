@@ -67,7 +67,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                     <Route
                         path="timer-demo"
                         view=move |cx| {
-                            let seconds = count_down(cx, 60);
+                            let seconds = timer(cx, 60);
                             view! { cx, "Seconds: "{seconds} }
                         }
                     />
@@ -110,7 +110,7 @@ fn HomePage(cx: Scope) -> impl IntoView {
     }
 }
 
-fn count_down(cx: Scope, initial: u32) -> RwSignal<u32> {
+fn timer(cx: Scope, initial: u32) -> RwSignal<u32> {
     let seconds = create_rw_signal(cx, initial);
     create_effect(cx, move |_| {
         let handle = set_interval(
@@ -122,9 +122,11 @@ fn count_down(cx: Scope, initial: u32) -> RwSignal<u32> {
             },
             Duration::new(1, 0),
         );
-
-        println!("{:?}", handle);
+        on_cleanup(cx, move || {
+            handle.map(|h| h.clear());
+        });
     });
+
     seconds
 }
 
