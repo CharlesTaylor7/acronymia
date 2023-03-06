@@ -57,7 +57,10 @@ This project was bootstrapped with the [Leptos](https://github.com/leptos-rs/lep
 
 ## Running your project
 
-`cargo leptos watch`
+Install `cargo`, `cargo-leptos`, & `npm`.
+
+- Run the web server: `npm run server-watch`
+- Run tailwind to bundle the css: `npm run watch-css`
 
 ## Installing Additional Tools
 
