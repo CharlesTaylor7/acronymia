@@ -1,8 +1,8 @@
 use leptos::{Resource, ServerFnError};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::thread;
 use std::sync::{Arc, Mutex};
+use std::thread;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Player {

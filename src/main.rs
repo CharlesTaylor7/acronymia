@@ -1,18 +1,12 @@
 use cfg_if::cfg_if;
 
-
 cfg_if! {
     if #[cfg(feature = "ssr")] {
         use acronymia::{App, AppProps};
-        use acronymia::api::{FetchPlayers};
         use actix_files::Files;
         use actix_web::*;
         use leptos::*;
         use leptos_actix::{generate_route_list, LeptosRoutes};
-
-        async fn register_server_functions() {
-            _ = FetchPlayers::register();
-        }
 
         #[get("/style.css")]
         async fn css() -> impl Responder {
@@ -22,8 +16,7 @@ cfg_if! {
         #[actix_web::main]
         async fn main() -> std::io::Result<()> {
 
-            let _ = register_server_functions();
-
+            let _ = acronymia::api::register_server_functions();
 
             // setting to `None` defaults to cargo-leptos & its env vars
             let conf = get_configuration(None).await.unwrap();
@@ -41,10 +34,13 @@ cfg_if! {
                 App::new()
                     .service(css)
                     .route(
-                        "/api/{tail:.*}", 
+                        "/api/{tail:.*}",
+                        leptos_actix::handle_server_fns()
+                        /*
                         leptos_actix::handle_server_fns_with_context(
                             move |cx| provide_context::<u32>(cx, 42)
                         )
+                        */
                     )
                     .leptos_routes(
                         leptos_options.to_owned(),

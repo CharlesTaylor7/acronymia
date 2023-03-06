@@ -1,12 +1,11 @@
-use leptos::*;
 use crate::types::*;
+use leptos::*;
 
 #[cfg(feature = "ssr")]
 pub fn register_server_functions() {
     _ = FetchPlayers::register();
     _ = FetchGameStep::register();
 }
-
 
 // Apis
 /// get the players in the game

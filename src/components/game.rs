@@ -17,14 +17,12 @@ pub fn Game(cx: Scope) -> impl IntoView {
     // poll for the player names
     let players = create_resource(cx, seconds, move |_| fetch_players(get_room_code()));
 
-    provide_context(cx, players);
-
     // poll for the game state
     let game_step = create_resource(cx, seconds, move |_| fetch_game_step(get_room_code()));
 
     let game_view = move || match game_step.read(cx).and_then(|r| r.ok()) {
         None => view! {cx, <><GameNotFound /></>},
-        Some(GameStep::Setup) => view! { cx, <><GameSetup /></> },
+        Some(GameStep::Setup) => view! { cx, <><GameSetup players=players /></> },
         Some(GameStep::Submission) => view! { cx, <><GameSubmission /></> },
         Some(GameStep::Judging) => view! { cx, <><GameJudging /></> },
         Some(GameStep::Results) => view! { cx, <><GameResults /></> },
@@ -47,12 +45,25 @@ fn GameNotFound(cx: Scope) -> impl IntoView {
     }
 }
 
+fn read_or<S, T>(cx: Scope, resource: Resource<S, Result<T, ServerFnError>>, default: T) -> T
+where
+    S: Clone,
+    T: Clone,
+{
+    resource
+        .read(cx)
+        .map(|n| n.ok())
+        .flatten()
+        .map(|n| n)
+        .unwrap_or(default)
+}
+
+type Server<T> = Result<T, ServerFnError>;
+
 #[component]
-fn GameSetup(cx: Scope) -> impl IntoView {
+fn GameSetup(cx: Scope, players: Res<Server<Vec<Player>>>) -> impl IntoView {
     let params = use_params_map(cx);
     let room_code = params.with(|p| p.get("room_code").cloned().unwrap_or_default());
-
-    let players = move || use_context::<Res<Vec<Player>>>(cx)?.read(cx);
 
     view! {
         cx,
@@ -63,7 +74,7 @@ fn GameSetup(cx: Scope) -> impl IntoView {
         >
             <ul>
                 <For
-                    each=move || players().unwrap()
+                    each=move || read_or(cx, players, Vec::new())
                     key=|p| p.id
                     view=move |cx, p| {
                         view! {
