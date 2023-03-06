@@ -35,7 +35,7 @@ pub fn Game(cx: Scope) -> impl IntoView {
 }
 
 #[component]
-fn GameNotFound(cx: Scope) -> impl IntoView {
+fn GameNotFound(_cx: Scope) -> impl IntoView {
     view! {
         cx,
         "Game not found!"
@@ -57,7 +57,7 @@ where
 #[component]
 fn GameSetup(cx: Scope, players: Res<Server<Vec<Player>>>) -> impl IntoView {
     let params = use_params_map(cx);
-    let room_code = params.with(|p| p.get("room_code").cloned().unwrap_or_default());
+    let _room_code = params.with(|p| p.get("room_code").cloned().unwrap_or_default());
 
     view! {
         cx,
@@ -81,7 +81,7 @@ fn GameSetup(cx: Scope, players: Res<Server<Vec<Player>>>) -> impl IntoView {
 }
 
 #[component]
-fn GameSubmission(cx: Scope) -> impl IntoView {
+fn GameSubmission(_cx: Scope) -> impl IntoView {
     view! {
         cx,
         "Submission!"
@@ -89,7 +89,7 @@ fn GameSubmission(cx: Scope) -> impl IntoView {
 }
 
 #[component]
-fn GameJudging(cx: Scope) -> impl IntoView {
+fn GameJudging(_cx: Scope) -> impl IntoView {
     view! {
         cx,
         "Judging!"
@@ -97,7 +97,7 @@ fn GameJudging(cx: Scope) -> impl IntoView {
 }
 
 #[component]
-fn GameResults(cx: Scope) -> impl IntoView {
+fn GameResults(_cx: Scope) -> impl IntoView {
     view! {
         cx,
         "Results!"
