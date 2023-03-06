@@ -90,8 +90,8 @@ pub fn App(cx: Scope) -> impl IntoView {
 /// - Join a game
 #[component]
 fn HomePage(cx: Scope) -> impl IntoView {
-    let name = create_rw_signal::<String>(cx, "boaty mcboatface".to_owned());
-    let room_code = create_rw_signal::<String>(cx, "".to_owned());
+    let name = create_rw_signal::<String>(cx, "boaty_mcboatface".to_owned());
+    let room_code = create_rw_signal::<String>(cx, "abc".to_owned());
 
     view! {
         cx,
@@ -120,7 +120,6 @@ fn count_down(cx: Scope, initial: u32) -> RwSignal<u32> {
                     seconds.set(s - 1);
                 }
             },
-            // move || seconds.update(|s| seconds.set(s.cloned() + 1)),
             Duration::new(1, 0),
         );
 
@@ -175,31 +174,28 @@ fn GameSetup(cx: Scope) -> impl IntoView {
     let params = use_params_map(cx);
     let room_code = params.with(|p| p.get("room_code").cloned().unwrap_or_default());
 
-    //let players = use_context::<Res<Vec<Player>>>(cx).expect("context");
+    let players = move || use_context::<Res<Vec<Player>>>(cx)?.read(cx);
 
-    let (players, set_players) = create_signal(
-        cx,
-        vec![Player {
-            id: 3,
-            name: "foo".to_string(),
-        }],
-    );
     view! {
         cx,
         <p>"Room Code: "{&room_code}</p>
 
-        <ul>
-            <For
-                each=players
-                key=|p| p.id
-                view=move |cx, p| {
-                    view! {
-                        cx,
-                        <li>{p.name}</li>
+        <Transition
+            fallback=|| "loading players"
+        >
+            <ul>
+                <For
+                    each=move || players().unwrap()
+                    key=|p| p.id
+                    view=move |cx, p| {
+                        view! {
+                            cx,
+                            <li>{p.name}</li>
+                        }
                     }
-                }
-            />
-        </ul>
+                />
+            </ul>
+        </Transition>
     }
 }
 
