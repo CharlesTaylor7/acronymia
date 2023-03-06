@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 // Types
 
 #[derive(Serialize, Deserialize, Clone)]
-enum GameState {
+pub enum GameState {
     Setup,      // Player's joining and game config
     Submission, // Player's submit acronyms
     Judging,    // Judge judges
@@ -30,29 +30,27 @@ pub fn register_server_functions() {
 }
 
 // Apis
-// get the players in the game
-
+/// get the players in the game
 #[server(FetchPlayers)]
 pub async fn fetch_players(room_code: String) -> Result<Vec<Player>, ServerFnError> {
     // pretend we're fetching people
-    Result::Ok(
-        vec![
-            Player {
-                id: 0,
-                name: "karl".to_string(),
-            },
-            Player {
-                id: 1,
-                name: "marx".to_string(),
-            },
-        ]
-    )
+    Result::Ok(vec![
+        Player {
+            id: 0,
+            name: "karl".to_string(),
+        },
+        Player {
+            id: 1,
+            name: "marx".to_string(),
+        },
+    ])
 }
 
-// get the players in the game
-async fn fetch_game_state(room_code: &str) -> GameState {
+/// get the current game state
+#[server(FetchGameState)]
+async fn fetch_game_state(room_code: String) -> Result<GameState, ServerFnError> {
     // pretend we're fetching game state
-    GameState::Setup
+    Result::Ok(GameState::Setup)
 }
 
 // Components
@@ -143,20 +141,23 @@ fn timer(cx: Scope, initial: u32) -> RwSignal<u32> {
 
 #[component]
 fn Game(cx: Scope) -> impl IntoView {
-    let params = use_params_map(cx);
+    let get_room_code = move || {
+        let params = use_params_map(cx);
+        params.with(|p| p.get("room_code").cloned().unwrap_or_default())
+    };
 
     //let seconds = timer(cx);
     let seconds = create_rw_signal(cx, 0);
 
     // poll for the player names
-    let players = create_resource(cx, seconds, move |_| fetch_players(params.with(|p| p.get("room_code").cloned().unwrap_or_default())));
+    let players = create_resource(cx, seconds, move |_| fetch_players(get_room_code()));
 
     provide_context(cx, players);
 
     // poll for the game state
-    let game_state = create_resource(cx, seconds, move |_| fetch_game_state(""));
+    let game_state = create_resource(cx, seconds, move |_| fetch_game_state(get_room_code()));
 
-    let game_view = move || match game_state.read(cx) {
+    let game_view = move || match game_state.read(cx).and_then(|r| r.ok()) {
         None => view! {cx, <><GameNotFound /></>},
         Some(GameState::Setup) => view! { cx, <><GameSetup /></> },
         Some(GameState::Submission) => view! { cx, <><GameSubmission /></> },
