@@ -1,5 +1,6 @@
 use cfg_if::cfg_if;
 
+
 cfg_if! {
     if #[cfg(feature = "ssr")] {
         use acronymia::{App, AppProps};
@@ -22,6 +23,8 @@ cfg_if! {
         async fn main() -> std::io::Result<()> {
 
             let _ = register_server_functions();
+
+
             // setting to `None` defaults to cargo-leptos & its env vars
             let conf = get_configuration(None).await.unwrap();
 
@@ -37,11 +40,16 @@ cfg_if! {
 
                 App::new()
                     .service(css)
-                    .route("/api/{tail:.*}", leptos_actix::handle_server_fns())
+                    .route(
+                        "/api/{tail:.*}", 
+                        leptos_actix::handle_server_fns_with_context(
+                            move |cx| provide_context::<u32>(cx, 42)
+                        )
+                    )
                     .leptos_routes(
                         leptos_options.to_owned(),
                         routes.to_owned(),
-                        |cx| view! { cx, <App/> },
+                        |cx| view! { cx, <App/> } ,
                     )
                     .service(Files::new("/", site_root))
                     .wrap(middleware::Compress::default())

@@ -5,6 +5,8 @@ use leptos_meta::*;
 use leptos_router::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::thread;
+use std::sync::{Arc, Mutex};
 
 // Types
 // user submitted pick
@@ -22,7 +24,7 @@ pub struct Round {
 
 /// The idea is for a very normalized game state.
 /// e.g. Determining who the current judge is can be a function, that looks at the last item of the rounds vector. (instead of another field for meta data like that)
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Default)]
 pub struct GameState {
     step: GameStep,
     players: Vec<Player>, // list of registered players
@@ -31,8 +33,9 @@ pub struct GameState {
     winners: Vec<PlayerId>, // list of winning player indexed by round
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Default)]
 pub enum GameStep {
+    #[default]
     Setup,      // Player's joining and game config
     Submission, // Player's submit acronyms
     Judging,    // Judge judges
@@ -45,8 +48,12 @@ pub struct Player {
     name: String,
 }
 
+/// Messages passed to the main thread to update the game state
+pub enum Message {
+    Dummy,
+}
+
 type Res<T> = Resource<u32, T>;
-type Server<T> = Result<T, ServerFnError>;
 
 #[cfg(feature = "ssr")]
 pub fn register_server_functions() {
@@ -56,8 +63,10 @@ pub fn register_server_functions() {
 
 // Apis
 /// get the players in the game
-#[server(FetchPlayers)]
-pub async fn fetch_players(room_code: String) -> Result<Vec<Player>, ServerFnError> {
+#[server(FetchPlayers, "/api")]
+pub async fn fetch_players(cx: Scope, room_code: String) -> Result<Vec<Player>, ServerFnError> {
+    let forty_two = use_context::<u32>(cx);
+    dbg!(forty_two);
     // pretend we're fetching people
     Result::Ok(vec![
         Player {
@@ -72,7 +81,7 @@ pub async fn fetch_players(room_code: String) -> Result<Vec<Player>, ServerFnErr
 }
 
 /// get the current game step
-#[server(FetchGameStep)]
+#[server(FetchGameStep, "/api")]
 async fn fetch_game_step(room_code: String) -> Result<GameStep, ServerFnError> {
     // pretend we're fetching game state
     Result::Ok(GameStep::Setup)
@@ -175,7 +184,7 @@ fn Game(cx: Scope) -> impl IntoView {
     let seconds = create_rw_signal(cx, 0);
 
     // poll for the player names
-    let players = create_resource(cx, seconds, move |_| fetch_players(get_room_code()));
+    let players = create_resource(cx, seconds, move |_| fetch_players(cx, get_room_code()));
 
     provide_context(cx, players);
 
@@ -223,7 +232,7 @@ fn GameSetup(cx: Scope) -> impl IntoView {
         >
             <ul>
                 <For
-                    each=move || players().unwrap()
+                    each=move || players().unwrap_or(Vec::new())
                     key=|p| p.id
                     view=move |cx, p| {
                         view! {
