@@ -5,6 +5,47 @@ use leptos_meta::*;
 use leptos_router::*;
 use serde::{Deserialize, Serialize};
 
+// Types
+
+#[derive(Serialize, Deserialize, Clone)]
+enum GameState {
+    Setup,      // Player's joining and game config
+    Submission, // Player's submit acronyms
+    Judging,    // Judge judges
+    Results,    // Scoreboard at game end
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+struct Player {
+    id: u32,
+    name: String,
+}
+
+type Res<T> = Resource<u32, T>;
+
+// Apis
+// get the players in the game
+async fn fetch_players(room_code: &str) -> Vec<Player> {
+    // pretend we're fetching people
+    vec![
+        Player {
+            id: 0,
+            name: "karl".to_string(),
+        },
+        Player {
+            id: 1,
+            name: "marx".to_string(),
+        },
+    ]
+}
+
+// get the players in the game
+async fn fetch_game_state(room_code: &str) -> GameState {
+    // pretend we're fetching game state
+    GameState::Setup
+}
+
+// Components
 #[component]
 pub fn App(cx: Scope) -> impl IntoView {
     // Provides context that manages stylesheets, titles, meta tags, etc.
@@ -35,14 +76,6 @@ pub fn App(cx: Scope) -> impl IntoView {
             </main>
         </Router>
     }
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-enum GameState {
-    Setup,      // Player's joining and game config
-    Submission, // Player's submit acronyms
-    Judging,    // Judge judges
-    Results,    // Scoreboard at game end
 }
 
 /// The home page allows you to:
@@ -80,7 +113,7 @@ fn timer(cx: Scope) -> RwSignal<u32> {
                     seconds.set(s - 1);
                 }
             },
-            //move || seconds.update(|s| seconds.set(s.cloned() + 1)),
+            // move || seconds.update(|s| seconds.set(s.cloned() + 1)),
             Duration::new(1, 0),
         );
 
@@ -94,7 +127,13 @@ fn Game(cx: Scope) -> impl IntoView {
     let params = use_params_map(cx);
     let room_code = params.with(|p| p.get("room_code").cloned().unwrap_or_default());
 
-    let seconds = timer(cx);
+    //let seconds = timer(cx);
+    let seconds = create_rw_signal(cx, 0);
+
+    // poll for the player names
+    let players: Res<Vec<Player>> = create_resource(cx, seconds, move |_| fetch_players(""));
+
+    provide_context(cx, players);
 
     // poll for the game state
     let game_state = create_resource(cx, seconds, move |_| fetch_game_state(""));
@@ -114,29 +153,6 @@ fn Game(cx: Scope) -> impl IntoView {
             {game_view}
         </Transition>
     }
-    /*
-    // poll for the player names
-    let players = create_resource(cx, seconds, move |_| fetch_players(""));
-
-
-    view! {
-        cx,
-        //<p>"Room Code: "{&room_code}</p>
-
-        <p>{seconds}" left to submit!"</p>
-
-        <For
-            each=move || players.read(cx)
-            key=|x| ""
-            view=move |cx, x| {
-                view! {
-                    cx,
-                    <p>{x}</p>
-                }
-            }
-        />
-    }
-    */
 }
 
 #[component]
@@ -149,9 +165,34 @@ fn GameNotFound(cx: Scope) -> impl IntoView {
 
 #[component]
 fn GameSetup(cx: Scope) -> impl IntoView {
+    let params = use_params_map(cx);
+    let room_code = params.with(|p| p.get("room_code").cloned().unwrap_or_default());
+
+    //let players = use_context::<Res<Vec<Player>>>(cx).expect("context");
+
+    let (players, set_players) = create_signal(
+        cx,
+        vec![Player {
+            id: 3,
+            name: "foo".to_string(),
+        }],
+    );
     view! {
         cx,
-        "Setup!"
+        <p>"Room Code: "{&room_code}</p>
+
+        <ul>
+            <For
+                each=players
+                key=|p| p.id
+                view=move |cx, p| {
+                    view! {
+                        cx,
+                        <li>{p.name}</li>
+                    }
+                }
+            />
+        </ul>
     }
 }
 
@@ -177,18 +218,6 @@ fn GameResults(cx: Scope) -> impl IntoView {
         cx,
         "Results!"
     }
-}
-
-// get the players in the game
-async fn fetch_players(room_code: &str) -> Vec<String> {
-    // pretend we're fetching people
-    vec!["karl".to_string(), "marx".to_string()]
-}
-
-// get the players in the game
-async fn fetch_game_state(room_code: &str) -> GameState {
-    // pretend we're fetching game state
-    GameState::Submission
 }
 
 #[component]
