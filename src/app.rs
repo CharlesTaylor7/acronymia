@@ -27,6 +27,7 @@ type Server<T> = Result<T, ServerFnError>;
 #[cfg(feature = "ssr")]
 pub fn register_server_functions() {
     _ = FetchPlayers::register();
+    _ = FetchGameState::register();
 }
 
 // Apis
