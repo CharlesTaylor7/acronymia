@@ -1,6 +1,7 @@
 use leptos::{Resource, ServerFnError};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use uuid::Uuid;
 
 // aliases because I'm lazy
 pub type Server<T> = Result<T, ServerFnError>;
@@ -9,15 +10,20 @@ pub type Res<T> = Resource<u32, T>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Player {
-    pub id: u32,
+    pub id: PlayerId,
     pub name: String,
+}
+impl Player {
+    pub fn new(name: String) -> Self {
+        Player { id: Uuid::new_v4().to_string(), name: name }
+    }
 }
 
 // user submitted pick
 pub type Submission = Vec<String>;
-// maybe change to UUID?
 pub type RoundId = u32;
-pub type PlayerId = u32;
+// uuid
+pub type PlayerId = String;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Round {

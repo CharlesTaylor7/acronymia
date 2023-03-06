@@ -1,5 +1,4 @@
 use leptos::*;
-use leptos_router::*;
 
 use crate::api::*;
 use crate::types::*;
@@ -64,7 +63,7 @@ fn GameSetup(cx: Scope, players: Res<Server<Vec<Player>>>) -> impl IntoView {
             <ul>
                 <For
                     each=move || read_or(cx, players, Vec::new())
-                    key=|p| p.id
+                    key=|p| p.id.clone()
                     view=move |cx, p| {
                         view! {
                             cx,

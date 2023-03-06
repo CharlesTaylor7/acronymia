@@ -1,5 +1,7 @@
 use crate::types::*;
 use leptos::*;
+
+#[cfg(feature = "ssr")]
 use std::sync::*;
 
 
@@ -38,8 +40,7 @@ pub async fn fetch_game_step() -> Result<GameStep, ServerFnError> {
 pub async fn join_game(name: String) -> Result<(), ServerFnError> {
     let mut state = STATE.lock().expect("locking thread crashed");
 
-    let length = state.players.len();
-    state.players.push(Player{id: length.try_into().unwrap(), name: name});
+    state.players.push(Player::new(name));
 
     Result::Ok(())
 }
