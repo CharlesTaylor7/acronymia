@@ -17,10 +17,7 @@ pub fn register_server_functions() {
 // Apis
 /// get the players in the game
 #[server(FetchPlayers, "/api")]
-pub async fn fetch_players(cx: Scope, _room_code: String) -> Result<Vec<Player>, ServerFnError> {
-    let http_request = use_context::<actix_web::HttpRequest>(cx);
-    dbg!(http_request);
-
+pub async fn fetch_players() -> Result<Vec<Player>, ServerFnError> {
     let state = STATE.lock().expect("locking thread crashed");
 
     Result::Ok(state.players.clone())
@@ -28,7 +25,7 @@ pub async fn fetch_players(cx: Scope, _room_code: String) -> Result<Vec<Player>,
 
 /// get the current game state
 #[server(FetchGameStep, "/api")]
-pub async fn fetch_game_step(_room_code: String) -> Result<GameStep, ServerFnError> {
+pub async fn fetch_game_step() -> Result<GameStep, ServerFnError> {
     let state = STATE.lock().expect("locking thread crashed");
 
     Result::Ok(state.step.clone())

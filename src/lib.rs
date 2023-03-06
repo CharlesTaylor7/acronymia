@@ -45,7 +45,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                         view=move |cx| view! { cx, <HomePage/> }
                     />
                     <Route
-                        path="game/:room_code"
+                        path="game"
                         view=move |cx| view! { cx, <Game/> }
                     />
                 </Routes>

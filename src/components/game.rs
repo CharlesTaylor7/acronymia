@@ -6,21 +6,16 @@ use crate::types::*;
 
 #[component]
 pub fn Game(cx: Scope) -> impl IntoView {
-    let get_room_code = move || {
-        let params = use_params_map(cx);
-        params.with(|p| p.get("room_code").cloned().unwrap_or_default())
-    };
-
     //let seconds = timer(cx);
     let seconds = create_rw_signal(cx, 0);
 
     provide_context::<u32>(cx, 18);
 
     // poll for the player names
-    let players = create_resource(cx, seconds, move |_| fetch_players(cx, get_room_code()));
+    let players = create_resource(cx, seconds, move |_| fetch_players());
 
     // poll for the game state
-    let game_step = create_resource(cx, seconds, move |_| fetch_game_step(get_room_code()));
+    let game_step = create_resource(cx, seconds, move |_| fetch_game_step());
 
     let game_view = move || match game_step.read(cx).and_then(|r| r.ok()) {
         None => view! {cx, <><GameNotFound /></>},
@@ -66,8 +61,6 @@ fn GameSetup(cx: Scope, players: Res<Server<Vec<Player>>>) -> impl IntoView {
 
     view! {
         cx,
-        <p>"Room Code: "{&room_code}</p>
-
         <Transition
             fallback=|| "loading players"
         >
