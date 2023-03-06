@@ -17,6 +17,7 @@ cfg_if! {
         #[actix_web::main]
         async fn main() -> std::io::Result<()> {
 
+            let _ = register_server_functions();
             // setting to `None` defaults to cargo-leptos & its env vars
             let conf = get_configuration(None).await.unwrap();
 

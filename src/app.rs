@@ -23,6 +23,16 @@ struct Player {
 
 type Res<T> = Resource<u32, T>;
 
+#[cfg(feature = "ssr")]
+pub fn register_server_functions() {
+    _ = DemoAction::register();
+}
+
+#[server(DemoAction)]
+pub async fn demo_action() -> Result<u32, ServerFnError> {
+    Result::Ok(42)
+}
+
 // Apis
 // get the players in the game
 async fn fetch_players(room_code: &str) -> Vec<Player> {
