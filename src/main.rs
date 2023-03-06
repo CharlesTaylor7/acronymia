@@ -1,13 +1,17 @@
-mod app;
 use cfg_if::cfg_if;
 
 cfg_if! {
     if #[cfg(feature = "ssr")] {
+        use acronymia::{App, AppProps};
+        use acronymia::api::{FetchPlayers};
         use actix_files::Files;
         use actix_web::*;
         use leptos::*;
-        use crate::app::*;
         use leptos_actix::{generate_route_list, LeptosRoutes};
+
+        async fn register_server_functions() {
+            _ = FetchPlayers::register();
+        }
 
         #[get("/style.css")]
         async fn css() -> impl Responder {
