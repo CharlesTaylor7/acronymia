@@ -4,11 +4,25 @@ use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 // Types
+pub type Submission = Vec<String>;
+pub type Round = u32;
+pub type PlayerId = u32; // maybe change to UUID?
 
 #[derive(Serialize, Deserialize, Clone)]
-pub enum GameState {
+pub struct GameState {
+    judge: PlayerId,
+    step: GameStep,
+    acronym: Option<String>,
+    players: Vec<Player>,
+    submissions: HashMap<(Round, PlayerId), Submission>,
+    winners: Vec<PlayerId>, // list of winning player indexed by round
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub enum GameStep {
     Setup,      // Player's joining and game config
     Submission, // Player's submit acronyms
     Judging,    // Judge judges
@@ -27,7 +41,7 @@ type Server<T> = Result<T, ServerFnError>;
 #[cfg(feature = "ssr")]
 pub fn register_server_functions() {
     _ = FetchPlayers::register();
-    _ = FetchGameState::register();
+    _ = FetchGameStep::register();
 }
 
 // Apis
@@ -47,11 +61,11 @@ pub async fn fetch_players(room_code: String) -> Result<Vec<Player>, ServerFnErr
     ])
 }
 
-/// get the current game state
-#[server(FetchGameState)]
-async fn fetch_game_state(room_code: String) -> Result<GameState, ServerFnError> {
+/// get the current game step
+#[server(FetchGameStep)]
+async fn fetch_game_step(room_code: String) -> Result<GameStep, ServerFnError> {
     // pretend we're fetching game state
-    Result::Ok(GameState::Setup)
+    Result::Ok(GameStep::Setup)
 }
 
 // Components
@@ -156,14 +170,14 @@ fn Game(cx: Scope) -> impl IntoView {
     provide_context(cx, players);
 
     // poll for the game state
-    let game_state = create_resource(cx, seconds, move |_| fetch_game_state(get_room_code()));
+    let game_state = create_resource(cx, seconds, move |_| fetch_game_step(get_room_code()));
 
     let game_view = move || match game_state.read(cx).and_then(|r| r.ok()) {
         None => view! {cx, <><GameNotFound /></>},
-        Some(GameState::Setup) => view! { cx, <><GameSetup /></> },
-        Some(GameState::Submission) => view! { cx, <><GameSubmission /></> },
-        Some(GameState::Judging) => view! { cx, <><GameJudging /></> },
-        Some(GameState::Results) => view! { cx, <><GameResults /></> },
+        Some(GameStep::Setup) => view! { cx, <><GameSetup /></> },
+        Some(GameStep::Submission) => view! { cx, <><GameSubmission /></> },
+        Some(GameStep::Judging) => view! { cx, <><GameJudging /></> },
+        Some(GameStep::Results) => view! { cx, <><GameResults /></> },
     };
     view! {
         cx,
