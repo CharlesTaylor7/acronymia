@@ -1,10 +1,8 @@
 use leptos::*;
 use leptos_router::*;
 
-use crate::{
-    api::{fetch_game_state, fetch_players},
-    types::{GameState, Player, Res},
-};
+use crate::api::*;
+use crate::types::*;
 
 #[component]
 pub fn Game(cx: Scope) -> impl IntoView {
@@ -22,14 +20,14 @@ pub fn Game(cx: Scope) -> impl IntoView {
     provide_context(cx, players);
 
     // poll for the game state
-    let game_state = create_resource(cx, seconds, move |_| fetch_game_state(get_room_code()));
+    let game_step = create_resource(cx, seconds, move |_| fetch_game_step(get_room_code()));
 
-    let game_view = move || match game_state.read(cx).and_then(|r| r.ok()) {
+    let game_view = move || match game_step.read(cx).and_then(|r| r.ok()) {
         None => view! {cx, <><GameNotFound /></>},
-        Some(GameState::Setup) => view! { cx, <><GameSetup /></> },
-        Some(GameState::Submission) => view! { cx, <><GameSubmission /></> },
-        Some(GameState::Judging) => view! { cx, <><GameJudging /></> },
-        Some(GameState::Results) => view! { cx, <><GameResults /></> },
+        Some(GameStep::Setup) => view! { cx, <><GameSetup /></> },
+        Some(GameStep::Submission) => view! { cx, <><GameSubmission /></> },
+        Some(GameStep::Judging) => view! { cx, <><GameJudging /></> },
+        Some(GameStep::Results) => view! { cx, <><GameResults /></> },
     };
     view! {
         cx,

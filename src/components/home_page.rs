@@ -1,4 +1,4 @@
-use super::super::components::input::{TextInput, TextInputProps};
+use crate::components::input::*;
 use leptos::*;
 use leptos_router::*;
 

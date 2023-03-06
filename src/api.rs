@@ -1,10 +1,17 @@
-use crate::types::{GameState, Player};
 use leptos::*;
+use crate::types::*;
+
+#[cfg(feature = "ssr")]
+pub fn register_server_functions() {
+    _ = FetchPlayers::register();
+    _ = FetchGameStep::register();
+}
+
 
 // Apis
 /// get the players in the game
-#[server(FetchPlayers)]
-pub async fn fetch_players(room_code: String) -> Result<Vec<crate::types::Player>, ServerFnError> {
+#[server(FetchPlayers, "/api")]
+pub async fn fetch_players(room_code: String) -> Result<Vec<Player>, ServerFnError> {
     // pretend we're fetching people
     Result::Ok(vec![
         Player {
@@ -19,8 +26,8 @@ pub async fn fetch_players(room_code: String) -> Result<Vec<crate::types::Player
 }
 
 /// get the current game state
-#[server(FetchGameState)]
-pub async fn fetch_game_state(room_code: String) -> Result<crate::types::GameState, ServerFnError> {
+#[server(FetchGameStep, "/api")]
+pub async fn fetch_game_step(room_code: String) -> Result<GameStep, ServerFnError> {
     // pretend we're fetching game state
-    Result::Ok(GameState::Setup)
+    Result::Ok(GameStep::Setup)
 }
