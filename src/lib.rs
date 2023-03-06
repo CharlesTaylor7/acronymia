@@ -68,7 +68,7 @@ fn timer(cx: Scope, initial: u32) -> RwSignal<u32> {
         );
         log::debug!("{:?}", &handle);
         on_cleanup(cx, move || {
-            handle.map(|h| h.clear());
+            _ = handle.map(|h| h.clear());
         });
     });
 
