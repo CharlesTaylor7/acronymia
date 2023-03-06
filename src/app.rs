@@ -20,6 +20,8 @@ pub struct Round {
     acronym: String,
 }
 
+/// The idea is for a very normalized game state.
+/// e.g. Determining who the current judge is can be a function, that looks at the last item of the rounds vector. (instead of another field for meta data like that)
 #[derive(Serialize, Deserialize, Clone)]
 pub struct GameState {
     step: GameStep,
