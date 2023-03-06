@@ -1,4 +1,4 @@
-use crate::components::input::*;
+use crate::components::text_input::*;
 use leptos::*;
 use leptos_router::*;
 
