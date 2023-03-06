@@ -35,12 +35,9 @@ cfg_if! {
                     .service(css)
                     .route(
                         "/api/{tail:.*}",
-                        leptos_actix::handle_server_fns()
-                        /*
                         leptos_actix::handle_server_fns_with_context(
                             move |cx| provide_context::<u32>(cx, 42)
                         )
-                        */
                     )
                     .leptos_routes(
                         leptos_options.to_owned(),

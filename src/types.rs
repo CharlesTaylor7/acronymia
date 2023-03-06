@@ -4,6 +4,9 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::thread;
 
+pub type Server<T> = Result<T, ServerFnError>;
+
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Player {
     pub id: u32,

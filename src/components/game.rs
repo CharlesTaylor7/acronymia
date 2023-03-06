@@ -14,8 +14,10 @@ pub fn Game(cx: Scope) -> impl IntoView {
     //let seconds = timer(cx);
     let seconds = create_rw_signal(cx, 0);
 
+    provide_context::<u32>(cx, 18);
+
     // poll for the player names
-    let players = create_resource(cx, seconds, move |_| fetch_players(get_room_code()));
+    let players = create_resource(cx, seconds, move |_| fetch_players(cx, get_room_code()));
 
     // poll for the game state
     let game_step = create_resource(cx, seconds, move |_| fetch_game_step(get_room_code()));
@@ -54,11 +56,8 @@ where
         .read(cx)
         .map(|n| n.ok())
         .flatten()
-        .map(|n| n)
         .unwrap_or(default)
 }
-
-type Server<T> = Result<T, ServerFnError>;
 
 #[component]
 fn GameSetup(cx: Scope, players: Res<Server<Vec<Player>>>) -> impl IntoView {

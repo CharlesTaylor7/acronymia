@@ -10,7 +10,10 @@ pub fn register_server_functions() {
 // Apis
 /// get the players in the game
 #[server(FetchPlayers, "/api")]
-pub async fn fetch_players(room_code: String) -> Result<Vec<Player>, ServerFnError> {
+pub async fn fetch_players(cx: Scope, room_code: String) -> Result<Vec<Player>, ServerFnError> {
+    dbg!(use_context::<u32>(cx));
+    dbg!(use_context::<actix_web::HttpRequest>(cx));
+
     // pretend we're fetching people
     Result::Ok(vec![
         Player {
