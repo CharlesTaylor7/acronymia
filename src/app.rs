@@ -242,6 +242,7 @@ fn TextInput(cx: Scope, signal: RwSignal<String>) -> impl IntoView {
                 type="text"
                 node_ref=input_ref
                 value=signal.get()
+                class="border rounded border-slate-400"
                 on:blur=move|_| callback()
                 on:keyup=move |event| {
                     let key = event.key();
