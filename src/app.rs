@@ -16,37 +16,37 @@ enum GameState {
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-struct Player {
+pub struct Player {
     id: u32,
     name: String,
 }
 
 type Res<T> = Resource<u32, T>;
+type Server<T> = Result<T, ServerFnError>;
 
 #[cfg(feature = "ssr")]
 pub fn register_server_functions() {
-    _ = DemoAction::register();
-}
-
-#[server(DemoAction)]
-pub async fn demo_action() -> Result<u32, ServerFnError> {
-    Result::Ok(42)
+    _ = FetchPlayers::register();
 }
 
 // Apis
 // get the players in the game
-async fn fetch_players(room_code: &str) -> Vec<Player> {
+
+#[server(FetchPlayers)]
+pub async fn fetch_players(room_code: String) -> Result<Vec<Player>, ServerFnError> {
     // pretend we're fetching people
-    vec![
-        Player {
-            id: 0,
-            name: "karl".to_string(),
-        },
-        Player {
-            id: 1,
-            name: "marx".to_string(),
-        },
-    ]
+    Result::Ok(
+        vec![
+            Player {
+                id: 0,
+                name: "karl".to_string(),
+            },
+            Player {
+                id: 1,
+                name: "marx".to_string(),
+            },
+        ]
+    )
 }
 
 // get the players in the game
@@ -144,13 +144,12 @@ fn timer(cx: Scope, initial: u32) -> RwSignal<u32> {
 #[component]
 fn Game(cx: Scope) -> impl IntoView {
     let params = use_params_map(cx);
-    let room_code = params.with(|p| p.get("room_code").cloned().unwrap_or_default());
 
     //let seconds = timer(cx);
     let seconds = create_rw_signal(cx, 0);
 
     // poll for the player names
-    let players: Res<Vec<Player>> = create_resource(cx, seconds, move |_| fetch_players(""));
+    let players = create_resource(cx, seconds, move |_| fetch_players(params.with(|p| p.get("room_code").cloned().unwrap_or_default())));
 
     provide_context(cx, players);
 
