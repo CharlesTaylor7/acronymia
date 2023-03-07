@@ -2,8 +2,6 @@ pub mod api;
 pub mod components;
 pub mod types;
 
-use std::time::Duration;
-
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
@@ -15,6 +13,7 @@ pub fn App(cx: Scope) -> impl IntoView {
     use crate::components::{
         game::{Game, GameProps},
         home_page::{HomePage, HomePageProps},
+        timer::*,
     };
 
     // Provides context that manages stylesheets, titles, meta tags, etc.
@@ -35,13 +34,6 @@ pub fn App(cx: Scope) -> impl IntoView {
                 <h1>"Welcome to Acronymia!"</h1>
                 <Routes>
                     <Route
-                        path="timer-demo"
-                        view=move |cx| {
-                            let seconds = timer(cx, 60);
-                            view! { cx, "Seconds: "{seconds} }
-                        }
-                    />
-                    <Route
                         path=""
                         view=move |cx| view! { cx, <HomePage/> }
                     />
@@ -49,32 +41,17 @@ pub fn App(cx: Scope) -> impl IntoView {
                         path="game"
                         view=move |cx| view! { cx, <Game/> }
                     />
+                    <Route
+                        path="timer-demo"
+                        view=move |cx| view! { cx, <Timer/> }
+                    />
+
                 </Routes>
             </main>
         </Router>
     }
 }
 
-fn timer(cx: Scope, initial: u32) -> RwSignal<u32> {
-    let seconds = create_rw_signal(cx, initial);
-    create_effect(cx, move |_| {
-        let handle = set_interval(
-            move || {
-                let s = seconds.get();
-                if s > 0 {
-                    seconds.set(s - 1);
-                }
-            },
-            Duration::new(1, 0),
-        );
-        log::debug!("{:?}", &handle);
-        on_cleanup(cx, move || {
-            _ = handle.map(|h| h.clear());
-        });
-    });
-
-    seconds
-}
 
 cfg_if! {
   if #[cfg(feature = "hydrate")] {
