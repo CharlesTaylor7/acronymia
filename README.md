@@ -45,11 +45,13 @@ Pages:
 - Active Game (SPA): `/game/<id>/`
 - Game configaration `/game/<id>/config`
 
-
 ### TODO 
 
-- [ ] Lobby with no passcode
-- [ ] passcode
+
+### Deferred from MVP
+
+- Multiple room support
+- Literally everything
 
 # Development
 

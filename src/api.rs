@@ -36,14 +36,15 @@ pub async fn fetch_game_step() -> Result<GameStep, ServerFnError> {
 
 /// register for the game the current game state
 #[server(JoinGame, "/api")]
-pub async fn join_game(name: String) -> Result<(), ServerFnError> {
+pub async fn join_game(name: String) -> Result<ApiResult<()>, ServerFnError> {
     let mut state = STATE.lock().expect("locking thread crashed");
+
     if state.players.iter().find(|p| p.name == name).is_some() {
-        return error("a player with this name has already registered");
+        return api_error("a player with this name has already registered!");
     }
     state.players.push(Player::new(name));
 
-    Result::Ok(())
+    api_ok(())
 }
 
 
@@ -56,10 +57,16 @@ pub async fn reset_state() -> Result<(), ServerFnError> {
     Result::Ok(())
 }
 
+/// nested error types because the outer ServerFnError results in thrown exception
+pub type ApiResult<T> = Result<T, String>;
 
-fn error<T, M>(message: M) -> Result<T, ServerFnError>
+fn api_ok<T>(item: T) -> Result<ApiResult<T>, ServerFnError> {
+    Result::Ok(Result::Ok(item))
+}
+
+fn api_error<T, M>(message: M) -> Result<ApiResult<T>, ServerFnError>
 where
     M: Into<String>,
 {
-    Result::Err(ServerFnError::ServerError(message.into()))
+    Result::Ok(Result::Err(message.into()))
 }

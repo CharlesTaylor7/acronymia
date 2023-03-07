@@ -12,7 +12,6 @@ use cfg_if::cfg_if;
 pub fn App(cx: Scope) -> impl IntoView {
     use crate::components::{
         game::{Game, GameProps},
-        home_page::{HomePage, HomePageProps},
         timer::*,
         reset_button::*,
     };
@@ -39,17 +38,12 @@ pub fn App(cx: Scope) -> impl IntoView {
                 <Routes>
                     <Route
                         path=""
-                        view=move |cx| view! { cx, <HomePage/> }
-                    />
-                    <Route
-                        path="game"
                         view=move |cx| view! { cx, <Game/> }
                     />
                     <Route
                         path="timer-demo"
                         view=move |cx| view! { cx, <Timer/> }
                     />
-
                 </Routes>
             </main>
         </Router>
