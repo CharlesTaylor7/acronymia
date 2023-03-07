@@ -32,8 +32,10 @@ pub fn App(cx: Scope) -> impl IntoView {
         // content for this welcome page
         <Router>
             <main>
-                <h1>"Welcome to Acronymia!"</h1>
-                <ResetButton/>
+                <div class="my-4">
+                    <h1 class="text-xl font-bold">"Welcome to Acronymia!"</h1>
+                    <ResetButton/>
+                </div>
                 <Routes>
                     <Route
                         path=""

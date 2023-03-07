@@ -7,10 +7,10 @@ pub fn ResetButton(cx: Scope) -> impl IntoView {
     view! { 
         cx, 
         <button 
-            class="border rounded p-2 bg-blue-500 border-slate-200"
+            class="border rounded p-2 bg-blue-300 border-slate-200"
             on:click=move |_| reset.dispatch(())
         >
-            "Reset!"
+            "Reset state"
         </button> 
     }
 }
