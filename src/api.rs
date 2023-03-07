@@ -29,8 +29,8 @@ pub async fn fetch_players() -> Result<Vec<Player>, ServerFnError> {
             .iter()
             .map(|id| state.players.get(id))
             .flatten()
-            .map(|o| o.clone())
-            .collect::<Vec<Player>>(),
+            .cloned()
+            .collect(),
     )
 }
 
@@ -42,18 +42,16 @@ pub async fn fetch_game_step() -> Result<GameStep, ServerFnError> {
     Result::Ok(state.step.clone())
 }
 
-/// register for the game the current game state
+/// register your name for the current game
+/// allows you to update your name if you already joined
 #[server(JoinGame, "/api")]
 pub async fn join_game(player: Player) -> Result<ApiResult<()>, ServerFnError> {
     let mut state = STATE.lock().expect("locking thread crashed");
 
-    /*
-     * TODO: redo players datastructure
-        if state.players.iter().find(|p| p.name == name).is_some() {
-            return api_error("a player with this name has already registered!");
-        }
-        state.players.push(Player::new(name));
-    */
+    let id = player.id.clone();
+    if let None = state.players.insert(id.clone(), player) {
+        state.rotation.push(id);
+    }
 
     api_ok(())
 }
