@@ -45,6 +45,17 @@ pub async fn join_game(name: String) -> Result<(), ServerFnError> {
     Result::Ok(())
 }
 
+
+/// reset the server state completely
+#[server(ResetState, "/api")]
+pub async fn reset_state() -> Result<(), ServerFnError> {
+    let mut state = STATE.lock().expect("locking thread crashed");
+
+    *state = Default::default();
+    Result::Ok(())
+}
+
+
 fn error<T, M>(message: M) -> Result<T, ServerFnError>
 where
     M: Into<String>,
