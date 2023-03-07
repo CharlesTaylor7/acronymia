@@ -14,6 +14,7 @@ pub fn App(cx: Scope) -> impl IntoView {
         game::{Game, GameProps},
         home_page::{HomePage, HomePageProps},
         timer::*,
+        reset_button::*,
     };
 
     // Provides context that manages stylesheets, titles, meta tags, etc.
@@ -32,6 +33,7 @@ pub fn App(cx: Scope) -> impl IntoView {
         <Router>
             <main>
                 <h1>"Welcome to Acronymia!"</h1>
+                <ResetButton/>
                 <Routes>
                     <Route
                         path=""

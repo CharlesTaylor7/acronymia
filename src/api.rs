@@ -14,6 +14,7 @@ pub fn register_server_functions() {
     _ = FetchPlayers::register();
     _ = FetchGameStep::register();
     _ = JoinGame::register();
+    _ = ResetState::register();
 }
 
 // Apis

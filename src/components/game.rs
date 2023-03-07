@@ -57,6 +57,7 @@ where
 fn GameSetup(cx: Scope, players: Res<Server<Vec<Player>>>) -> impl IntoView {
     view! {
         cx,
+        "Players:"
         <Transition
             fallback=|| "loading players"
         >
