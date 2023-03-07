@@ -8,11 +8,6 @@ cfg_if! {
         use leptos::*;
         use leptos_actix::{generate_route_list, LeptosRoutes};
 
-        #[get("/style.css")]
-        async fn css() -> impl Responder {
-            actix_files::NamedFile::open_async("./style/output.css").await
-        }
-
         #[actix_web::main]
         async fn main() -> std::io::Result<()> {
 
@@ -32,7 +27,6 @@ cfg_if! {
                 let routes = &routes;
 
                 App::new()
-                    .service(css)
                     .route( "/api/{tail:.*}", leptos_actix::handle_server_fns())
                     .leptos_routes(
                         leptos_options.to_owned(),
