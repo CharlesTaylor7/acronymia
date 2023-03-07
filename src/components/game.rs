@@ -73,18 +73,11 @@ fn GameSetup(cx: Scope, players: Res<Server<Vec<Player>>>) -> impl IntoView {
         cx,
         <div>
             "Player Id:"
-            <Transition
-                fallback=|| "loading"
-            >
-            /*
-                {player_id.m.get() {
-                                           Some(id) => view! {cx, <>{id}</>},
-                                           None => view! {cx, <>"none"</>},
-                                       }
+            {
+                move||{
+                    player_id.get().unwrap_or("loading".to_string())
                 }
-                */
-                {view_option(cx, player_id.get(), "None", move |id| id)}
-            </Transition>
+            }
         </div>
 
         <div>
