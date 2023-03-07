@@ -51,18 +51,22 @@ fn GameSetup(cx: Scope, players: Res<Server<Vec<Player>>>) -> impl IntoView {
     // this only runs once because it does not depend on any reactive values
     // but its wrapped in create_effect to ensure it runs on the client side
     create_effect(cx, move |_| {
+        if player_id.get().is_some() {
+            return ();
+        }
         let new_player_id = move |storage: web_sys::Storage| {
             let id = Uuid::new_v4().to_string();
             storage.set_item(STORAGE_KEY, &id);
             player_id.set(Some(id));
         };
         match window().local_storage() {
-        Ok(Some(storage)) => match storage.get_item(STORAGE_KEY) {
-            Ok(Some(id)) => player_id.set(Some(id)),
-            _ => new_player_id(storage),
-        },
-        _ => (),
-    }});
+            Ok(Some(storage)) => match storage.get_item(STORAGE_KEY) {
+                Ok(Some(id)) => player_id.set(Some(id)),
+                _ => new_player_id(storage),
+            },
+            _ => (),
+        }
+    });
 
     view! {
         cx,
