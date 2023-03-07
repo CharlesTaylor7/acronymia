@@ -2,7 +2,6 @@ use crate::api::*;
 use crate::components::text_input::*;
 use leptos::*;
 use leptos_router::*;
-use futures::executor::block_on;
 
 /// The home page allows you to:
 /// - Set your nickname
@@ -20,13 +19,18 @@ pub fn HomePage(cx: Scope) -> impl IntoView {
 
         <button
             on:click=move |_| {
+                join.dispatch(name.get().clone());
+                navigate("/game", Default::default());
+                /*
                 let result = block_on(join_game(name.get().clone()));
+                
                 dbg!(&result);
                 match result {
                     Ok(_) => 
                         navigate("/game", Default::default()),
                     Err(_) => Ok(()),
                 };
+                */
             }
         >
             "Join!"
