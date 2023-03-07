@@ -90,7 +90,7 @@ fn GameSetup(cx: Scope, players: Res<Server<Vec<Player>>>) -> impl IntoView {
                 default=player_name.get()
                 on_input=move|text| {
                     player_name.set(text);
-                    player_id.get().map(|id| 
+                    player_id.get().map(|id|
                         action_join.dispatch(Player{id: id, name: player_name.get()})
                     );
 

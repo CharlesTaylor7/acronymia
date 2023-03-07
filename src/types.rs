@@ -26,10 +26,11 @@ pub type Submission = Vec<String>;
 pub type RoundId = u32;
 // uuid
 pub type PlayerId = String;
+pub type JudgeId = usize; // index into the rotation vector
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Round {
-    judge: PlayerId,
+    judge: JudgeId,
     acronym: String,
 }
 
@@ -38,8 +39,9 @@ pub struct Round {
 #[derive(Serialize, Deserialize, Clone, Default, Debug)]
 pub struct GameState {
     pub step: GameStep,
-    pub players: Vec<Player>, // list of registered players
-    pub rounds: Vec<Round>,   // list of rounds, records past or present chosen judge and acronym
+    pub players: HashMap<PlayerId, Player>, // registered players
+    pub rotation: Vec<PlayerId>,            // players in order they will be judge
+    pub rounds: Vec<Round>, // list of rounds, records past or present chosen judge and acronym
     pub submissions: HashMap<(RoundId, PlayerId), Submission>,
     pub winners: Vec<PlayerId>, // list of winning player indexed by round
 }
@@ -47,23 +49,25 @@ pub struct GameState {
 impl GameState {
     fn start_round(&mut self) {
         self.rounds.push(Round {
-            judge: self.next_judge().id.clone(),
+            judge: self.next_judge(),
             acronym: "fart".to_string(),
         });
 
         self.step = GameStep::Submission;
     }
 
-    fn current_judge(&self) -> Option<&Player> {
+    fn current_judge(&self) -> Option<JudgeId> {
         let length = self.rounds.len();
         if length == 0 {
             return None;
         }
-        let id = &self.rounds[length - 1].judge;
-        self.players.iter().find(|p| &p.id == id)
+        Some(self.rounds[length - 1].judge)
     }
 
-    fn next_judge(&self) -> &Player {
+    fn next_judge(&self) -> JudgeId {
+        let n = self.rotation.len();
+        self.current_judge().map(|i| (i + 1) % n).unwrap_or(0)
+        /*
         let judge = self.current_judge();
         let length = self.players.len();
         let default = length - 1;
@@ -76,6 +80,7 @@ impl GameState {
                 .unwrap_or(default),
         };
         &self.players[(index + 1) % length]
+        */
     }
 }
 

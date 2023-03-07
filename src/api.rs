@@ -23,7 +23,15 @@ pub fn register_server_functions() {
 pub async fn fetch_players() -> Result<Vec<Player>, ServerFnError> {
     let state = STATE.lock().expect("locking thread crashed");
 
-    Result::Ok(state.players.clone())
+    Result::Ok(
+        state
+            .rotation
+            .iter()
+            .map(|id| state.players.get(id))
+            .flatten()
+            .map(|o| o.clone())
+            .collect::<Vec<Player>>(),
+    )
 }
 
 /// get the current game state
