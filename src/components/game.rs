@@ -1,6 +1,7 @@
 use leptos::*;
 
 use crate::api::*;
+use crate::components::utils::*;
 use crate::types::*;
 use uuid::*;
 
@@ -73,9 +74,16 @@ fn GameSetup(cx: Scope, players: Res<Server<Vec<Player>>>) -> impl IntoView {
         <div>
             "Player Id:"
             <Transition
-                fallback=||"loading id"
+                fallback=|| "loading"
             >
-                {player_id}
+            /*
+                {player_id.m.get() {
+                                           Some(id) => view! {cx, <>{id}</>},
+                                           None => view! {cx, <>"none"</>},
+                                       }
+                }
+                */
+                {view_option(cx, player_id.get(), "None", move |id| id)}
             </Transition>
         </div>
 
@@ -84,7 +92,7 @@ fn GameSetup(cx: Scope, players: Res<Server<Vec<Player>>>) -> impl IntoView {
             <Transition
                 fallback=|| "loading players"
             >
-                <ul>
+                <ol>
                     <For
                         each=move || read_or(cx, players, Vec::new())
                         key=|p| p.id.clone()
@@ -95,7 +103,7 @@ fn GameSetup(cx: Scope, players: Res<Server<Vec<Player>>>) -> impl IntoView {
                             }
                         }
                     />
-                </ul>
+                </ol>
             </Transition>
         </div>
     }

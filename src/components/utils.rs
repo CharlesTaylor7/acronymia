@@ -15,12 +15,12 @@ pub fn when(cx: Scope, condition: bool, view: impl IntoView) -> impl IntoView {
     }
 }
 
-
-pub fn render_option<T, F, V>(
+/// Render an optional value or a default into a view
+pub fn view_option<T, F, V>(
     cx: Scope,
     o: Option<T>,
-    fun: F,
     default: impl IntoView,
+    fun: F,
 ) -> impl IntoView
 where
     F: FnOnce(T) -> V,
@@ -35,5 +35,14 @@ where
             cx,
             <>{default}</>
         },
+    }
+}
+
+#[component]
+pub fn Debug(cx: Scope, children: Box<dyn Fn(Scope) -> Fragment>) -> impl IntoView {
+    if cfg!(debug_assertions) {
+        view! {cx, <>{children(cx)}</> }
+    } else {
+        view! {cx, <></>}
     }
 }
