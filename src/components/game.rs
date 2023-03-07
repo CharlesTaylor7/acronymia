@@ -8,11 +8,15 @@ use crate::*;
 use leptos::*;
 use uuid::*;
  
-
-define_context_key!(PlayerName, RwSignal<String>);
+define_context_key!(Signal_PlayerId, RwSignal<Option<String>>);
+define_context_key!(Signal_PlayerName, RwSignal<String>);
+define_context_key!(Action_JoinGame, Action<(), Result<Result<(), std::string::String>, leptos::ServerFnError>>);
+define_context_key!(Resource_Players, Res<Server<Vec<Player>>>);
+define_context_key!(Resource_GameStep, Res<Server<GameStep>>);
+define_context_key!(Signal_Seconds, RwSignal<u32>);
 
 fn demo(cx: Scope) {
-    let s: RwSignal<String> = use_typed_context::<PlayerName>(cx);
+    let s: RwSignal<String> = use_typed_context::<Signal_PlayerName>(cx);
 }
 
 #[derive(Clone)]
