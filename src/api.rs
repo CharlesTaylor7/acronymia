@@ -36,9 +36,19 @@ pub async fn fetch_game_step() -> Result<GameStep, ServerFnError> {
 /// register for the game the current game state
 #[server(JoinGame, "/api")]
 pub async fn join_game(name: String) -> Result<(), ServerFnError> {
-    let mut state = STATE.lock().expect("locking thread crashed");
+    let mut state = acquire_state();
 
+    if state.players.iter().find(|p| p.name == name).is_some() {
+        return error("a player with this name has already registered");
+    }
     state.players.push(Player::new(name));
 
     Result::Ok(())
+}
+
+fn error<T, M>(message: M) -> Result<T, ServerFnError>
+where
+    M: Into<String>,
+{
+    Result::Err(ServerFnError::ServerError(message.into()))
 }
