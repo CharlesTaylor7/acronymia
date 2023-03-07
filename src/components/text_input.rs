@@ -5,8 +5,7 @@ use leptos::*;
 pub fn TextInput(cx: Scope, signal: RwSignal<String>) -> impl IntoView {
     let input_ref = create_node_ref::<Input>(cx);
     let callback = move || {
-        let val = input_ref.get().expect("input ref is rendered");
-
+        let val = input_ref.get().expect("input ref wasn't rendered");
         let name = val.value();
         signal.set(name);
     };

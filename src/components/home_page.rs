@@ -13,28 +13,42 @@ pub fn HomePage(cx: Scope) -> impl IntoView {
     let navigate = use_navigate(cx);
     view! {
         cx,
-        <h1>"Welcome to Acronymia!"</h1>
         "Enter your nickname:"
         <TextInput signal=name />
 
         <button
-            on:click=move |_| {
-                join.dispatch(name.get().clone());
-                navigate("/game", Default::default());
-                /*
-                let result = block_on(join_game(name.get().clone()));
-                
-                dbg!(&result);
-                match result {
-                    Ok(_) => 
-                        navigate("/game", Default::default()),
-                    Err(_) => Ok(()),
-                };
-                */
-            }
+            on:click=move |_| join.dispatch(name.get().clone())
         >
-            "Join!"
+            "Register!"
         </button>
-        <p>{ name }</p>
+        {when(cx, !join.pending().get(), view! { cx, <A href="/game">"Join!"</A>})}
+        /*
+        
+        {
+            if !join.pending().get() {
+                view! {
+                    cx, 
+                    <A href="/game">
+                        "Join!"
+                    </A>
+                }
+            }
+        }
+        */
+    }
+}
+
+fn when(cx: Scope, condition: bool, view: impl IntoView) -> impl IntoView {
+    if condition {
+        view! {
+            cx,
+            <>{view}</>
+        }
+    }
+    else {
+        view! {
+            cx,
+            <></>
+        }
     }
 }

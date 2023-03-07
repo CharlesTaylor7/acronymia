@@ -32,6 +32,7 @@ pub fn App(cx: Scope) -> impl IntoView {
         // content for this welcome page
         <Router>
             <main>
+                <h1>"Welcome to Acronymia!"</h1>
                 <Routes>
                     <Route
                         path="timer-demo"
