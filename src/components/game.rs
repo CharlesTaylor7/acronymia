@@ -1,57 +1,38 @@
-use leptos::*;
-
 use crate::api::*;
 use crate::components::text_input::*;
+use crate::components::timer::*;
 use crate::components::utils::*;
 use crate::types::*;
 use crate::*;
+use leptos::*;
 use uuid::*;
 
-#[component]
-pub fn Game(cx: Scope) -> impl IntoView {
-    //let seconds = timer(cx);
-    let seconds = create_rw_signal(cx, 0);
+#[derive(Clone)]
+struct GameContext {
+    player_id: RwSignal<Option<String>>,
+    player_name: RwSignal<String>,
+    action_join_game: Action<(), Result<Result<(), std::string::String>, leptos::ServerFnError>>,
+    players: Res<Server<Vec<Player>>>,
+    game_step: Res<Server<GameStep>>,
+    seconds: RwSignal<u32>,
+}
 
-    provide_context::<u32>(cx, 18);
-
+fn provide_game_context(cx: Scope) {
+    let seconds = clock(cx, 0);
     // poll for the player names
     let players = create_resource(cx, seconds, move |_| fetch_players());
 
     // poll for the game state
     let game_step = create_resource(cx, seconds, move |_| fetch_game_step());
 
-    let game_view = move || match game_step.read(cx).and_then(|r| r.ok()) {
-        None => view! {cx, <><GameNotFound /></>},
-        Some(GameStep::Setup) => view! { cx, <><GameSetup players=players /></> },
-        Some(GameStep::Submission) => view! { cx, <><GameSubmission /></> },
-        Some(GameStep::Judging) => view! { cx, <><GameJudging /></> },
-        Some(GameStep::Results) => view! { cx, <><GameResults /></> },
-    };
-    view! {
-        cx,
-        <Transition
-            fallback=move || view! { cx, "Loading" }
-        >
-            {game_view}
-        </Transition>
-    }
-}
-
-#[component]
-fn GameNotFound(_cx: Scope) -> impl IntoView {
-    view! {
-        cx,
-        "Game not found!"
-    }
-}
-
-const STORAGE_KEY: &str = "acronymia-player-id";
-
-#[component]
-fn GameSetup(cx: Scope, players: Res<Server<Vec<Player>>>) -> impl IntoView {
     let player_id: RwSignal<Option<String>> = create_rw_signal(cx, None);
     let player_name = create_rw_signal(cx, "".to_string());
-    let action_join = create_action(cx, |player: &Player| api::join_game(player.clone()));
+    let action_join_game = create_action(cx, move |_: &()| {
+        api::join_game(Player {
+            id: player_id().unwrap(),
+            name: player_name(),
+        })
+    });
 
     // this only runs once because it does not depend on any reactive values
     // but its wrapped in create_effect to ensure it runs on the client side
@@ -73,27 +54,80 @@ fn GameSetup(cx: Scope, players: Res<Server<Vec<Player>>>) -> impl IntoView {
         }
     });
 
+    provide_context::<GameContext>(
+        cx,
+        GameContext {
+            game_step: game_step,
+            seconds: seconds,
+            player_id: player_id,
+            player_name: player_name,
+            action_join_game: action_join_game,
+            players: players,
+        },
+    );
+}
+
+fn use_game_context(cx: Scope) -> GameContext {
+    use_context(cx).expect("did you forget to call provide_game_context?")
+}
+
+#[component]
+pub fn Game(cx: Scope) -> impl IntoView {
+    provide_game_context(cx);
+    let context = use_game_context(cx);
+
+    let game_view = move || match context.game_step.read(cx).and_then(|r| r.ok()) {
+        None => view! {cx, <><GameNotFound /></>},
+        Some(GameStep::Setup) => view! { cx, <><GameSetup /></> },
+        Some(GameStep::Submission) => view! { cx, <><GameSubmission /></> },
+        Some(GameStep::Judging) => view! { cx, <><GameJudging /></> },
+        Some(GameStep::Results) => view! { cx, <><GameResults /></> },
+    };
+    view! {
+        cx,
+        <div>
+            "Clock: "{context.seconds}
+        </div>
+        <Transition
+            fallback=move || view! { cx, "Loading" }
+        >
+            {game_view}
+        </Transition>
+    }
+}
+
+#[component]
+fn GameNotFound(_cx: Scope) -> impl IntoView {
+    view! {
+        cx,
+        "Game not found!"
+    }
+}
+
+const STORAGE_KEY: &str = "acronymia-player-id";
+
+#[component]
+fn GameSetup(cx: Scope) -> impl IntoView {
+    let context = use_game_context(cx);
     view! {
         cx,
         <Debug>
             <div>
                 "Override player id (Debug only): "
                 <TextInput
-                    on_input=move |text| player_id.set(Some(text))
-                    default=player_id.get().unwrap_or("".to_string())
+                    default=context.player_id.get().unwrap_or("".to_string())
+                    on_input=move |text| context.player_id.set(Some(text))
                 />
             </div>
         </Debug>
         <div>
             "Pick a Nickname to join: "
             <TextInput
-                default=player_name.get()
+                default=context.player_name.get()
+                disabled=MaybeSignal::derive(cx, move|| (context.player_id)().is_none())
                 on_input=move|text| {
-                    player_name.set(text);
-                    player_id.get().map(|id|
-                        action_join.dispatch(Player{id: id, name: player_name.get()})
-                    );
-
+                    context.player_name.set(text);
+                    context.action_join_game.dispatch(())
                 }
             />
 
@@ -103,7 +137,7 @@ fn GameSetup(cx: Scope, players: Res<Server<Vec<Player>>>) -> impl IntoView {
             >
                 <ol>
                     <For
-                        each=move || read_or(cx, players, Vec::new())
+                        each=move || read_or(cx, context.players, Vec::new())
                         key=|p| p.id.clone()
                         view=move |cx, p| {
                             view! {

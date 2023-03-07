@@ -6,6 +6,7 @@ pub fn TextInput<F>(
     cx: Scope,
     on_input: F,
     #[prop(optional)] default: Option<String>,
+    #[prop(optional)] disabled: Option<MaybeSignal<bool>>,
 ) -> impl IntoView
 where
     F: Fn(String) -> () + 'static + Copy,
@@ -24,6 +25,7 @@ where
                 node_ref=input_ref
                 value=default
                 class="border rounded border-slate-400 px-3"
+                disabled=disabled.map(|s| s.get()).unwrap_or(false)
                 on:blur=move|_| callback()
                 on:keyup=move |event| {
                     let key = event.key();
