@@ -41,20 +41,21 @@ fn GameNotFound(_cx: Scope) -> impl IntoView {
     }
 }
 
-fn read_or<S, T>(cx: Scope, resource: Resource<S, Result<T, ServerFnError>>, default: T) -> T
-where
-    S: Clone,
-    T: Clone,
-{
-    resource
-        .read(cx)
-        .map(|n| n.ok())
-        .flatten()
-        .unwrap_or(default)
-}
+const STORAGE_KEY: &str = "acronymia-player-id";
 
 #[component]
 fn GameSetup(cx: Scope, players: Res<Server<Vec<Player>>>) -> impl IntoView {
+    let player_id: RwSignal<Option<String>> = create_rw_signal(cx, None);
+    // this only runs once because it does not depend on any reactive values
+    // but its wrapped in create_effect to ensure it runs on the client side
+    create_effect(cx, move |_| match window().local_storage() {
+        Ok(Some(storage)) => match storage.get_item(STORAGE_KEY) {
+            Ok(Some(id)) => player_id.set(Some(id)),
+            _ => println!("no storage"),
+        },
+        _ => println!("no storage"),
+    });
+
     view! {
         cx,
         "Players:"
@@ -99,4 +100,16 @@ fn GameResults(_cx: Scope) -> impl IntoView {
         cx,
         "Results!"
     }
+}
+
+fn read_or<S, T>(cx: Scope, resource: Resource<S, Result<T, ServerFnError>>, default: T) -> T
+where
+    S: Clone,
+    T: Clone,
+{
+    resource
+        .read(cx)
+        .map(|n| n.ok())
+        .flatten()
+        .unwrap_or(default)
 }

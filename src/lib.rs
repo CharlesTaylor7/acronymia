@@ -12,8 +12,8 @@ use cfg_if::cfg_if;
 pub fn App(cx: Scope) -> impl IntoView {
     use crate::components::{
         game::{Game, GameProps},
-        timer::*,
         reset_button::*,
+        timer::*,
     };
 
     // Provides context that manages stylesheets, titles, meta tags, etc.
@@ -49,7 +49,6 @@ pub fn App(cx: Scope) -> impl IntoView {
         </Router>
     }
 }
-
 
 cfg_if! {
   if #[cfg(feature = "hydrate")] {

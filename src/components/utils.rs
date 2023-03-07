@@ -7,8 +7,7 @@ pub fn when(cx: Scope, condition: bool, view: impl IntoView) -> impl IntoView {
             cx,
             <>{view}</>
         }
-    }
-    else {
+    } else {
         view! {
             cx,
             <></>

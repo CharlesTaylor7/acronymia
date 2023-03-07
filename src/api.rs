@@ -47,7 +47,6 @@ pub async fn join_game(name: String) -> Result<ApiResult<()>, ServerFnError> {
     api_ok(())
 }
 
-
 /// reset the server state completely
 #[server(ResetState, "/api")]
 pub async fn reset_state() -> Result<(), ServerFnError> {
