@@ -4,7 +4,6 @@ use leptos::*;
 #[cfg(feature = "ssr")]
 use std::sync::*;
 
-
 #[cfg(feature = "ssr")]
 lazy_static::lazy_static! {
     pub static ref STATE: Arc<Mutex<GameState>> = Arc::new(Mutex::new(Default::default()));
@@ -33,7 +32,6 @@ pub async fn fetch_game_step() -> Result<GameStep, ServerFnError> {
 
     Result::Ok(state.step.clone())
 }
-
 
 /// register for the game the current game state
 #[server(JoinGame, "/api")]

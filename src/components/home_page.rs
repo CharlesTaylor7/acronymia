@@ -1,7 +1,7 @@
+use crate::api::*;
 use crate::components::text_input::*;
 use leptos::*;
 use leptos_router::*;
-use crate::api::*;
 
 /// The home page allows you to:
 /// - Set your nickname
