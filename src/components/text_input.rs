@@ -2,12 +2,19 @@ use leptos::html::Input;
 use leptos::*;
 
 #[component]
-pub fn TextInput(cx: Scope, signal: RwSignal<String>) -> impl IntoView {
+pub fn TextInput<F>(
+    cx: Scope,
+    on_input: F,
+    #[prop(optional)] default: Option<String>,
+) -> impl IntoView
+where
+    F: Fn(String) -> () + 'static + Copy,
+{
     let input_ref = create_node_ref::<Input>(cx);
     let callback = move || {
-        let val = input_ref.get().expect("input ref wasn't rendered");
-        let name = val.value();
-        signal.set(name);
+        let element = input_ref.get().expect("input ref wasn't rendered");
+        let value = element.value();
+        on_input(value);
     };
     view! {
         cx,
@@ -15,7 +22,7 @@ pub fn TextInput(cx: Scope, signal: RwSignal<String>) -> impl IntoView {
             <input
                 type="text"
                 node_ref=input_ref
-                value=signal.get()
+                value=default
                 class="border rounded border-slate-400 px-3"
                 on:blur=move|_| callback()
                 on:keyup=move |event| {

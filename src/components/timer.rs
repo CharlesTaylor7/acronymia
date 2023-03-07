@@ -16,10 +16,13 @@ fn timer(cx: Scope, initial: u32) -> RwSignal<u32> {
     create_effect(cx, move |_| {
         let handle = set_interval(
             move || {
+                seconds.with(|s| if *s > 0 { s - 1 } else { *s });
+                /*
                 let s = seconds.get();
                 if s > 0 {
                     seconds.set(s - 1);
                 }
+                */
             },
             Duration::new(1, 0),
         );

@@ -1,6 +1,7 @@
 use leptos::*;
 
 use crate::api::*;
+use crate::components::text_input::*;
 use crate::components::utils::*;
 use crate::types::*;
 use uuid::*;
@@ -71,6 +72,15 @@ fn GameSetup(cx: Scope, players: Res<Server<Vec<Player>>>) -> impl IntoView {
 
     view! {
         cx,
+        <Debug>
+            <div>
+                "Override player id (Debug only): "
+                <TextInput
+                    on_input=move |text| player_id.set(Some(text))
+                    default=player_id.get().unwrap_or("".to_string())
+                />
+            </div>
+        </Debug>
         <div>
             "Player Id:"
             {
