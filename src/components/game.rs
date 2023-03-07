@@ -2,6 +2,7 @@ use leptos::*;
 
 use crate::api::*;
 use crate::types::*;
+use uuid::*;
 
 #[component]
 pub fn Game(cx: Scope) -> impl IntoView {
@@ -46,35 +47,53 @@ const STORAGE_KEY: &str = "acronymia-player-id";
 #[component]
 fn GameSetup(cx: Scope, players: Res<Server<Vec<Player>>>) -> impl IntoView {
     let player_id: RwSignal<Option<String>> = create_rw_signal(cx, None);
+
     // this only runs once because it does not depend on any reactive values
     // but its wrapped in create_effect to ensure it runs on the client side
-    create_effect(cx, move |_| match window().local_storage() {
+    create_effect(cx, move |_| {
+        let new_player_id = move |storage: web_sys::Storage| {
+            let id = Uuid::new_v4().to_string();
+            storage.set_item(STORAGE_KEY, &id);
+            player_id.set(Some(id));
+        };
+        match window().local_storage() {
         Ok(Some(storage)) => match storage.get_item(STORAGE_KEY) {
             Ok(Some(id)) => player_id.set(Some(id)),
-            _ => println!("no storage"),
+            _ => new_player_id(storage),
         },
-        _ => println!("no storage"),
-    });
+        _ => (),
+    }});
 
     view! {
         cx,
-        "Players:"
-        <Transition
-            fallback=|| "loading players"
-        >
-            <ul>
-                <For
-                    each=move || read_or(cx, players, Vec::new())
-                    key=|p| p.id.clone()
-                    view=move |cx, p| {
-                        view! {
-                            cx,
-                            <li>{p.name}</li>
+        <div>
+            "Player Id:"
+            <Transition
+                fallback=||"loading id"
+            >
+                {player_id}
+            </Transition>
+        </div>
+
+        <div>
+            "Players:"
+            <Transition
+                fallback=|| "loading players"
+            >
+                <ul>
+                    <For
+                        each=move || read_or(cx, players, Vec::new())
+                        key=|p| p.id.clone()
+                        view=move |cx, p| {
+                            view! {
+                                cx,
+                                <li>{p.name}</li>
+                            }
                         }
-                    }
-                />
-            </ul>
-        </Transition>
+                    />
+                </ul>
+            </Transition>
+        </div>
     }
 }
 
