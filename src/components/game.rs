@@ -3,9 +3,17 @@ use crate::components::text_input::*;
 use crate::components::timer::*;
 use crate::components::utils::*;
 use crate::types::*;
+use crate::typed_context::*;
 use crate::*;
 use leptos::*;
 use uuid::*;
+ 
+
+define_context_key!(PlayerName, RwSignal<String>);
+
+fn demo(cx: Scope) {
+    let s: RwSignal<String> = use_typed_context::<PlayerName>(cx);
+}
 
 #[derive(Clone)]
 struct GameContext {
