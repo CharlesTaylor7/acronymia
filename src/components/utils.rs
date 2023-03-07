@@ -38,6 +38,7 @@ where
     }
 }
 
+/// A component that only exists in debug mode
 #[component]
 pub fn Debug(cx: Scope, children: Box<dyn Fn(Scope) -> Fragment>) -> impl IntoView {
     if cfg!(debug_assertions) {
