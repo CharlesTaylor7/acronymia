@@ -4,6 +4,7 @@ use crate::api::*;
 use crate::components::text_input::*;
 use crate::components::utils::*;
 use crate::types::*;
+use crate::*;
 use uuid::*;
 
 #[component]
@@ -49,6 +50,8 @@ const STORAGE_KEY: &str = "acronymia-player-id";
 #[component]
 fn GameSetup(cx: Scope, players: Res<Server<Vec<Player>>>) -> impl IntoView {
     let player_id: RwSignal<Option<String>> = create_rw_signal(cx, None);
+    let player_name = create_rw_signal(cx, "".to_string());
+    let action_join = create_action(cx, |player: &Player| api::join_game(player.clone()));
 
     // this only runs once because it does not depend on any reactive values
     // but its wrapped in create_effect to ensure it runs on the client side
@@ -82,15 +85,18 @@ fn GameSetup(cx: Scope, players: Res<Server<Vec<Player>>>) -> impl IntoView {
             </div>
         </Debug>
         <div>
-            "Player Id:"
-            {
-                move||{
-                    player_id.get().unwrap_or("loading".to_string())
-                }
-            }
-        </div>
+            "Pick a Nickname to join: "
+            <TextInput
+                default=player_name.get()
+                on_input=move|text| {
+                    player_name.set(text);
+                    player_id.get().map(|id| 
+                        action_join.dispatch(Player{id: id, name: player_name.get()})
+                    );
 
-        <div>
+                }
+            />
+
             "Players:"
             <Transition
                 fallback=|| "loading players"
