@@ -1,4 +1,19 @@
 use cfg_if::cfg_if;
+use std::sync::*;
+
+#[cfg(feature = "ssr")]
+lazy_static::lazy_static! {
+    pub static ref COUNT: Arc<Mutex<u32>> = Arc::new(Mutex::new(Default::default()));
+}
+
+#[cfg(feature = "ssr")]
+pub async fn demo() -> Result<u32, ServerFnError> {
+    let mut count = COUNT.lock().expect("locking thread crashed");
+
+    *count = *count + 1;
+
+    Ok(count.clone())
+}
 
 cfg_if! {
     if #[cfg(feature = "ssr")] {
@@ -7,6 +22,22 @@ cfg_if! {
         use actix_web::*;
         use leptos::*;
         use leptos_actix::{generate_route_list, LeptosRoutes};
+
+        #[get("/api/events")]
+        async fn counter_events() -> impl Responder {
+            use futures::StreamExt;
+
+            let stream =
+                futures::stream::once(async { demo().await.unwrap_or(0) })
+                    .map(|value| {
+                        Ok(web::Bytes::from(format!(
+                            "event: message\ndata: {value}\n\n"
+                        ))) as Result<web::Bytes>
+                    });
+            HttpResponse::Ok()
+                .insert_header(("Content-Type", "text/event-stream"))
+                .streaming(stream)
+        }
 
         #[actix_web::main]
         async fn main() -> std::io::Result<()> {

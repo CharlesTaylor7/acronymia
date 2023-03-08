@@ -70,7 +70,6 @@ fn provide_game_context(cx: Scope) {
     provide_typed_context::<Action_JoinGame>(cx, join_game);
 }
 
-
 #[component]
 pub fn Game(cx: Scope) -> impl IntoView {
     provide_game_context(cx);
