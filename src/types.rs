@@ -47,7 +47,7 @@ pub struct GameState {
 }
 
 impl GameState {
-    fn start_round(&mut self) {
+    pub fn start_round(&mut self) {
         self.rounds.push(Round {
             judge: self.next_judge(),
             acronym: "fart".to_string(),
@@ -56,7 +56,7 @@ impl GameState {
         self.step = GameStep::Submission;
     }
 
-    fn current_judge(&self) -> Option<JudgeId> {
+    pub fn current_judge(&self) -> Option<JudgeId> {
         let length = self.rounds.len();
         if length == 0 {
             return None;
@@ -64,7 +64,7 @@ impl GameState {
         Some(self.rounds[length - 1].judge)
     }
 
-    fn next_judge(&self) -> JudgeId {
+    pub fn next_judge(&self) -> JudgeId {
         let n = self.rotation.len();
         self.current_judge().map(|i| (i + 1) % n).unwrap_or(0)
         /*

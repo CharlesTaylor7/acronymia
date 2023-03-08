@@ -68,10 +68,12 @@ pub async fn reset_state() -> Result<(), ServerFnError> {
 /// nested error types because the outer ServerFnError results in thrown exception
 pub type ApiResult<T> = Result<T, String>;
 
+#[allow(dead_code)]
 fn api_ok<T>(item: T) -> Result<ApiResult<T>, ServerFnError> {
     Result::Ok(Result::Ok(item))
 }
 
+#[allow(dead_code)]
 fn api_error<T, M>(message: M) -> Result<ApiResult<T>, ServerFnError>
 where
     M: Into<String>,

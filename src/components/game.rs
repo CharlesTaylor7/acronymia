@@ -14,10 +14,11 @@ define_context_key!(Action_JoinGame, Action<(), Result<Result<(), std::string::S
 define_context_key!(Resource_Players, Res<Server<Vec<Player>>>);
 define_context_key!(Resource_GameStep, Res<Server<GameStep>>);
 define_context_key!(Signal_Seconds, RwSignal<u32>);
-
+/*
 fn demo(cx: Scope) {
     let s: RwSignal<String> = use_typed_context::<Signal_PlayerName>(cx);
 }
+*/
 
 #[derive(Clone)]
 struct GameContext {
@@ -54,7 +55,7 @@ fn provide_game_context(cx: Scope) {
         }
         let new_player_id = move |storage: web_sys::Storage| {
             let id = Uuid::new_v4().to_string();
-            storage.set_item(STORAGE_KEY, &id);
+            _ = storage.set_item(STORAGE_KEY, &id);
             player_id.set(Some(id));
         };
         match window().local_storage() {
