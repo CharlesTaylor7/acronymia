@@ -20,16 +20,15 @@ struct GameContext {
     player_id: RwSignal<Option<String>>,
     player_name: RwSignal<String>,
     action_join_game: Action<(), Result<Result<(), std::string::String>, leptos::ServerFnError>>,
-    players: Res<Server<Vec<Player>>>,
-    game_step: Res<Server<GameStep>>,
 }
 
 fn provide_game_context(cx: Scope) {
-    let seconds = clock(cx, 0);
     // poll for the player names
+    let seconds = create_rw_signal(cx, 0);
     let players = create_resource(cx, seconds, move |_| fetch_players());
 
     // poll for the game state
+    let seconds = clock(cx, 0);
     let game_step = create_resource(cx, seconds, move |_| fetch_game_step());
 
     let player_id: RwSignal<Option<String>> = create_rw_signal(cx, None);
@@ -61,15 +60,14 @@ fn provide_game_context(cx: Scope) {
         }
     });
 
-    provide_typed_context::<Signal_Seconds>(cx, seconds);
+    provide_typed_context::<Resource_Players>(cx, players);
+    provide_typed_context::<Resource_GameStep>(cx, game_step);
     provide_context::<GameContext>(
         cx,
         GameContext {
-            game_step: game_step,
             player_id: player_id,
             player_name: player_name,
             action_join_game: action_join_game,
-            players: players,
         },
     );
 }
@@ -81,10 +79,9 @@ fn use_game_context(cx: Scope) -> GameContext {
 #[component]
 pub fn Game(cx: Scope) -> impl IntoView {
     provide_game_context(cx);
-    let context = use_game_context(cx);
-    let seconds = use_typed_context::<Signal_Seconds>(cx);
+    let game_step = use_typed_context::<Resource_GameStep>(cx);
 
-    let game_view = move || match context.game_step.read(cx).and_then(|r| r.ok()) {
+    let game_view = move || match game_step.read(cx).and_then(|r| r.ok()) {
         None => view! {cx, <><GameNotFound /></>},
         Some(GameStep::Setup) => view! { cx, <><GameSetup /></> },
         Some(GameStep::Submission) => view! { cx, <><GameSubmission /></> },
@@ -94,7 +91,7 @@ pub fn Game(cx: Scope) -> impl IntoView {
     view! {
         cx,
         <div>
-            "Clock: "{seconds}
+            //"Clock: "{seconds}
         </div>
         <Transition
             fallback=move || view! { cx, "Loading" }
@@ -117,6 +114,7 @@ const STORAGE_KEY: &str = "acronymia-player-id";
 #[component]
 fn GameSetup(cx: Scope) -> impl IntoView {
     let context = use_game_context(cx);
+    let players = use_typed_context::<Resource_Players>(cx);
     view! {
         cx,
         <Debug>
@@ -145,7 +143,7 @@ fn GameSetup(cx: Scope) -> impl IntoView {
             >
                 <ol>
                     <For
-                        each=move || read_or(cx, context.players, Vec::new())
+                        each=move || read_or(cx, players, Vec::new())
                         key=|p| p.id.clone()
                         view=move |cx, p| {
                             view! {

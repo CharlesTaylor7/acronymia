@@ -44,9 +44,9 @@ pub fn clock(cx: Scope, initial: u32) -> RwSignal<u32> {
         let handle = set_interval(
             move || {
                 let s = seconds.get();
-                seconds.set(s + 5);
+                seconds.set(s + 1);
             },
-            Duration::new(5, 0),
+            Duration::new(1, 0),
         );
         log::debug!("{:?}", &handle);
         on_cleanup(cx, move || {
