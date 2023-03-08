@@ -73,8 +73,11 @@ fn provide_game_context(cx: Scope) {
 #[component]
 pub fn Game(cx: Scope) -> impl IntoView {
     provide_game_context(cx);
+    let count = crate::sse::create_sse_signal::<u32>(cx);
     view! {
         cx,
+        <div>"SSE Count: "{count}</div>
+
         <Transition
             fallback=move || view! { cx, "Loading" }
         >

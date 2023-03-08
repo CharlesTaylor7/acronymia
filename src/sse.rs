@@ -1,6 +1,7 @@
 use gloo_net::eventsource::*;
 use web_sys::MessageEvent;
 use serde::*;
+use leptos::*;
 
 
 /// readonly signal that subscribes to Server Sent Events

@@ -4,6 +4,8 @@ use leptos::*;
 #[cfg(feature = "ssr")]
 use std::sync::*;
 
+
+
 #[cfg(feature = "ssr")]
 lazy_static::lazy_static! {
     pub static ref STATE: Arc<Mutex<GameState>> = Arc::new(Mutex::new(Default::default()));
@@ -54,6 +56,7 @@ pub async fn join_game(id: String, name: String) -> Result<(), ServerFnError> {
         name: name,
     };
     if let None = state.players.insert(id.clone(), player) {
+        debug_warn!("new player joined: {}", id.clone());
         state.rotation.push(id);
     }
 
@@ -69,18 +72,11 @@ pub async fn reset_state() -> Result<(), ServerFnError> {
     Result::Ok(())
 }
 
-/// nested error types because the outer ServerFnError results in thrown exception
-pub type ApiResult<T> = Result<T, String>;
 
-#[allow(dead_code)]
-fn api_ok<T>(item: T) -> Result<ApiResult<T>, ServerFnError> {
-    Result::Ok(Result::Ok(item))
+#[cfg(feature = "ssr")]
+pub async fn demo() -> Result<u32, ServerFnError> {
+    let s = STATE.lock().expect("locking thread crashed");
+
+    Ok(s.rotation.len().try_into().unwrap())
 }
 
-#[allow(dead_code)]
-fn api_error<T, M>(message: M) -> Result<ApiResult<T>, ServerFnError>
-where
-    M: Into<String>,
-{
-    Result::Ok(Result::Err(message.into()))
-}

@@ -1,20 +1,6 @@
 use cfg_if::cfg_if;
 use std::sync::*;
 
-#[cfg(feature = "ssr")]
-lazy_static::lazy_static! {
-    pub static ref COUNT: Arc<Mutex<u32>> = Arc::new(Mutex::new(Default::default()));
-}
-
-#[cfg(feature = "ssr")]
-pub async fn demo() -> Result<u32, ServerFnError> {
-    let mut count = COUNT.lock().expect("locking thread crashed");
-
-    *count = *count + 1;
-
-    Ok(count.clone())
-}
-
 cfg_if! {
     if #[cfg(feature = "ssr")] {
         use acronymia::{App, AppProps};
@@ -24,11 +10,11 @@ cfg_if! {
         use leptos_actix::{generate_route_list, LeptosRoutes};
 
         #[get("/api/events")]
-        async fn counter_events() -> impl Responder {
+        async fn server_events() -> impl Responder {
             use futures::StreamExt;
 
             let stream =
-                futures::stream::once(async { demo().await.unwrap_or(0) })
+                futures::stream::once(async { acronymia::api::demo().await.unwrap_or(0) })
                     .map(|value| {
                         Ok(web::Bytes::from(format!(
                             "event: message\ndata: {value}\n\n"
@@ -58,6 +44,7 @@ cfg_if! {
                 let routes = &routes;
 
                 App::new()
+                    .service(server_events)
                     .route( "/api/{tail:.*}", leptos_actix::handle_server_fns())
                     .leptos_routes(
                         leptos_options.to_owned(),
