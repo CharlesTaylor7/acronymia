@@ -100,14 +100,10 @@ fn GameSetup(cx: Scope) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     let player_name = use_typed_context::<Signal_PlayerName>(cx);
     let players = use_typed_context::<Resource_Players>(cx);
-    
-    let me = create_memo(cx, move|_|
-        Player {
-            id: player_id().unwrap_or("".to_string()),
-            name: player_name(),
-        });
-
-    let join_game = create_action(cx, move |_: &()| api::join_game(me()));
+   
+    let join_game = create_action(cx, move |_: &()| 
+        api::join_game(player_id().unwrap_or("".to_owned()), player_name())
+    );
 
     view! {
         cx,
@@ -126,17 +122,18 @@ fn GameSetup(cx: Scope) -> impl IntoView {
             "Pick a Nickname to join: "
             <TextInput
                 default=player_name.get()
-                disabled=MaybeSignal::derive(cx, move|| player_id().is_none())
                 on_input=move |text| player_name.set(text)
             />
 
             <button 
-                on:click=move|_| join_game.dispatch(())
+                class="border rounded p-2 m-2 bg-blue-300 border-slate-200"
+                prop:disabled=MaybeSignal::derive(cx, move|| player_id().is_none())
+                on:click=move |_| join_game.dispatch(())
             >
                 "Join!"
             </button>
 
-            "Players:"
+            <p>"Players:"</p>
             <Transition
                 fallback=|| "loading players"
             >

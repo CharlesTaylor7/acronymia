@@ -45,15 +45,16 @@ pub async fn fetch_game_step() -> Result<GameStep, ServerFnError> {
 /// register your name for the current game
 /// allows you to update your name if you already joined
 #[server(JoinGame, "/api")]
-pub async fn join_game(player: Player) -> Result<ApiResult<()>, ServerFnError> {
+pub async fn join_game(id: String, name: String) -> Result<(), ServerFnError> {
+    debug_warn!("id={} name={}", &id, &name);
     let mut state = STATE.lock().expect("locking thread crashed");
 
-    let id = player.id.clone();
+    let player = Player { id: id.clone(), name: name };
     if let None = state.players.insert(id.clone(), player) {
         state.rotation.push(id);
     }
 
-    api_ok(())
+    Ok(())
 }
 
 /// reset the server state completely
