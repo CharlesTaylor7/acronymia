@@ -9,15 +9,17 @@ cfg_if! {
         use leptos::*;
         use leptos_actix::{generate_route_list, LeptosRoutes};
 
+
         #[get("/api/events")]
         async fn server_events() -> impl Responder {
             use futures::StreamExt;
 
             let stream =
-                futures::stream::once(async { acronymia::api::demo().await.unwrap_or(0) })
+                futures::stream::once(async {acronymia::api::demo()})
                     .map(|value| {
                         Ok(web::Bytes::from(format!(
-                            "event: message\ndata: {value}\n\n"
+                            "event: message\ndata: {}\n\n",
+                             serde_json::to_string(&value).unwrap()
                         ))) as Result<web::Bytes>
                     });
             HttpResponse::Ok()
@@ -52,7 +54,7 @@ cfg_if! {
                         |cx| view! { cx, <App/> } ,
                     )
                     .service(Files::new("/", site_root))
-                    .wrap(middleware::Compress::default())
+                    //.wrap(middleware::Compress::default())
             })
             .bind(&addr)?
             .run()

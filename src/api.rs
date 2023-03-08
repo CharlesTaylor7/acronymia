@@ -4,8 +4,6 @@ use leptos::*;
 #[cfg(feature = "ssr")]
 use std::sync::*;
 
-
-
 #[cfg(feature = "ssr")]
 lazy_static::lazy_static! {
     pub static ref STATE: Arc<Mutex<GameState>> = Arc::new(Mutex::new(Default::default()));
@@ -72,11 +70,17 @@ pub async fn reset_state() -> Result<(), ServerFnError> {
     Result::Ok(())
 }
 
-
-#[cfg(feature = "ssr")]
-pub async fn demo() -> Result<u32, ServerFnError> {
-    let s = STATE.lock().expect("locking thread crashed");
-
-    Ok(s.rotation.len().try_into().unwrap())
+use serde::*;
+#[derive(Serialize, Deserialize)]
+pub struct Demo {
+    pub val: usize,
 }
 
+#[cfg(feature = "ssr")]
+pub fn demo() -> Demo {
+    let s = STATE.lock().expect("locking thread crashed");
+
+    Demo {
+        val: s.rotation.len(),
+    }
+}
