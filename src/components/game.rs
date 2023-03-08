@@ -15,19 +15,13 @@ define_context!(Resource_Players, Res<Server<Vec<Player>>>);
 define_context!(Resource_GameStep, Res<Server<GameStep>>);
 define_context!(Signal_Seconds, RwSignal<u32>);
 
-fn provide_player_id(cx: Scope) -> context_value!(Signal_PlayerId) {
-    panic!("foo")
-}
-fn provide_game_context(cx: Scope) {
-    // poll for the player names
-    let seconds = create_rw_signal(cx, 0);
-    let players = create_resource(cx, seconds, move |_| fetch_players());
-
-    // poll for the game state
-    let seconds = create_rw_signal(cx, 0);
-    let game_step = create_resource(cx, seconds, move |_| fetch_game_step());
+/// a signal for the player id
+/// that caches its value inside local storage
+fn signal_player_id(cx: Scope) -> RwSignal<Option<String>> {
+    const STORAGE_KEY: &str = "acronymia-player-id";
 
     let player_id: RwSignal<Option<String>> = create_rw_signal(cx, None);
+
     // this only runs once because it does not depend on any reactive values
     // but its wrapped in create_effect to ensure it runs on the client side
     create_effect(cx, move |_| {
@@ -48,6 +42,19 @@ fn provide_game_context(cx: Scope) {
         }
     });
 
+    player_id
+}
+
+fn provide_game_context(cx: Scope) {
+    // poll for the player names
+    let seconds = create_rw_signal(cx, 0);
+    let players = create_resource(cx, seconds, move |_| fetch_players());
+
+    // poll for the game state
+    let seconds = create_rw_signal(cx, 0);
+    let game_step = create_resource(cx, seconds, move |_| fetch_game_step());
+
+    let player_id = signal_player_id(cx);
     let player_name = create_rw_signal(cx, "".to_string());
     let action_join_game = create_action(cx, move |_: &()| {
         api::join_game(Player {
@@ -65,14 +72,11 @@ fn provide_game_context(cx: Scope) {
     provide_typed_context::<Signal_Seconds>(cx, seconds);
 }
 
-
 #[component]
 pub fn Game(cx: Scope) -> impl IntoView {
     provide_game_context(cx);
-    let seconds = use_typed_context::<Signal_Seconds>(cx);
     view! {
         cx,
-        {seconds}
         <Transition
             fallback=move || view! { cx, "Loading" }
         >
@@ -99,18 +103,14 @@ fn GameNotFound(_cx: Scope) -> impl IntoView {
     }
 }
 
-const STORAGE_KEY: &str = "acronymia-player-id";
-
 #[component]
 fn GameSetup(cx: Scope) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     let player_name = use_typed_context::<Signal_PlayerName>(cx);
     let players = use_typed_context::<Resource_Players>(cx);
     let action_join_game = use_typed_context::<Action_JoinGame>(cx);
-    let seconds = use_typed_context::<Signal_Seconds>(cx);
     view! {
         cx,
-        "Seconds: "{seconds}
         <Debug>
             <div>
                 "Override player id (Debug only): "

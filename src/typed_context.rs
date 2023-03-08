@@ -53,11 +53,13 @@ macro_rules! define_context {
         }
     };
 }
+pub(crate) use define_context;
+
+/* works but is probably too cute, not helpful
 macro_rules! context_value {
     ($KEY: ident) => {
-       <$KEY as ContextKey>::R 
+       <$KEY as ContextKey>::R
     }
 }
-
-pub(crate) use define_context;
 pub(crate) use context_value;
+*/
