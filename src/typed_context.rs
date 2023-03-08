@@ -43,7 +43,7 @@ where
 /// provide_typed_context & use_typed_context can only be called with types that implement
 /// ContextKey which enforces just a bit more sanity than the default use_context
 /// provided by leptos
-macro_rules! define_context_key {
+macro_rules! define_context {
     ($KEY: ident, $VALUE: ty) => {
         #[derive(Clone)]
         #[allow(non_camel_case_types)]
@@ -53,5 +53,11 @@ macro_rules! define_context_key {
         }
     };
 }
+macro_rules! context_value {
+    ($KEY: ident) => {
+       <$KEY as ContextKey>::R 
+    }
+}
 
-pub(crate) use define_context_key;
+pub(crate) use define_context;
+pub(crate) use context_value;

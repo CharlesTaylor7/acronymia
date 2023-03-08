@@ -8,31 +8,26 @@ use crate::*;
 use leptos::*;
 use uuid::*;
 
-define_context_key!(Signal_PlayerId, RwSignal<Option<String>>);
-define_context_key!(Signal_PlayerName, RwSignal<String>);
-define_context_key!(Action_JoinGame, Action<(), Result<Result<(), std::string::String>, leptos::ServerFnError>>);
-define_context_key!(Resource_Players, Res<Server<Vec<Player>>>);
-define_context_key!(Resource_GameStep, Res<Server<GameStep>>);
-define_context_key!(Signal_Seconds, RwSignal<u32>);
+define_context!(Signal_PlayerId, RwSignal<Option<String>>);
+define_context!(Signal_PlayerName, RwSignal<String>);
+define_context!(Action_JoinGame, Action<(), Result<Result<(), String>, ServerFnError>>);
+define_context!(Resource_Players, Res<Server<Vec<Player>>>);
+define_context!(Resource_GameStep, Res<Server<GameStep>>);
+define_context!(Signal_Seconds, RwSignal<u32>);
 
+fn provide_player_id(cx: Scope) -> context_value!(Signal_PlayerId) {
+    panic!("foo")
+}
 fn provide_game_context(cx: Scope) {
     // poll for the player names
     let seconds = create_rw_signal(cx, 0);
     let players = create_resource(cx, seconds, move |_| fetch_players());
 
     // poll for the game state
-    let seconds = clock(cx, 0);
+    let seconds = create_rw_signal(cx, 0);
     let game_step = create_resource(cx, seconds, move |_| fetch_game_step());
 
     let player_id: RwSignal<Option<String>> = create_rw_signal(cx, None);
-    let player_name = create_rw_signal(cx, "".to_string());
-    let action_join_game = create_action(cx, move |_: &()| {
-        api::join_game(Player {
-            id: player_id().unwrap(),
-            name: player_name(),
-        })
-    });
-
     // this only runs once because it does not depend on any reactive values
     // but its wrapped in create_effect to ensure it runs on the client side
     create_effect(cx, move |_| {
@@ -53,19 +48,31 @@ fn provide_game_context(cx: Scope) {
         }
     });
 
+    let player_name = create_rw_signal(cx, "".to_string());
+    let action_join_game = create_action(cx, move |_: &()| {
+        api::join_game(Player {
+            id: player_id().unwrap(),
+            name: player_name(),
+        })
+    });
+
     provide_typed_context::<Resource_Players>(cx, players);
     provide_typed_context::<Resource_GameStep>(cx, game_step);
     provide_typed_context::<Signal_PlayerId>(cx, player_id);
     provide_typed_context::<Signal_PlayerName>(cx, player_name);
     provide_typed_context::<Action_JoinGame>(cx, action_join_game);
+    let seconds = clock(cx, 0);
+    provide_typed_context::<Signal_Seconds>(cx, seconds);
 }
 
 
 #[component]
 pub fn Game(cx: Scope) -> impl IntoView {
     provide_game_context(cx);
+    let seconds = use_typed_context::<Signal_Seconds>(cx);
     view! {
         cx,
+        {seconds}
         <Transition
             fallback=move || view! { cx, "Loading" }
         >
@@ -100,8 +107,10 @@ fn GameSetup(cx: Scope) -> impl IntoView {
     let player_name = use_typed_context::<Signal_PlayerName>(cx);
     let players = use_typed_context::<Resource_Players>(cx);
     let action_join_game = use_typed_context::<Action_JoinGame>(cx);
+    let seconds = use_typed_context::<Signal_Seconds>(cx);
     view! {
         cx,
+        "Seconds: "{seconds}
         <Debug>
             <div>
                 "Override player id (Debug only): "
