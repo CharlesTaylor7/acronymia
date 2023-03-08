@@ -15,13 +15,6 @@ define_context_key!(Resource_Players, Res<Server<Vec<Player>>>);
 define_context_key!(Resource_GameStep, Res<Server<GameStep>>);
 define_context_key!(Signal_Seconds, RwSignal<u32>);
 
-#[derive(Clone)]
-struct GameContext {
-    player_id: RwSignal<Option<String>>,
-    player_name: RwSignal<String>,
-    action_join_game: Action<(), Result<Result<(), std::string::String>, leptos::ServerFnError>>,
-}
-
 fn provide_game_context(cx: Scope) {
     // poll for the player names
     let seconds = create_rw_signal(cx, 0);
@@ -62,19 +55,11 @@ fn provide_game_context(cx: Scope) {
 
     provide_typed_context::<Resource_Players>(cx, players);
     provide_typed_context::<Resource_GameStep>(cx, game_step);
-    provide_context::<GameContext>(
-        cx,
-        GameContext {
-            player_id: player_id,
-            player_name: player_name,
-            action_join_game: action_join_game,
-        },
-    );
+    provide_typed_context::<Signal_PlayerId>(cx, player_id);
+    provide_typed_context::<Signal_PlayerName>(cx, player_name);
+    provide_typed_context::<Action_JoinGame>(cx, action_join_game);
 }
 
-fn use_game_context(cx: Scope) -> GameContext {
-    use_context(cx).expect("did you forget to call provide_game_context?")
-}
 
 #[component]
 pub fn Game(cx: Scope) -> impl IntoView {
@@ -111,27 +96,29 @@ const STORAGE_KEY: &str = "acronymia-player-id";
 
 #[component]
 fn GameSetup(cx: Scope) -> impl IntoView {
-    let context = use_game_context(cx);
+    let player_id = use_typed_context::<Signal_PlayerId>(cx);
+    let player_name = use_typed_context::<Signal_PlayerName>(cx);
     let players = use_typed_context::<Resource_Players>(cx);
+    let action_join_game = use_typed_context::<Action_JoinGame>(cx);
     view! {
         cx,
         <Debug>
             <div>
                 "Override player id (Debug only): "
                 <TextInput
-                    default=context.player_id.get().unwrap_or("".to_string())
-                    on_input=move |text| context.player_id.set(Some(text))
+                    default=player_id.get().unwrap_or("".to_string())
+                    on_input=move |text| player_id.set(Some(text))
                 />
             </div>
         </Debug>
         <div>
             "Pick a Nickname to join: "
             <TextInput
-                default=context.player_name.get()
-                disabled=MaybeSignal::derive(cx, move|| (context.player_id)().is_none())
+                default=player_name.get()
+                disabled=MaybeSignal::derive(cx, move|| player_id().is_none())
                 on_input=move|text| {
-                    context.player_name.set(text);
-                    context.action_join_game.dispatch(())
+                    player_name.set(text);
+                    action_join_game.dispatch(())
                 }
             />
 
