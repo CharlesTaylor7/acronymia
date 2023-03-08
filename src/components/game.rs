@@ -2,12 +2,12 @@ use crate::api::*;
 use crate::components::text_input::*;
 use crate::components::timer::*;
 use crate::components::utils::*;
-use crate::types::*;
 use crate::typed_context::*;
+use crate::types::*;
 use crate::*;
 use leptos::*;
 use uuid::*;
- 
+
 define_context_key!(Signal_PlayerId, RwSignal<Option<String>>);
 define_context_key!(Signal_PlayerName, RwSignal<String>);
 define_context_key!(Action_JoinGame, Action<(), Result<Result<(), std::string::String>, leptos::ServerFnError>>);
@@ -79,24 +79,22 @@ fn use_game_context(cx: Scope) -> GameContext {
 #[component]
 pub fn Game(cx: Scope) -> impl IntoView {
     provide_game_context(cx);
-    let game_step = use_typed_context::<Resource_GameStep>(cx);
-
-    let game_view = move || match game_step.read(cx).and_then(|r| r.ok()) {
-        None => view! {cx, <><GameNotFound /></>},
-        Some(GameStep::Setup) => view! { cx, <><GameSetup /></> },
-        Some(GameStep::Submission) => view! { cx, <><GameSubmission /></> },
-        Some(GameStep::Judging) => view! { cx, <><GameJudging /></> },
-        Some(GameStep::Results) => view! { cx, <><GameResults /></> },
-    };
     view! {
         cx,
-        <div>
-            //"Clock: "{seconds}
-        </div>
         <Transition
             fallback=move || view! { cx, "Loading" }
         >
-            {game_view}
+            { move || match use_typed_context::<Resource_GameStep>(cx)
+                    .read(cx)
+                    .and_then(|r| r.ok())
+                {
+                    None => view! {cx, <><GameNotFound /></>},
+                    Some(GameStep::Setup) => view! { cx, <><GameSetup /></> },
+                    Some(GameStep::Submission) => view! { cx, <><GameSubmission /></> },
+                    Some(GameStep::Judging) => view! { cx, <><GameJudging /></> },
+                    Some(GameStep::Results) => view! { cx, <><GameResults /></> },
+                }
+            }
         </Transition>
     }
 }

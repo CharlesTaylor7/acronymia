@@ -1,7 +1,7 @@
 pub mod api;
 pub mod components;
-pub mod types;
 pub mod typed_context;
+pub mod types;
 
 use leptos::*;
 use leptos_meta::*;

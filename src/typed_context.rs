@@ -41,7 +41,7 @@ where
 /// that holds a value of type RwSignal<Value>
 ///
 /// provide_typed_context & use_typed_context can only be called with types that implement
-/// ContextKey which enforces just a bit more sanity than the default use_context 
+/// ContextKey which enforces just a bit more sanity than the default use_context
 /// provided by leptos
 macro_rules! define_context_key {
     ($KEY: ident, $VALUE: ty) => {
