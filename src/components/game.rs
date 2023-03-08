@@ -14,11 +14,6 @@ define_context_key!(Action_JoinGame, Action<(), Result<Result<(), std::string::S
 define_context_key!(Resource_Players, Res<Server<Vec<Player>>>);
 define_context_key!(Resource_GameStep, Res<Server<GameStep>>);
 define_context_key!(Signal_Seconds, RwSignal<u32>);
-/*
-fn demo(cx: Scope) {
-    let s: RwSignal<String> = use_typed_context::<Signal_PlayerName>(cx);
-}
-*/
 
 #[derive(Clone)]
 struct GameContext {
@@ -27,7 +22,6 @@ struct GameContext {
     action_join_game: Action<(), Result<Result<(), std::string::String>, leptos::ServerFnError>>,
     players: Res<Server<Vec<Player>>>,
     game_step: Res<Server<GameStep>>,
-    seconds: RwSignal<u32>,
 }
 
 fn provide_game_context(cx: Scope) {
@@ -67,11 +61,11 @@ fn provide_game_context(cx: Scope) {
         }
     });
 
+    provide_typed_context::<Signal_Seconds>(cx, seconds);
     provide_context::<GameContext>(
         cx,
         GameContext {
             game_step: game_step,
-            seconds: seconds,
             player_id: player_id,
             player_name: player_name,
             action_join_game: action_join_game,
@@ -88,6 +82,7 @@ fn use_game_context(cx: Scope) -> GameContext {
 pub fn Game(cx: Scope) -> impl IntoView {
     provide_game_context(cx);
     let context = use_game_context(cx);
+    let seconds = use_typed_context::<Signal_Seconds>(cx);
 
     let game_view = move || match context.game_step.read(cx).and_then(|r| r.ok()) {
         None => view! {cx, <><GameNotFound /></>},
@@ -99,7 +94,7 @@ pub fn Game(cx: Scope) -> impl IntoView {
     view! {
         cx,
         <div>
-            "Clock: "{context.seconds}
+            "Clock: "{seconds}
         </div>
         <Transition
             fallback=move || view! { cx, "Loading" }
