@@ -15,7 +15,14 @@ where
     #[cfg(not(feature = "ssr"))]
     let signal = _sse_signal(cx);
 
-    move || serde_wasm_bindgen::from_value::<T>(signal()?.ok().map(|x| x.1.data()).into()).ok()
+    move || {
+        let payload = signal();
+        dbg!(&payload);
+        let js_val = payload?.ok().map(|x| x.1.data()).into();
+        dbg!(&js_val);
+    
+        serde_wasm_bindgen::from_value::<T>(js_val).ok()
+    }
 }
 
 type SsePayload = Option<Result<(String, MessageEvent), EventSourceError>>;
