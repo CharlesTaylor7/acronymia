@@ -77,10 +77,14 @@ pub struct Demo {
 }
 
 #[cfg(feature = "ssr")]
-pub fn demo() -> Demo {
-    let s = STATE.lock().expect("locking thread crashed");
+pub fn demo() -> Vec<Player> {
+    let state = STATE.lock().expect("locking thread crashed");
 
-    Demo {
-        val: s.rotation.len(),
-    }
+    state
+        .rotation
+        .iter()
+        .map(|id| state.players.get(id))
+        .flatten()
+        .cloned()
+        .collect()
 }

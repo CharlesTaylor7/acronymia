@@ -73,10 +73,8 @@ fn provide_game_context(cx: Scope) {
 #[component]
 pub fn Game(cx: Scope) -> impl IntoView {
     provide_game_context(cx);
-    let demo = crate::sse::create_sse_signal::<api::Demo>(cx);
     view! {
         cx,
-        <div>"SSE Player Count: "{move ||demo().map(|x| x.val)}</div>
 
         <Transition
             fallback=move || view! { cx, "Loading" }
@@ -108,9 +106,8 @@ fn GameNotFound(_cx: Scope) -> impl IntoView {
 fn GameSetup(cx: Scope) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     let player_name = use_typed_context::<Signal_PlayerName>(cx);
-    let players = use_typed_context::<Resource_Players>(cx);
+    let players = crate::sse::create_sse_signal::<Vec<Player>>(cx);
     let join_game = use_typed_context::<Action_JoinGame>(cx);
-
     view! {
         cx,
         <Debug>
@@ -140,22 +137,26 @@ fn GameSetup(cx: Scope) -> impl IntoView {
             </button>
 
             <p>"Players:"</p>
-            <Transition
-                fallback=|| "loading players"
-            >
-                <ol>
-                    <For
-                        each=move || read_or(cx, players, Vec::new())
-                        key=|p| p.id.clone()
-                        view=move |cx, p| {
-                            view! {
-                                cx,
-                                <li>{p.name}</li>
-                            }
+            <ol>
+                
+                // This should work but I can't figure out why it doesn't?
+                <For
+                    each=move || players().unwrap_or(Vec::new())
+                    key=|p| p.id.clone()
+                    view=move |cx, p| {
+                        view! {
+                            cx,
+                            <li>{p.name}</li>
                         }
-                    />
-                </ol>
-            </Transition>
+                    }
+                />
+                //{move|| players().into_iter().flat_map(|v| v.into_iter().map(|p| view! {cx, <li>{p.name}</li>}))}
+                <When
+                    predicate=join_game.pending().into()
+                >
+                    <li>{"Loading"}</li>
+                </When>
+            </ol>
         </div>
     }
 }
