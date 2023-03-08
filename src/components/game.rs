@@ -10,7 +10,7 @@ use uuid::*;
 
 define_context!(Signal_PlayerId, RwSignal<Option<String>>);
 define_context!(Signal_PlayerName, RwSignal<String>);
-define_context!(Action_JoinGame, Action<String, Result<Result<(), String>, ServerFnError>>);
+define_context!(Action_JoinGame, Action<(), Result<(), ServerFnError>>);
 define_context!(Resource_Players, Res<Server<Vec<Player>>>);
 define_context!(Resource_GameStep, Res<Server<GameStep>>);
 define_context!(Signal_Seconds, RwSignal<u32>);
@@ -60,8 +60,15 @@ fn provide_game_context(cx: Scope) {
     provide_typed_context::<Resource_GameStep>(cx, game_step);
     provide_typed_context::<Signal_PlayerId>(cx, player_id);
     provide_typed_context::<Signal_PlayerName>(cx, player_name);
+
     let seconds = clock(cx, 0);
     provide_typed_context::<Signal_Seconds>(cx, seconds);
+
+
+    let join_game = create_action(cx, move |_: &()| 
+        api::join_game(player_id().unwrap_or("".to_owned()), player_name())
+    );
+    provide_typed_context::<Action_JoinGame>(cx, join_game);
 }
 
 #[component]
@@ -100,10 +107,8 @@ fn GameSetup(cx: Scope) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     let player_name = use_typed_context::<Signal_PlayerName>(cx);
     let players = use_typed_context::<Resource_Players>(cx);
+    let join_game = use_typed_context::<Action_JoinGame>(cx);
    
-    let join_game = create_action(cx, move |_: &()| 
-        api::join_game(player_id().unwrap_or("".to_owned()), player_name())
-    );
 
     view! {
         cx,
@@ -121,7 +126,7 @@ fn GameSetup(cx: Scope) -> impl IntoView {
         <div>
             "Pick a Nickname to join: "
             <TextInput
-                default=player_name.get()
+                default=player_name()
                 on_input=move |text| player_name.set(text)
             />
 
