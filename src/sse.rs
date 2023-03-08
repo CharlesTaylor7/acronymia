@@ -1,11 +1,11 @@
 use gloo_net::eventsource::*;
 use leptos::*;
 use serde::*;
-use wasm_bindgen::*;
 use web_sys::MessageEvent;
+use wasm_bindgen::*;
 
 /// readonly signal that subscribes to Server Sent Events
-pub fn create_sse_signal<T>(cx: Scope) -> MaybeSignal<Option<T>>
+pub fn create_sse_signal<T>(cx: Scope) -> impl Copy + Fn() -> Option<T>
 where
     T: for<'de> Deserialize<'de>,
 {
@@ -15,18 +15,14 @@ where
     #[cfg(not(feature = "ssr"))]
     let signal = _sse_signal(cx);
 
-    MaybeSignal::derive(cx, move || {
-        debug(signal()?
+    move || {
+        signal()?
             .ok()?
             .1
-            .data())
+            .data()
             .as_string()
             .and_then(|x| serde_json::from_str::<T>(&x).ok())
-    })
-}
-fn debug<T: core::fmt::Debug>(x: T) -> T {
-    log::debug!("{:#?}", &x);
-    x
+    }
 }
 
 type SsePayload = Option<Result<(String, MessageEvent), EventSourceError>>;
@@ -35,6 +31,7 @@ type SsePayload = Option<Result<(String, MessageEvent), EventSourceError>>;
 fn _sse_signal(cx: Scope) -> ReadSignal<SsePayload> {
     use gloo_net::eventsource::futures::EventSource;
     use serde_wasm_bindgen::*;
+    log::debug!("{}", "_sse_signal");
     let mut source = EventSource::new("/api/events").expect("couldn't connect to SSE stream");
     let stream = source.subscribe("message").expect("subscription");
     let signal = create_signal_from_stream(cx, stream);

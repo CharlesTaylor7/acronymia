@@ -108,6 +108,7 @@ fn GameSetup(cx: Scope) -> impl IntoView {
     let player_name = use_typed_context::<Signal_PlayerName>(cx);
     let players = crate::sse::create_sse_signal::<Vec<Player>>(cx);
     let join_game = use_typed_context::<Action_JoinGame>(cx);
+
     view! {
         cx,
         <Debug>
@@ -136,9 +137,8 @@ fn GameSetup(cx: Scope) -> impl IntoView {
                 "Join!"
             </button>
 
-            <p>"Players:"</p>
+            <p>"Players with &lt;For&gt;"</p>
             <ol>
-                
                 // This should work but I can't figure out why it doesn't?
                 <For
                     each=move || players().unwrap_or(Vec::new())
@@ -150,12 +150,15 @@ fn GameSetup(cx: Scope) -> impl IntoView {
                         }
                     }
                 />
-                //{move|| players().into_iter().flat_map(|v| v.into_iter().map(|p| view! {cx, <li>{p.name}</li>}))}
-                <When
-                    predicate=join_game.pending().into()
-                >
-                    <li>{"Loading"}</li>
-                </When>
+            </ol>
+            <p>"Players without &lt;For&gt;"</p>
+            <ol>
+                {move|| players()
+                    .into_iter()
+                    .flat_map(|v| v.into_iter())
+                    .map(|p| view! {cx, <li>{p.name}</li>})
+                    .collect::<Vec<_>>()
+                }
             </ol>
         </div>
     }
