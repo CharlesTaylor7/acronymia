@@ -7,7 +7,7 @@ use uuid::Uuid;
 pub type Server<T> = Result<T, ServerFnError>;
 pub type Res<T> = Resource<u32, T>;
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Player {
     pub id: PlayerId,
     pub name: String,

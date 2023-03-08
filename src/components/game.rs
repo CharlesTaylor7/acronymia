@@ -10,7 +10,7 @@ use uuid::*;
 
 define_context!(Signal_PlayerId, RwSignal<Option<String>>);
 define_context!(Signal_PlayerName, RwSignal<String>);
-define_context!(Action_JoinGame, Action<(), Result<Result<(), String>, ServerFnError>>);
+define_context!(Action_JoinGame, Action<String, Result<Result<(), String>, ServerFnError>>);
 define_context!(Resource_Players, Res<Server<Vec<Player>>>);
 define_context!(Resource_GameStep, Res<Server<GameStep>>);
 define_context!(Signal_Seconds, RwSignal<u32>);
@@ -56,18 +56,10 @@ fn provide_game_context(cx: Scope) {
 
     let player_id = signal_player_id(cx);
     let player_name = create_rw_signal(cx, "".to_string());
-    let action_join_game = create_action(cx, move |_: &()| {
-        api::join_game(Player {
-            id: player_id().unwrap(),
-            name: player_name(),
-        })
-    });
-
     provide_typed_context::<Resource_Players>(cx, players);
     provide_typed_context::<Resource_GameStep>(cx, game_step);
     provide_typed_context::<Signal_PlayerId>(cx, player_id);
     provide_typed_context::<Signal_PlayerName>(cx, player_name);
-    provide_typed_context::<Action_JoinGame>(cx, action_join_game);
     let seconds = clock(cx, 0);
     provide_typed_context::<Signal_Seconds>(cx, seconds);
 }
@@ -108,16 +100,26 @@ fn GameSetup(cx: Scope) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     let player_name = use_typed_context::<Signal_PlayerName>(cx);
     let players = use_typed_context::<Resource_Players>(cx);
-    let action_join_game = use_typed_context::<Action_JoinGame>(cx);
+    
+    let me = create_memo(cx, move|_|
+        Player {
+            id: player_id().unwrap_or("".to_string()),
+            name: player_name(),
+        });
+
+    let join_game = create_action(cx, move |_: &()| api::join_game(me()));
+
     view! {
         cx,
         <Debug>
             <div>
+                <h1 class="font-bold font-xl">"Begin Debug"</h1>
                 "Override player id (Debug only): "
                 <TextInput
                     default=player_id.get().unwrap_or("".to_string())
                     on_input=move |text| player_id.set(Some(text))
                 />
+                <h1 class="font-bold font-xl">"End Debug"</h1>
             </div>
         </Debug>
         <div>
@@ -125,11 +127,14 @@ fn GameSetup(cx: Scope) -> impl IntoView {
             <TextInput
                 default=player_name.get()
                 disabled=MaybeSignal::derive(cx, move|| player_id().is_none())
-                on_input=move|text| {
-                    player_name.set(text);
-                    action_join_game.dispatch(())
-                }
+                on_input=move |text| player_name.set(text)
             />
+
+            <button 
+                on:click=move|_| join_game.dispatch(())
+            >
+                "Join!"
+            </button>
 
             "Players:"
             <Transition

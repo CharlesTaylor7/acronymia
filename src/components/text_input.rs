@@ -9,7 +9,7 @@ pub fn TextInput<F>(
     #[prop(optional)] disabled: Option<MaybeSignal<bool>>,
 ) -> impl IntoView
 where
-    F: Fn(String) -> () + 'static + Copy,
+    F: FnOnce(String) -> () + 'static + Copy,
 {
     let input_ref = create_node_ref::<Input>(cx);
     let callback = move || {
