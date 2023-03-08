@@ -64,12 +64,12 @@ fn provide_game_context(cx: Scope) {
     let seconds = clock(cx, 0);
     provide_typed_context::<Signal_Seconds>(cx, seconds);
 
-
-    let join_game = create_action(cx, move |_: &()| 
+    let join_game = create_action(cx, move |_: &()| {
         api::join_game(player_id().unwrap_or("".to_owned()), player_name())
-    );
+    });
     provide_typed_context::<Action_JoinGame>(cx, join_game);
 }
+
 
 #[component]
 pub fn Game(cx: Scope) -> impl IntoView {
@@ -108,7 +108,6 @@ fn GameSetup(cx: Scope) -> impl IntoView {
     let player_name = use_typed_context::<Signal_PlayerName>(cx);
     let players = use_typed_context::<Resource_Players>(cx);
     let join_game = use_typed_context::<Action_JoinGame>(cx);
-   
 
     view! {
         cx,
@@ -130,7 +129,7 @@ fn GameSetup(cx: Scope) -> impl IntoView {
                 on_input=move |text| player_name.set(text)
             />
 
-            <button 
+            <button
                 class="border rounded p-2 m-2 bg-blue-300 border-slate-200"
                 prop:disabled=MaybeSignal::derive(cx, move|| player_id().is_none())
                 on:click=move |_| join_game.dispatch(())

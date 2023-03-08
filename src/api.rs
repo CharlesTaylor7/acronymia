@@ -49,7 +49,10 @@ pub async fn join_game(id: String, name: String) -> Result<(), ServerFnError> {
     debug_warn!("id={} name={}", &id, &name);
     let mut state = STATE.lock().expect("locking thread crashed");
 
-    let player = Player { id: id.clone(), name: name };
+    let player = Player {
+        id: id.clone(),
+        name: name,
+    };
     if let None = state.players.insert(id.clone(), player) {
         state.rotation.push(id);
     }
