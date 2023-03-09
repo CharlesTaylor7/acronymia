@@ -1,30 +1,24 @@
 use cfg_if::cfg_if;
-use std::sync::*;
 
 cfg_if! {
     if #[cfg(feature = "ssr")] {
         use acronymia::{App, AppProps};
+        use acronymia::sse;
+        use acronymia::api;
         use actix_files::Files;
         use actix_web::*;
         use leptos::*;
         use leptos_actix::{generate_route_list, LeptosRoutes};
-
+        use futures::StreamExt;
 
         #[get("/api/events")]
         async fn server_events() -> impl Responder {
-            use futures::StreamExt;
+            let stream1 = sse::to_stream(api::fetch_players());
+            let stream2 = sse::to_stream(api::fetch_game_step());
 
-            let stream =
-                futures::stream::once(async {acronymia::api::demo()})
-                    .map(|value| {
-                        Ok(web::Bytes::from(format!(
-                            "event: message\ndata: {}\n\n",
-                             serde_json::to_string(&value).unwrap()
-                        ))) as Result<web::Bytes>
-                    });
             HttpResponse::Ok()
                 .insert_header(("Content-Type", "text/event-stream"))
-                .streaming(stream)
+                .streaming(stream1.chain(stream2))
         }
 
         #[actix_web::main]

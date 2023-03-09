@@ -1,19 +1,35 @@
+use crate::types::*;
 use gloo_net::eventsource::*;
 use leptos::*;
 use serde::*;
-use wasm_bindgen::*;
 use web_sys::MessageEvent;
 
+// Trait to for use between server and client
+pub trait ServerSentEvent: Serialize + for<'de> Deserialize<'de> {
+    fn event_type() -> &'static str;
+}
+
+impl ServerSentEvent for GameStep {
+    fn event_type() -> &'static str {
+        "game-step"
+    }
+}
+
+impl ServerSentEvent for Vec<Player> {
+    fn event_type() -> &'static str {
+        "players"
+    }
+}
+
+// Client side signal
+
 /// readonly signal that subscribes to Server Sent Events
-pub fn create_sse_signal<T>(cx: Scope) -> impl Copy + Fn() -> Option<T>
-where
-    T: for<'de> Deserialize<'de>,
-{
+pub fn create_sse_signal<T: ServerSentEvent>(cx: Scope) -> impl Copy + Fn() -> Option<T> {
     #[cfg(feature = "ssr")]
     let signal = _fake_sse_signal(cx);
 
     #[cfg(not(feature = "ssr"))]
-    let signal = _sse_signal(cx);
+    let signal = _sse_signal(cx, T::event_type());
 
     move || {
         signal()?
@@ -28,12 +44,10 @@ where
 type SsePayload = Option<Result<(String, MessageEvent), EventSourceError>>;
 
 /// raw signal that subscribes to Server Sent Events
-fn _sse_signal(cx: Scope) -> ReadSignal<SsePayload> {
+fn _sse_signal(cx: Scope, event_type: &str) -> ReadSignal<SsePayload> {
     use gloo_net::eventsource::futures::EventSource;
-    use serde_wasm_bindgen::*;
-    log::debug!("{}", "_sse_signal");
     let mut source = EventSource::new("/api/events").expect("couldn't connect to SSE stream");
-    let stream = source.subscribe("message").expect("subscription");
+    let stream = source.subscribe(event_type).expect("subscription");
     let signal = create_signal_from_stream(cx, stream);
 
     on_cleanup(cx, move || source.close());
@@ -44,4 +58,31 @@ fn _sse_signal(cx: Scope) -> ReadSignal<SsePayload> {
 fn _fake_sse_signal(cx: Scope) -> ReadSignal<SsePayload> {
     let (signal, _) = create_signal(cx, None);
     signal
+}
+
+// server side api handler
+use cfg_if::cfg_if;
+cfg_if! {
+    if #[cfg(feature = "ssr")] {
+        use ::futures::{stream, Stream};
+        use ::futures::StreamExt;
+        use actix_web::{
+            Error,
+            web::Bytes,
+        };
+
+        pub fn to_stream<T: ServerSentEvent>(event: T) ->
+            impl Stream<Item = Result<Bytes, Error>> {
+            stream::once(async {event})
+                .map(|value| Ok::<_, Error>(to_bytes(value)))
+        }
+
+        fn to_bytes<T: ServerSentEvent>(event: T) -> Bytes {
+            Bytes::from(format!(
+                "event: {}\ndata: {}\n\n",
+                <T as ServerSentEvent>::event_type(),
+                 serde_json::to_string(&event).unwrap()
+            ))
+        }
+    }
 }

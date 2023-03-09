@@ -1,7 +1,6 @@
-use crate::api::*;
 use crate::components::text_input::*;
-use crate::components::timer::*;
 use crate::components::utils::*;
+use crate::sse::*;
 use crate::typed_context::*;
 use crate::types::*;
 use crate::*;
@@ -11,8 +10,6 @@ use uuid::*;
 define_context!(Signal_PlayerId, RwSignal<Option<String>>);
 define_context!(Signal_PlayerName, RwSignal<String>);
 define_context!(Action_JoinGame, Action<(), Result<(), ServerFnError>>);
-define_context!(Resource_GameStep, Res<Server<GameStep>>);
-define_context!(Signal_Seconds, RwSignal<u32>);
 
 /// a signal for the player id
 /// that caches its value inside local storage
@@ -45,18 +42,11 @@ fn signal_player_id(cx: Scope) -> RwSignal<Option<String>> {
 }
 
 fn provide_game_context(cx: Scope) {
-    // poll for the game state
-    let seconds = create_rw_signal(cx, 0);
-    let game_step = create_resource(cx, seconds, move |_| fetch_game_step());
-
     let player_id = signal_player_id(cx);
-    let player_name = create_rw_signal(cx, "".to_string());
-    provide_typed_context::<Resource_GameStep>(cx, game_step);
     provide_typed_context::<Signal_PlayerId>(cx, player_id);
-    provide_typed_context::<Signal_PlayerName>(cx, player_name);
 
-    let seconds = clock(cx, 0);
-    provide_typed_context::<Signal_Seconds>(cx, seconds);
+    let player_name = create_rw_signal(cx, "".to_string());
+    provide_typed_context::<Signal_PlayerName>(cx, player_name);
 
     let join_game = create_action(cx, move |_: &()| {
         api::join_game(player_id().unwrap_or("".to_owned()), player_name())
@@ -67,23 +57,20 @@ fn provide_game_context(cx: Scope) {
 #[component]
 pub fn Game(cx: Scope) -> impl IntoView {
     provide_game_context(cx);
+    let game_step = create_sse_signal::<GameStep>(cx);
     view! {
         cx,
 
         <Transition
             fallback=move || view! { cx, "Loading" }
         >
-            { move || match use_typed_context::<Resource_GameStep>(cx)
-                    .read(cx)
-                    .and_then(|r| r.ok())
-                {
-                    None => view! {cx, <><GameNotFound /></>},
-                    Some(GameStep::Setup) => view! { cx, <><GameSetup /></> },
-                    Some(GameStep::Submission) => view! { cx, <><GameSubmission /></> },
-                    Some(GameStep::Judging) => view! { cx, <><GameJudging /></> },
-                    Some(GameStep::Results) => view! { cx, <><GameResults /></> },
-                }
-            }
+            { move || match game_step() {
+                None => view! {cx, <><GameNotFound /></>},
+                Some(GameStep::Setup) => view! { cx, <><GameSetup /></> },
+                Some(GameStep::Submission) => view! { cx, <><GameSubmission /></> },
+                Some(GameStep::Judging) => view! { cx, <><GameJudging /></> },
+                Some(GameStep::Results) => view! { cx, <><GameResults /></> },
+            }}
         </Transition>
     }
 }
@@ -100,7 +87,7 @@ fn GameNotFound(_cx: Scope) -> impl IntoView {
 fn GameSetup(cx: Scope) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     let player_name = use_typed_context::<Signal_PlayerName>(cx);
-    let players = crate::sse::create_sse_signal::<Vec<Player>>(cx);
+    let players = create_sse_signal::<Vec<Player>>(cx);
     let join_game = use_typed_context::<Action_JoinGame>(cx);
 
     view! {
@@ -164,16 +151,4 @@ fn GameResults(_cx: Scope) -> impl IntoView {
         cx,
         "Results!"
     }
-}
-
-fn read_or<S, T>(cx: Scope, resource: Resource<S, Result<T, ServerFnError>>, default: T) -> T
-where
-    S: Clone,
-    T: Clone,
-{
-    resource
-        .read(cx)
-        .map(|n| n.ok())
-        .flatten()
-        .unwrap_or(default)
 }

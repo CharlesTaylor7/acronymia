@@ -11,36 +11,11 @@ lazy_static::lazy_static! {
 
 #[cfg(feature = "ssr")]
 pub fn register_server_functions() {
-    _ = FetchPlayers::register();
-    _ = FetchGameStep::register();
     _ = JoinGame::register();
     _ = ResetState::register();
 }
 
 // Apis
-/// get the players in the game
-#[server(FetchPlayers, "/api")]
-pub async fn fetch_players() -> Result<Vec<Player>, ServerFnError> {
-    let state = STATE.lock().expect("locking thread crashed");
-
-    Result::Ok(
-        state
-            .rotation
-            .iter()
-            .map(|id| state.players.get(id))
-            .flatten()
-            .cloned()
-            .collect(),
-    )
-}
-
-/// get the current game state
-#[server(FetchGameStep, "/api")]
-pub async fn fetch_game_step() -> Result<GameStep, ServerFnError> {
-    let state = STATE.lock().expect("locking thread crashed");
-
-    Result::Ok(state.step.clone())
-}
 
 /// register your name for the current game
 /// allows you to update your name if you already joined
@@ -70,14 +45,9 @@ pub async fn reset_state() -> Result<(), ServerFnError> {
     Result::Ok(())
 }
 
-use serde::*;
-#[derive(Serialize, Deserialize)]
-pub struct Demo {
-    pub val: usize,
-}
-
+// sse payloads
 #[cfg(feature = "ssr")]
-pub fn demo() -> Vec<Player> {
+pub fn fetch_players() -> Vec<Player> {
     let state = STATE.lock().expect("locking thread crashed");
 
     state
@@ -87,4 +57,11 @@ pub fn demo() -> Vec<Player> {
         .flatten()
         .cloned()
         .collect()
+}
+
+#[cfg(feature = "ssr")]
+pub fn fetch_game_step() -> GameStep {
+    let state = STATE.lock().expect("locking thread crashed");
+
+    state.step.clone()
 }
