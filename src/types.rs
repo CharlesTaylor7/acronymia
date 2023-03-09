@@ -84,7 +84,7 @@ impl GameState {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Default, Debug)]
+#[derive(Serialize, Deserialize, Clone, Default, Debug, PartialEq)]
 pub enum GameStep {
     #[default]
     Setup, // Player's joining and game config

@@ -42,6 +42,7 @@ fn signal_player_id(cx: Scope) -> RwSignal<Option<String>> {
 }
 
 fn provide_game_context(cx: Scope) {
+    provide_sse_stream(cx);
     let player_id = signal_player_id(cx);
     provide_typed_context::<Signal_PlayerId>(cx, player_id);
 
@@ -58,6 +59,7 @@ fn provide_game_context(cx: Scope) {
 pub fn Game(cx: Scope) -> impl IntoView {
     provide_game_context(cx);
     let game_step = create_sse_signal::<GameStep>(cx);
+    let game_step = create_memo(cx, move |_| game_step());
     view! {
         cx,
 
