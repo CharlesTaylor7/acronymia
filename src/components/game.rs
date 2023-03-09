@@ -136,22 +136,6 @@ fn GameSetup(cx: Scope) -> impl IntoView {
             >
                 "Join!"
             </button>
-
-            <p>"Players with &lt;For&gt;"</p>
-            <ol>
-                // This should work but I can't figure out why it doesn't?
-                <For
-                    each=move || players().unwrap_or(Vec::new())
-                    key=|p| p.id.clone()
-                    view=move |cx, p| {
-                        view! {
-                            cx,
-                            <li>{p.name}</li>
-                        }
-                    }
-                />
-            </ol>
-            <p>"Players without &lt;For&gt;"</p>
             <ol>
                 {move|| players()
                     .into_iter()
