@@ -14,6 +14,7 @@ lazy_static::lazy_static! {
 #[cfg(feature = "ssr")]
 pub fn register_server_functions() {
     _ = JoinGame::register();
+    _ = KickPlayer::register();
     _ = ResetState::register();
 }
 
@@ -37,6 +38,20 @@ pub async fn join_game(id: String, name: String) -> Result<(), ServerFnError> {
 
     Ok(())
 }
+
+
+/// kick a player from the current game
+/// TODO: restrict this to the room "owner"
+#[server(KickPlayer, "/api")]
+pub async fn kick_player(id: String) -> Result<(), ServerFnError> {
+    debug_warn!("kicking {}", &id);
+    let mut state = STATE.lock().expect("locking thread crashed");
+
+    state.rotation.retain(|p| *p != id);
+    Ok(())
+}
+
+
 
 /// reset the server state completely
 #[server(ResetState, "/api")]
