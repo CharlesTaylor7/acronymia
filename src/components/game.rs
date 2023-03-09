@@ -24,14 +24,10 @@ pub fn Game(cx: Scope) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     let game_step = create_sse_signal::<GameStep>(cx);
     let game_step = create_memo(cx, move |_| game_step());
-
     let debug_region_expanded = create_rw_signal(cx, false);
     view! {
         cx,
         <div class="flex flex-col items-start mx-20 my-4 gap-4">
-            <div class>
-                <h1 class="text-xl font-bold">"Acronymia"</h1>
-            </div>
             <Debug>
                 <button
                     class="border rounded p-2 bg-slate-200"
@@ -53,6 +49,7 @@ pub fn Game(cx: Scope) -> impl IntoView {
                     </div>
                 </When>
             </Debug>
+            <h1 class="text-xl font-bold">"Acronymia"</h1>
             { move || match game_step() {
                 None => view! {cx, <><GameNotFound /></>},
                 Some(GameStep::Setup) => view! { cx, <><GameSetup /></> },
