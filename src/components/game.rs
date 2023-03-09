@@ -139,7 +139,7 @@ fn GameSetup(cx: Scope) -> impl IntoView {
             <ol>
                 {move|| players()
                     .into_iter()
-                    .flat_map(|v| v.into_iter())
+                    .flatten()
                     .map(|p| view! {cx, <li>{p.name}</li>})
                     .collect::<Vec<_>>()
                 }
