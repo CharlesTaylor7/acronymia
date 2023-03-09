@@ -1,15 +1,22 @@
 use ::uuid::*;
 
-use crate::sse::*;
-use crate::typed_context::*;
 use crate::*;
+use sse::*;
+use typed_context::*;
+use types::*;
 
 define_context!(Signal_PlayerId, RwSignal<Option<String>>);
 define_context!(Signal_PlayerName, RwSignal<String>);
 define_context!(Action_JoinGame, Action<(), Result<(), ServerFnError>>);
+define_context!(Signal_GameState, Signal<Option<ClientGameState>>);
 
 pub fn provide_game_context(cx: Scope) {
-    provide_sse_stream(cx);
+    let player_id = signal_player_id(cx);
+    provide_typed_context::<Signal_PlayerId>(cx, player_id);
+
+    let game_state = create_sse_signal::<ClientGameState>(cx, player_id);
+    provide_typed_context::<Signal_GameState>(cx, game_state);
+
     let player_id = signal_player_id(cx);
     provide_typed_context::<Signal_PlayerId>(cx, player_id);
 
@@ -24,7 +31,7 @@ pub fn provide_game_context(cx: Scope) {
 
 /// a signal for the player id
 /// that caches its value inside local storage
-fn signal_player_id(cx: Scope) -> RwSignal<Option<String>> {
+fn signal_player_id(cx: Scope) -> RwSignal<Option<PlayerId>> {
     const STORAGE_KEY: &str = "acronymia-player-id";
 
     let player_id: RwSignal<Option<String>> = create_rw_signal(cx, None);
@@ -32,7 +39,7 @@ fn signal_player_id(cx: Scope) -> RwSignal<Option<String>> {
     // this only runs once because it does not depend on any reactive values
     // but its wrapped in create_effect to ensure it runs on the client side
     create_effect(cx, move |_| {
-        if player_id.get().is_some() {
+        if player_id().is_some() {
             return ();
         }
         let new_player_id = move |storage: web_sys::Storage| {

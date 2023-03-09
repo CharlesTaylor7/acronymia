@@ -3,7 +3,6 @@ use ::leptos::*;
 use super::context::*;
 use crate::api;
 use crate::components::text_input::*;
-use crate::sse::*;
 use crate::typed_context::*;
 use crate::types::*;
 
@@ -11,10 +10,15 @@ use crate::types::*;
 pub fn GameSetup(cx: Scope) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     let player_name = use_typed_context::<Signal_PlayerName>(cx);
-    let players = create_sse_signal::<Vec<Player>>(cx);
     let join_game = use_typed_context::<Action_JoinGame>(cx);
     let kick_player = create_action(cx, move |id: &PlayerId| api::kick_player(id.clone()));
     let start_game = create_action(cx, move |_: &()| api::start_game());
+    let game_state = use_typed_context::<Signal_GameState>(cx);
+    let players: Memo<Vec<Player>> = create_memo(cx, move |_| {
+        game_state
+            .with(|s| s.as_ref().map(|s| s.players.clone()))
+            .unwrap_or(Vec::new())
+    });
 
     view! {
         cx,
@@ -41,14 +45,13 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
                 </button>
             </div>
 
-            <p>{move || players().map(|v| v.len()).unwrap_or(0)}" players joined"</p>
+            <p>{move || players.get().len()}" players joined"</p>
             <ul class="list-inside list-disc flex flex-col items-start" >
                 {move|| players()
                     .into_iter()
-                    .flatten()
                     .map(|p| view! { cx,
                         <li>
-                            {p.name}
+                            {p.name.clone()}
                             <button
                                 class="bg-red-200 border rounded mx-2 px-2 border-slate-200"
                                 on:click=move |_| kick_player.dispatch(p.id.clone())

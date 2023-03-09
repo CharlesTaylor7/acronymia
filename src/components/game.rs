@@ -3,7 +3,6 @@ use ::leptos::*;
 use crate::components::reset_button::*;
 use crate::components::text_input::*;
 use crate::components::utils::*;
-use crate::sse::*;
 use crate::typed_context::*;
 use crate::types::*;
 
@@ -21,9 +20,12 @@ use self::submission::*;
 #[component]
 pub fn Game(cx: Scope) -> impl IntoView {
     provide_game_context(cx);
+    let game_state = use_typed_context::<Signal_GameState>(cx);
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
-    let game_step = create_sse_signal::<GameStep>(cx);
-    let game_step = create_memo(cx, move |_| game_step());
+    let game_step = create_memo(cx, move |_| {
+        game_state.with(|s| s.as_ref().map(|s| s.step.clone()))
+    });
+
     let debug_region_expanded = create_rw_signal(cx, false);
     view! {
         cx,
@@ -38,13 +40,14 @@ pub fn Game(cx: Scope) -> impl IntoView {
                 <When predicate=debug_region_expanded.into()>
                     <div class="flex flex-col items-start gap-4">
                         <h1 class="font-bold font-xl">"Begin Debug"</h1>
-                        <ResetButton/>
-
                         <p>"Override player id: "</p>
                         <TextInput
                             default=player_id().unwrap_or("".to_string())
                             on_input=move |text| player_id.set(Some(text))
                         />
+                        <ResetButton/>
+                        <p>{move || format!("player_id = {:#?}", player_id())}</p>
+                        <p>{move || format!("game_state = {:#?}", game_state())}</p>
                         <h1 class="font-bold font-xl">"End Debug"</h1>
                     </div>
                 </When>

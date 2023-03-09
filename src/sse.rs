@@ -1,76 +1,86 @@
 use crate::types::*;
-use gloo_net::eventsource::*;
-use leptos::*;
-use serde::*;
-use web_sys::MessageEvent;
+use ::leptos::*;
+use ::serde::*;
 
 // Trait to ensure server and client use the same event types
-pub trait ServerSentEvent: Serialize + for<'de> Deserialize<'de> {
+pub trait ServerSentEvent: PartialEq + Clone + Serialize + for<'de> Deserialize<'de> {
     fn event_type() -> &'static str;
 }
 
-impl ServerSentEvent for GameStep {
+impl ServerSentEvent for ClientGameState {
     fn event_type() -> &'static str {
-        "game-step"
+        "game-state"
     }
 }
 
-impl ServerSentEvent for Vec<Player> {
-    fn event_type() -> &'static str {
-        "players"
-    }
+#[cfg(not(feature = "ssr"))]
+use gloo_net::eventsource::futures::*;
+
+// use gloo_net::eventsource::EventSourceError;
+// use web_sys::MessageEvent;
+// type Event = Result<(std::string::String, MessageEvent), EventSourceError>;
+
+// whenever the player id changes, resubscribe to a new stream
+#[cfg(not(feature = "ssr"))]
+pub fn create_sse_signal<T: ServerSentEvent>(
+    cx: Scope,
+    id: RwSignal<Option<PlayerId>>,
+) -> Signal<Option<T>> {
+    let handle = store_value::<Option<ScopeDisposer>>(cx, None);
+
+    let signal: Memo<Signal<Option<T>>> = create_memo(cx, move |_| {
+        log!("run sse effect");
+        handle.update_value(|h| {
+            std::mem::take(h).map(|h| {
+                log!("dispose of child scope");
+                h.dispose();
+            });
+        });
+
+        if let Some(id) = id.get() {
+            let (stream, disposer) = cx.run_child_scope(move |cx| subscribe::<T>(cx, id));
+            handle.set_value(Some(disposer));
+            return to_signal(cx, stream);
+        }
+        Signal::derive(cx, || None)
+    });
+
+    Signal::derive(cx, move || signal.with(|s| s.get()))
 }
 
-use crate::typed_context::*;
-use gloo_net::eventsource::futures::EventSource;
-define_context!(SseStream, Option<EventSource>);
-
-// Client side signal
-pub fn provide_sse_stream(cx: Scope) {
-    #[cfg(not(feature = "ssr"))]
-    let source = EventSource::new("/api/events").ok();
-
-    #[cfg(feature = "ssr")]
-    let source = None;
-
-    provide_typed_context::<SseStream>(cx, source);
-    //("couldn't connect to SSE stream");
-}
-
-/// readonly signal that subscribes to Server Sent Events
-pub fn create_sse_signal<T: ServerSentEvent>(cx: Scope) -> impl Copy + Fn() -> Option<T> {
-    #[cfg(feature = "ssr")]
-    let signal = _fake_sse_signal(cx);
-
-    #[cfg(not(feature = "ssr"))]
-    let signal = _sse_signal(cx, T::event_type());
-
-    move || {
+#[cfg(not(feature = "ssr"))]
+fn to_signal<T: ServerSentEvent>(cx: Scope, stream: EventSourceSubscription) -> Signal<Option<T>> {
+    let signal = create_signal_from_stream(cx, stream);
+    Signal::derive(cx, move || {
         signal()?
             .ok()?
             .1
             .data()
             .as_string()
             .and_then(|x| serde_json::from_str::<T>(&x).ok())
-    }
+    })
 }
 
-type SsePayload = Option<Result<(String, MessageEvent), EventSourceError>>;
-
-/// raw signal that subscribes to Server Sent Events
-fn _sse_signal(cx: Scope, event_type: &str) -> ReadSignal<SsePayload> {
-    let mut source = use_typed_context::<SseStream>(cx).expect("couldn't connect to SSE stream");
-    let stream = source.subscribe(event_type).expect("couldn't subscribe");
-    let signal = create_signal_from_stream(cx, stream);
-
-    on_cleanup(cx, move || source.close());
-    signal
+#[cfg(not(feature = "ssr"))]
+fn subscribe<T: ServerSentEvent>(cx: Scope, id: PlayerId) -> EventSourceSubscription {
+    let mut source = EventSource::new(&format!("/api/events/{}", &id))
+        .expect("couldn't connect to SSE server endpoint");
+    let stream = source
+        .subscribe(<T as ServerSentEvent>::event_type())
+        .expect("couldn't subscribe to events");
+    on_cleanup(cx, move || {
+        log!("closing event source");
+        source.close();
+    });
+    stream
 }
-
-/// signal that is never invoked, just to satisfy compiler during SSR
-fn _fake_sse_signal(cx: Scope) -> ReadSignal<SsePayload> {
-    let (signal, _) = create_signal(cx, None);
-    signal
+// stub definition for SSR context
+#[cfg(feature = "ssr")]
+pub fn create_sse_signal<T: ServerSentEvent>(
+    cx: Scope,
+    _id: RwSignal<Option<PlayerId>>,
+) -> Signal<Option<T>> {
+    create_signal(cx, Default::default()).0.into()
 }
 
 // server side api handler

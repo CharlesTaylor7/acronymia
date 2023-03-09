@@ -25,7 +25,7 @@ pub fn register_server_functions() {
 /// allows you to update your name if you already joined
 #[server(JoinGame, "/api")]
 pub async fn join_game(id: String, name: String) -> Result<(), ServerFnError> {
-    debug_warn!("id={} name={}", &id, &name);
+    log!("id={} name={}", &id, &name);
     let mut state = STATE.lock().expect("locking thread crashed");
 
     let player = Player {
@@ -33,7 +33,7 @@ pub async fn join_game(id: String, name: String) -> Result<(), ServerFnError> {
         name: name,
     };
     if let None = state.players.insert(id.clone(), player) {
-        debug_warn!("new player joined: {}", id.clone());
+        log!("new player joined: {}", id.clone());
         state.rotation.push(id);
     }
 
@@ -44,7 +44,7 @@ pub async fn join_game(id: String, name: String) -> Result<(), ServerFnError> {
 /// TODO: restrict this to the room "owner"
 #[server(KickPlayer, "/api")]
 pub async fn kick_player(id: String) -> Result<(), ServerFnError> {
-    debug_warn!("kicking {}", &id);
+    log!("kicking {}", &id);
     let mut state = STATE.lock().expect("locking thread crashed");
 
     state.rotation.retain(|p| *p != id);
@@ -55,7 +55,7 @@ pub async fn kick_player(id: String) -> Result<(), ServerFnError> {
 /// TODO: restrict this to the room "owner"
 #[server(StartGame, "/api")]
 pub async fn start_game() -> Result<(), ServerFnError> {
-    debug_warn!("starting game");
+    log!("starting game");
     let mut state = STATE.lock().expect("locking thread crashed");
 
     state.start_round();
@@ -73,21 +73,25 @@ pub async fn reset_state() -> Result<(), ServerFnError> {
 
 // sse payloads
 #[cfg(feature = "ssr")]
-pub fn fetch_players() -> Vec<Player> {
+pub fn client_game_state(id: String) -> ClientGameState {
     let state = STATE.lock().expect("locking thread crashed");
 
-    state
-        .rotation
-        .iter()
-        .map(|id| state.players.get(id))
-        .flatten()
-        .cloned()
-        .collect()
-}
+    let judge_id = state.rotation.get(state.current_judge());
+    let judge = match judge_id {
+        None => Judge::Someone("".to_owned()),
+        Some(judge_id) if id == *judge_id => Judge::Me(JudgeInfo {}),
+        Some(judge_id) => Judge::Someone(judge_id.clone()),
+    };
 
-#[cfg(feature = "ssr")]
-pub fn fetch_game_step() -> GameStep {
-    let state = STATE.lock().expect("locking thread crashed");
-
-    state.step.clone()
+    ClientGameState {
+        judge: judge,
+        step: state.step.clone(),
+        players: state
+            .rotation
+            .iter()
+            .map(|id| state.players.get(id))
+            .flatten()
+            .cloned()
+            .collect(),
+    }
 }

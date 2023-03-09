@@ -1,42 +1,19 @@
 use leptos::{Resource, ServerFnError};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use uuid::Uuid;
 
-// aliases because I'm lazy
+// aliases
 pub type Server<T> = Result<T, ServerFnError>;
 pub type Res<T> = Resource<u32, T>;
-
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
-pub struct Player {
-    pub id: PlayerId,
-    pub name: String,
-}
-impl Player {
-    pub fn new(name: String) -> Self {
-        Player {
-            id: Uuid::new_v4().to_string(),
-            name: name,
-        }
-    }
-}
-
-// user submitted pick
-pub type Submission = Vec<String>;
+pub type Submission = Vec<String>; // user submitted pick
 pub type RoundId = u32;
-// uuid
-pub type PlayerId = String;
+pub type PlayerId = String; // uuid
 pub type JudgeId = usize; // index into the rotation vector
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct Round {
-    judge: JudgeId,
-    acronym: String,
-}
-
-/// The idea is for a very normalized game state.
+/// Server game state
+/// The idea is to make the state very normalized.
 /// e.g. Determining who the current judge is can be a function, that looks at the last item of the rounds vector. (instead of another field for meta data like that)
-#[derive(Serialize, Deserialize, Clone, Default, Debug)]
+#[derive(Default, Debug)]
 pub struct GameState {
     pub step: GameStep,
     pub players: HashMap<PlayerId, Player>, // registered players
@@ -44,6 +21,51 @@ pub struct GameState {
     pub rounds: Vec<Round>, // list of rounds, records past or present chosen judge and acronym
     pub submissions: HashMap<(RoundId, PlayerId), Submission>,
     pub winners: Vec<PlayerId>, // list of winning player indexed by round
+}
+#[derive(Serialize, Deserialize, Clone, Default, Debug, PartialEq)]
+pub enum GameStep {
+    #[default]
+    Setup, // Player's joining and game config
+    Submission, // Player's submit acronyms
+    Judging,    // Judge judges
+    Results,    // Scoreboard at game end
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub struct Player {
+    pub id: PlayerId,
+    pub name: String,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct Round {
+    judge: JudgeId,
+    acronym: String,
+}
+
+/// game state for a single client
+/// some of the server game state should be hidden, and some should be transformed for easier consumption
+#[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq)]
+pub struct ClientGameState {
+    pub judge: Judge,
+    pub step: GameStep,
+    pub players: Vec<Player>,
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+pub enum Judge {
+    Me(JudgeInfo),     // info privy to me as the judge
+    Someone(PlayerId), // id of the judge
+}
+impl Default for Judge {
+    fn default() -> Judge {
+        Judge::Someone(Default::default())
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq, Default, Clone)]
+pub struct JudgeInfo {
+    // info privy to me as the judge
 }
 
 impl GameState {
@@ -56,44 +78,15 @@ impl GameState {
         self.step = GameStep::Submission;
     }
 
-    pub fn current_judge(&self) -> Option<JudgeId> {
+    pub fn current_judge(&self) -> JudgeId {
         let length = self.rounds.len();
         if length == 0 {
-            return None;
+            return 0;
         }
-        Some(self.rounds[length - 1].judge)
+        self.rounds[length - 1].judge
     }
 
     pub fn next_judge(&self) -> JudgeId {
-        let n = self.rotation.len();
-        self.current_judge().map(|i| (i + 1) % n).unwrap_or(0)
-        /*
-        let judge = self.current_judge();
-        let length = self.players.len();
-        let default = length - 1;
-        let index = match judge {
-            None => default,
-            Some(judge) => self
-                .players
-                .iter()
-                .position(|x| x.id == judge.id)
-                .unwrap_or(default),
-        };
-        &self.players[(index + 1) % length]
-        */
+        (self.current_judge() + 1) % self.rotation.len()
     }
-}
-
-#[derive(Serialize, Deserialize, Clone, Default, Debug, PartialEq)]
-pub enum GameStep {
-    #[default]
-    Setup, // Player's joining and game config
-    Submission, // Player's submit acronyms
-    Judging,    // Judge judges
-    Results,    // Scoreboard at game end
-}
-
-/// Messages passed to the main thread to update the game state
-pub enum Message {
-    Dummy,
 }

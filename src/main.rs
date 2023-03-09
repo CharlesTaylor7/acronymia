@@ -9,16 +9,12 @@ cfg_if! {
         use actix_web::*;
         use leptos::*;
         use leptos_actix::{generate_route_list, LeptosRoutes};
-        use futures::StreamExt;
 
-        #[get("/api/events")]
-        async fn server_events() -> impl Responder {
-            let stream1 = sse::to_stream(api::fetch_players());
-            let stream2 = sse::to_stream(api::fetch_game_step());
-
+        #[get("/api/events/{id}")]
+        async fn server_events(path: web::Path<String>) -> impl Responder {
             HttpResponse::Ok()
                 .insert_header(("Content-Type", "text/event-stream"))
-                .streaming(stream1.chain(stream2))
+                .streaming(sse::to_stream(api::client_game_state(path.into_inner())))
         }
 
         #[actix_web::main]
