@@ -16,6 +16,22 @@ pub fn When(
     }
 }
 
+#[component]
+pub fn If(
+    cx: Scope,
+    r#if: MaybeSignal<bool>,
+    then: Box<dyn Fn(Scope) -> Fragment>,
+    r#else: Box<dyn Fn(Scope) -> Fragment>,
+) -> impl IntoView {
+    move || {
+        if r#if() {
+            view! {cx, <>{then(cx)}</>}
+        } else {
+            view! {cx, <>{r#else(cx)}</>}
+        }
+    }
+}
+
 /// A component that only exists in debug mode
 #[component]
 pub fn Debug(cx: Scope, children: Box<dyn Fn(Scope) -> Fragment>) -> impl IntoView {

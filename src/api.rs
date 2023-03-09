@@ -40,7 +40,6 @@ pub async fn join_game(id: String, name: String) -> Result<(), ServerFnError> {
     Ok(())
 }
 
-
 /// kick a player from the current game
 /// TODO: restrict this to the room "owner"
 #[server(KickPlayer, "/api")]
@@ -52,7 +51,6 @@ pub async fn kick_player(id: String) -> Result<(), ServerFnError> {
     Ok(())
 }
 
-
 /// start the game
 /// TODO: restrict this to the room "owner"
 #[server(StartGame, "/api")]
@@ -63,7 +61,6 @@ pub async fn start_game() -> Result<(), ServerFnError> {
     state.start_round();
     Ok(())
 }
-
 
 /// reset the server state completely
 #[server(ResetState, "/api")]

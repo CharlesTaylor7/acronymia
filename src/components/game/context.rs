@@ -4,11 +4,9 @@ use crate::sse::*;
 use crate::typed_context::*;
 use crate::*;
 
-
 define_context!(Signal_PlayerId, RwSignal<Option<String>>);
 define_context!(Signal_PlayerName, RwSignal<String>);
 define_context!(Action_JoinGame, Action<(), Result<(), ServerFnError>>);
-
 
 pub fn provide_game_context(cx: Scope) {
     provide_sse_stream(cx);
@@ -23,7 +21,6 @@ pub fn provide_game_context(cx: Scope) {
     });
     provide_typed_context::<Action_JoinGame>(cx, join_game);
 }
-
 
 /// a signal for the player id
 /// that caches its value inside local storage

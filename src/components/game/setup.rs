@@ -1,12 +1,11 @@
 use ::leptos::*;
 
+use super::context::*;
+use crate::api;
 use crate::components::text_input::*;
 use crate::sse::*;
 use crate::typed_context::*;
 use crate::types::*;
-use super::context::*;
-use crate::api;
-
 
 #[component]
 pub fn GameSetup(cx: Scope) -> impl IntoView {
@@ -41,16 +40,16 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
                     "Start game!"
                 </button>
             </div>
-            
+
             <p>{move || players().map(|v| v.len()).unwrap_or(0)}" players joined"</p>
             <ul class="list-inside list-disc flex flex-col items-start" >
                 {move|| players()
                     .into_iter()
                     .flatten()
-                    .map(|p| view! { cx, 
+                    .map(|p| view! { cx,
                         <li>
-                            {p.name} 
-                            <button 
+                            {p.name}
+                            <button
                                 class="bg-red-200 border rounded mx-2 px-2 border-slate-200"
                                 on:click=move |_| kick_player.dispatch(p.id.clone())
                             >
