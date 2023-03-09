@@ -16,20 +16,20 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
 
     view! {
         cx,
-       <div>
+       <div class="flex flex-col items-start gap-4">
             "Pick a Nickname to join: "
             <TextInput
                 default=player_name()
                 on_input=move |text| player_name.set(text)
             />
             <button
-                class="border rounded p-2 m-2 bg-blue-300 border-slate-200"
+                class="border rounded p-2 bg-blue-300 border-slate-200"
                 prop:disabled=MaybeSignal::derive(cx, move|| player_id().is_none())
                 on:click=move |_| join_game.dispatch(())
             >
                 "Join!"
             </button>
-            <p> "Players: "</p>
+            <p>{move || players().map(|v| v.len()).unwrap_or(0)}" players joined"</p>
             <ul class="list-inside list-disc" >
                 {move|| players()
                     .into_iter()

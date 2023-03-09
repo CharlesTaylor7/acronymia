@@ -29,7 +29,7 @@ pub fn Game(cx: Scope) -> impl IntoView {
         cx,
         <div class="flex flex-col items-start mx-20 my-4 gap-4">
             <div class>
-                <h1 class="text-xl font-bold">"Welcome to Acronymia!"</h1>
+                <h1 class="text-xl font-bold">"Acronymia"</h1>
             </div>
             <Debug>
                 <div class="flex flex-col items-start gap-4">
