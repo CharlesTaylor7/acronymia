@@ -21,8 +21,8 @@ impl ServerSentEvent for Vec<Player> {
     }
 }
 
-use gloo_net::eventsource::futures::EventSource;
 use crate::typed_context::*;
+use gloo_net::eventsource::futures::EventSource;
 define_context!(SseStream, Option<EventSource>);
 
 // Client side signal
@@ -34,7 +34,7 @@ pub fn provide_sse_stream(cx: Scope) {
     let source = None;
 
     provide_typed_context::<SseStream>(cx, source);
-        //("couldn't connect to SSE stream");
+    //("couldn't connect to SSE stream");
 }
 
 /// readonly signal that subscribes to Server Sent Events

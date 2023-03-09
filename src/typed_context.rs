@@ -48,7 +48,7 @@ macro_rules! define_context {
     ($KEY: ident, $VALUE: ty) => {
         #[derive(Clone)]
         #[allow(non_camel_case_types)]
-        enum $KEY {}
+        pub enum $KEY {}
         impl ContextKey for $KEY {
             type R = $VALUE;
         }
