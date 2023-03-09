@@ -1,8 +1,8 @@
 use gloo_net::eventsource::*;
 use leptos::*;
 use serde::*;
-use web_sys::MessageEvent;
 use wasm_bindgen::*;
+use web_sys::MessageEvent;
 
 /// readonly signal that subscribes to Server Sent Events
 pub fn create_sse_signal<T>(cx: Scope) -> impl Copy + Fn() -> Option<T>

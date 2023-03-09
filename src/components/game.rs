@@ -11,7 +11,6 @@ use uuid::*;
 define_context!(Signal_PlayerId, RwSignal<Option<String>>);
 define_context!(Signal_PlayerName, RwSignal<String>);
 define_context!(Action_JoinGame, Action<(), Result<(), ServerFnError>>);
-define_context!(Resource_Players, Res<Server<Vec<Player>>>);
 define_context!(Resource_GameStep, Res<Server<GameStep>>);
 define_context!(Signal_Seconds, RwSignal<u32>);
 
@@ -46,17 +45,12 @@ fn signal_player_id(cx: Scope) -> RwSignal<Option<String>> {
 }
 
 fn provide_game_context(cx: Scope) {
-    // poll for the player names
-    let seconds = create_rw_signal(cx, 0);
-    let players = create_resource(cx, seconds, move |_| fetch_players());
-
     // poll for the game state
     let seconds = create_rw_signal(cx, 0);
     let game_step = create_resource(cx, seconds, move |_| fetch_game_step());
 
     let player_id = signal_player_id(cx);
     let player_name = create_rw_signal(cx, "".to_string());
-    provide_typed_context::<Resource_Players>(cx, players);
     provide_typed_context::<Resource_GameStep>(cx, game_step);
     provide_typed_context::<Signal_PlayerId>(cx, player_id);
     provide_typed_context::<Signal_PlayerName>(cx, player_name);
@@ -128,7 +122,6 @@ fn GameSetup(cx: Scope) -> impl IntoView {
                 default=player_name()
                 on_input=move |text| player_name.set(text)
             />
-
             <button
                 class="border rounded p-2 m-2 bg-blue-300 border-slate-200"
                 prop:disabled=MaybeSignal::derive(cx, move|| player_id().is_none())
@@ -136,14 +129,15 @@ fn GameSetup(cx: Scope) -> impl IntoView {
             >
                 "Join!"
             </button>
-            <ol>
+            <p> "Players: "</p>
+            <ul class="list-inside list-disc" >
                 {move|| players()
                     .into_iter()
                     .flatten()
                     .map(|p| view! {cx, <li>{p.name}</li>})
                     .collect::<Vec<_>>()
                 }
-            </ol>
+            </ul>
         </div>
     }
 }
