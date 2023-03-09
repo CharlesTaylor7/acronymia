@@ -9,7 +9,7 @@ pub fn When(
 ) -> impl IntoView {
     move || {
         if predicate() {
-            view! {cx, {children(cx)}}
+            view! {cx, <>{children(cx)}</>}
         } else {
             view! {cx, <></>}
         }
@@ -20,7 +20,7 @@ pub fn When(
 #[component]
 pub fn Debug(cx: Scope, children: Box<dyn Fn(Scope) -> Fragment>) -> impl IntoView {
     if cfg!(debug_assertions) {
-        view! {cx, {children(cx)}}
+        view! {cx, <>{children(cx)}</>}
     } else {
         view! {cx, <></>}
     }
