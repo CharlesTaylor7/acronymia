@@ -12,12 +12,8 @@ use cfg_if::cfg_if;
 
 #[component]
 pub fn App(cx: Scope) -> impl IntoView {
-    use crate::components::{
-        game::{Game, GameProps},
-        reset_button::*,
-        timer::*,
-        utils::*,
-    };
+    use crate::components::game::*;
+    use crate::components::timer::*;
 
     // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context(cx);
@@ -36,7 +32,6 @@ pub fn App(cx: Scope) -> impl IntoView {
             <main>
                 <div class="my-4">
                     <h1 class="text-xl font-bold">"Welcome to Acronymia!"</h1>
-                    <Debug><ResetButton/></Debug>
                 </div>
                 <Routes>
                     <Route

@@ -1,7 +1,6 @@
 use ::leptos::*;
 
 use crate::components::text_input::*;
-use crate::components::utils::*;
 use crate::sse::*;
 use crate::typed_context::*;
 use crate::types::*;
@@ -17,18 +16,7 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
 
     view! {
         cx,
-        <Debug>
-            <div>
-                <h1 class="font-bold font-xl">"Begin Debug"</h1>
-                "Override player id (Debug only): "
-                <TextInput
-                    default=player_id.get().unwrap_or("".to_string())
-                    on_input=move |text| player_id.set(Some(text))
-                />
-                <h1 class="font-bold font-xl">"End Debug"</h1>
-            </div>
-        </Debug>
-        <div>
+       <div>
             "Pick a Nickname to join: "
             <TextInput
                 default=player_name()
