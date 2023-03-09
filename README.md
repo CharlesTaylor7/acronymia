@@ -50,12 +50,16 @@ Pages:
   - [x] Players can set their nickname
   - [ ] Allow game creator to start game (for MVP creator is the first registered player)
 - [ ] Submission step
-  - [ ] player view ( acronym input, timer etc.)
-  - [ ] judge view (# of submissions received, timer etc.)
+  - [ ] player view 
+      - acronym input
+      - 30 second timer
+  - [ ] judge view 
+      - # of submissions received
+      - timer 
 - [ ] Judging step
   - [ ] player view
-      - [ ] readonly list of submissions)
-  - [ ] judge view (list of submissions + can select a winner)
+      - [ ] readonly list of submissions
+  - [ ] judge view 
       - [ ] list of submissions each of which is a button for selecting winner
       - [ ] after a winner for the round is selected the next round starts with a small delay. Say 5 seconds for everyone to see the result
 - [ ] Results step
