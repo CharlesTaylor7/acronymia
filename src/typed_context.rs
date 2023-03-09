@@ -16,7 +16,6 @@ pub fn provide_typed_context<K>(cx: Scope, value: K::R)
 where
     K: ContextKey,
 {
-    //provide_context(cx,
     provide_context(
         cx,
         ContextWrapper {
@@ -30,15 +29,17 @@ pub fn use_typed_context<K>(cx: Scope) -> K::R
 where
     K: ContextKey,
 {
-    //provide_context(cx,
     use_context::<ContextWrapper<K, K::R>>(cx)
-        .expect("did you forget to call provide_typed_context::<K>(cx)?")
+        .expect(&format!(
+            "no context with key {k} exists, did you forget to call provide_typed_context::<{k}>?",
+            k = std::any::type_name::<K>()
+        ))
         .item
 }
 
 /// Example: define_context_key!(PlayerId, RwSignal<String>)
 /// this defines a new context key called PlayerId,
-/// that holds a value of type RwSignal<Value>
+/// that holds a value of type RwSignal<String>
 ///
 /// provide_typed_context & use_typed_context can only be called with types that implement
 /// ContextKey which enforces just a bit more sanity than the default use_context
