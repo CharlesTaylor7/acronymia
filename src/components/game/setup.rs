@@ -15,6 +15,7 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
     let players = create_sse_signal::<Vec<Player>>(cx);
     let join_game = use_typed_context::<Action_JoinGame>(cx);
     let kick_player = create_action(cx, move |id: &PlayerId| api::kick_player(id.clone()));
+    let start_game = create_action(cx, move |_: &()| api::start_game());
 
     view! {
         cx,
@@ -24,13 +25,23 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
                 default=player_name()
                 on_input=move |text| player_name.set(text)
             />
-            <button
-                class="border rounded p-2 bg-blue-300 border-slate-200"
-                prop:disabled=MaybeSignal::derive(cx, move|| player_id().is_none())
-                on:click=move |_| join_game.dispatch(())
-            >
-                "Join!"
-            </button>
+            <div class="flex flex-row gap-4">
+                <button
+                    class="border rounded p-2 bg-blue-300 border-slate-200"
+                    prop:disabled=MaybeSignal::derive(cx, move|| player_id().is_none())
+                    on:click=move |_| join_game.dispatch(())
+                >
+                    "Join!"
+                </button>
+                <button
+                    class="border rounded p-2 bg-green-300 border-slate-200"
+                    prop:disabled=MaybeSignal::derive(cx, move|| player_id().is_none())
+                    on:click=move |_| start_game.dispatch(())
+                >
+                    "Start game!"
+                </button>
+            </div>
+            
             <p>{move || players().map(|v| v.len()).unwrap_or(0)}" players joined"</p>
             <ul class="list-inside list-disc flex flex-col items-start" >
                 {move|| players()

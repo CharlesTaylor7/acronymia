@@ -15,6 +15,7 @@ lazy_static::lazy_static! {
 pub fn register_server_functions() {
     _ = JoinGame::register();
     _ = KickPlayer::register();
+    _ = StartGame::register();
     _ = ResetState::register();
 }
 
@@ -51,6 +52,17 @@ pub async fn kick_player(id: String) -> Result<(), ServerFnError> {
     Ok(())
 }
 
+
+/// start the game
+/// TODO: restrict this to the room "owner"
+#[server(StartGame, "/api")]
+pub async fn start_game() -> Result<(), ServerFnError> {
+    debug_warn!("starting game");
+    let mut state = STATE.lock().expect("locking thread crashed");
+
+    state.start_round();
+    Ok(())
+}
 
 
 /// reset the server state completely
