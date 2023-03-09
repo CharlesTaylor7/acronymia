@@ -27,26 +27,31 @@ pub fn Game(cx: Scope) -> impl IntoView {
     let game_step = create_memo(cx, move |_| game_step());
     view! {
         cx,
-        <Debug>
-            <div>
-                <h1 class="font-bold font-xl">"Begin Debug"</h1>
-                <ResetButton/>
-
-                <p>"Override player id: "</p>
-                <TextInput
-                    default=player_id().unwrap_or("".to_string())
-                    on_input=move |text| player_id.set(Some(text))
-                />
-                <h1 class="font-bold font-xl">"End Debug"</h1>
+        <div class="flex flex-col items-start mx-20 my-4 gap-4">
+            <div class>
+                <h1 class="text-xl font-bold">"Welcome to Acronymia!"</h1>
             </div>
-        </Debug>
-        { move || match game_step() {
-            None => view! {cx, <><GameNotFound /></>},
-            Some(GameStep::Setup) => view! { cx, <><GameSetup /></> },
-            Some(GameStep::Submission) => view! { cx, <><GameSubmission /></> },
-            Some(GameStep::Judging) => view! { cx, <><GameJudging /></> },
-            Some(GameStep::Results) => view! { cx, <><GameResults /></> },
-        }}
+            <Debug>
+                <div class="flex flex-col items-start gap-4">
+                    <h1 class="font-bold font-xl">"Begin Debug"</h1>
+                    <ResetButton/>
+
+                    <p>"Override player id: "</p>
+                    <TextInput
+                        default=player_id().unwrap_or("".to_string())
+                        on_input=move |text| player_id.set(Some(text))
+                    />
+                    <h1 class="font-bold font-xl">"End Debug"</h1>
+                </div>
+            </Debug>
+            { move || match game_step() {
+                None => view! {cx, <><GameNotFound /></>},
+                Some(GameStep::Setup) => view! { cx, <><GameSetup /></> },
+                Some(GameStep::Submission) => view! { cx, <><GameSubmission /></> },
+                Some(GameStep::Judging) => view! { cx, <><GameJudging /></> },
+                Some(GameStep::Results) => view! { cx, <><GameResults /></> },
+            }}
+        </div>
     }
 }
 
