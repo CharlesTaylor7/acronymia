@@ -7,8 +7,37 @@ use crate::types::*;
 use std::sync::*;
 
 #[cfg(feature = "ssr")]
+use std::collections::*;
+
+#[cfg(feature = "ssr")]
 lazy_static::lazy_static! {
-    pub static ref STATE: Arc<Mutex<GameState>> = Arc::new(Mutex::new(Default::default()));
+    pub static ref STATE: Arc<Mutex<GameState>> = Arc::new(Mutex::new(demo_init(
+        vec!["alice", "bob", "carl"]
+    )));
+}
+
+#[cfg(feature = "ssr")]
+fn demo_init(players: Vec<&str>) -> GameState {
+    let players = players
+        .into_iter()
+        .enumerate()
+        .map(|(id, name)| Player {
+            id: id.to_string(),
+            name: name.to_owned(),
+        })
+        .collect::<Vec<_>>();
+    let rotation = players.iter().map(|p| p.id.clone()).collect::<Vec<_>>();
+    let players = players
+        .into_iter()
+        .map(|p| (p.id.clone(), p))
+        .collect::<HashMap<_, _>>();
+    GameState {
+        players: players,
+        rotation: rotation,
+        rounds: Vec::new(),
+        submissions: HashMap::new(),
+        step: GameStep::Submission,
+    }
 }
 
 #[cfg(feature = "ssr")]

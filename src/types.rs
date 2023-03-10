@@ -20,7 +20,6 @@ pub struct GameState {
     pub rotation: Vec<PlayerId>,            // players in order they will be judge
     pub rounds: Vec<Round>, // list of rounds, records past or present chosen judge and acronym
     pub submissions: HashMap<(RoundId, PlayerId), Submission>,
-    pub winners: Vec<PlayerId>, // list of winning player indexed by round
 }
 #[derive(Serialize, Deserialize, Clone, Default, Debug, PartialEq)]
 pub enum GameStep {
@@ -41,6 +40,7 @@ pub struct Player {
 pub struct Round {
     judge: JudgeId,
     acronym: String,
+    winner: Option<PlayerId>,
 }
 
 /// game state for a single client
@@ -73,6 +73,7 @@ impl GameState {
         self.rounds.push(Round {
             judge: self.next_judge(),
             acronym: "fart".to_string(),
+            winner: None,
         });
 
         self.step = GameStep::Submission;

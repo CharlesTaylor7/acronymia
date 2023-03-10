@@ -3,6 +3,7 @@ use ::leptos::*;
 use super::context::*;
 use crate::api;
 use crate::components::text_input::*;
+use crate::components::utils::*;
 use crate::sse::*;
 use crate::typed_context::*;
 use crate::types::*;
@@ -15,6 +16,13 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
     let kick_player = create_action(cx, move |id: &PlayerId| api::kick_player(id.clone()));
     let start_game = create_action(cx, move |_: &()| api::start_game());
 
+    let is_creator: Memo<bool> = create_memo(cx, move |_| {
+        player_id()
+            .and_then(|me| {
+                game_state(cx).and_then(|s| s.players.get(0).as_ref().map(|p| p.id == me))
+            })
+            .unwrap_or(false)
+    });
     let players: Memo<Vec<Player>> = create_memo(cx, move |_| {
         game_state(cx).map(|s| s.players).unwrap_or(Vec::new())
     });
@@ -35,13 +43,14 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
                 >
                     "Join!"
                 </button>
-                <button
-                    class="border rounded p-2 bg-green-300 border-slate-200"
-                    prop:disabled=MaybeSignal::derive(cx, move|| player_id().is_none())
-                    on:click=move |_| start_game.dispatch(())
-                >
-                    "Start game!"
-                </button>
+                <When predicate=MaybeSignal::derive(cx, move|| is_creator())>
+                    <button
+                        class="border rounded p-2 bg-green-300 border-slate-200"
+                        on:click=move |_| start_game.dispatch(())
+                    >
+                        "Start game!"
+                    </button>
+                </When>
             </div>
 
             <p>{move || players.get().len()}" players joined"</p>

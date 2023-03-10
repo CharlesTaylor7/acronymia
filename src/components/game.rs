@@ -41,12 +41,10 @@ pub fn Game(cx: Scope) -> impl IntoView {
                         <p>"Override player id: "</p>
                         <TextInput
                             default=player_id().unwrap_or("".to_string())
-                            disabled=MaybeSignal::derive(cx, move|| player_id().is_some())
                             on_input=move |text| player_id.set(Some(text))
                         />
                         <ResetButton/>
-                        <p>{move || format!("player_id = {:#?}", player_id())}</p>
-                        <p>{move || format!("game_state = {:#?}", sse::game_state(cx))}</p>
+                        <div>{move || format!("game_state = {:#?}", sse::game_state(cx))}</div>
                         <h1 class="font-bold font-xl">"End Debug"</h1>
                     </div>
                 </When>
