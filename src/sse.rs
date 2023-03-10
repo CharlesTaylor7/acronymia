@@ -13,19 +13,28 @@ impl ServerSentEvent for ClientGameState {
     }
 }
 
+//pub struct SseSignal<T: 'a>(StoredValue<Box<dyn 'static + Fn() -> Option<T>>>);
+/*
+impl Fn<()> for SseSignal<T> {
+}
+*/
+
+pub type SseSignal<T> = StoredValue<Box<dyn 'static + Fn() -> Option<T>>>;
+
+pub fn get<T>(s: SseSignal<T>) -> Option<T> {
+    s.with_value(|f| f())
+}
+
 #[cfg(not(feature = "ssr"))]
 use gloo_net::eventsource::futures::*;
 
-// use gloo_net::eventsource::EventSourceError;
-// use web_sys::MessageEvent;
-// type Event = Result<(std::string::String, MessageEvent), EventSourceError>;
-
 // whenever the player id changes, resubscribe to a new stream
 #[cfg(not(feature = "ssr"))]
-pub fn create_sse_signal<T: ServerSentEvent>(
+pub fn create_sse_signal<T: ServerSentEvent + 'static>(
     cx: Scope,
     id: Signal<Option<PlayerId>>,
-) -> Signal<Option<T>> {
+) -> SseSignal<T>
+{
     let handle = store_value::<Option<ScopeDisposer>>(cx, None);
 
     let signal: Signal<Signal<Option<T>>> = Signal::derive(cx, move || {
@@ -45,12 +54,19 @@ pub fn create_sse_signal<T: ServerSentEvent>(
         }
         Signal::derive(cx, || None)
     });
-
-    Signal::derive(cx, move || signal.with(|s| s.get_untracked()))
+    store_value(cx, Box::new(move || signal.with(|s| s.get())))
 }
 
+// use gloo_net::eventsource::EventSourceError;
+// use web_sys::MessageEvent;
+// type Event = Result<(std::string::String, MessageEvent), EventSourceError>;
+//
 #[cfg(not(feature = "ssr"))]
-fn to_signal<T: ServerSentEvent>(cx: Scope, stream: EventSourceSubscription) -> Signal<Option<T>> {
+fn to_signal<T: ServerSentEvent>(
+    cx: Scope, 
+    stream: EventSourceSubscription
+
+) -> Signal<Option<T>> {
     let signal = create_signal_from_stream(cx, stream);
     Signal::derive(cx, move || {
         signal()?
@@ -81,8 +97,10 @@ fn subscribe<T: ServerSentEvent>(cx: Scope, id: PlayerId) -> EventSourceSubscrip
 pub fn create_sse_signal<T: ServerSentEvent>(
     cx: Scope,
     _id: RwSignal<Option<PlayerId>>,
-) -> Signal<Option<T>> {
-    create_signal(cx, Default::default()).0.into()
+) -> SseSignal<T>
+{
+    //panic! ("not implemented: server side stub for sse signal");
+    store_value(cx, Box::new(|| None as Option<T>))
 }
 
 // server side api handler

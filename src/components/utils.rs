@@ -1,5 +1,17 @@
 use leptos::*;
 
+pub const DEBUG_MODE: bool = cfg!(debug_assertions);
+
+/// A component that only exists in debug mode
+#[component]
+pub fn Debug(cx: Scope, children: Box<dyn Fn(Scope) -> Fragment>) -> impl IntoView {
+    if DEBUG_MODE {
+        view! {cx, <>{children(cx)}</>}
+    } else {
+        view! {cx, <></>}
+    }
+}
+
 /// Conditionally render a view. Just to reduce boilerplate
 #[component]
 pub fn When(
@@ -13,15 +25,5 @@ pub fn When(
         } else {
             view! {cx, <></>}
         }
-    }
-}
-
-/// A component that only exists in debug mode
-#[component]
-pub fn Debug(cx: Scope, children: Box<dyn Fn(Scope) -> Fragment>) -> impl IntoView {
-    if cfg!(debug_assertions) {
-        view! {cx, <>{children(cx)}</>}
-    } else {
-        view! {cx, <></>}
     }
 }

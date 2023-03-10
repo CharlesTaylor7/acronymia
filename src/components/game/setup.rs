@@ -13,12 +13,14 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
     let join_game = use_typed_context::<Action_JoinGame>(cx);
     let kick_player = create_action(cx, move |id: &PlayerId| api::kick_player(id.clone()));
     let start_game = create_action(cx, move |_: &()| api::start_game());
-    let game_state = use_typed_context::<Signal_GameState>(cx);
+
+    let players = Signal::derive(cx, move || Vec::new() as Vec<Player>);
+    /*
+    let game_state = use_context::<Signal_GameState>(cx);
     let players: Memo<Vec<Player>> = create_memo(cx, move |_| {
-        game_state
-            .with(|s| s.as_ref().map(|s| s.players.clone()))
-            .unwrap_or(Vec::new())
+        game_state().as_ref().map(|s| s.players.clone()).unwrap_or(Vec::new())
     });
+    */
 
     view! {
         cx,
