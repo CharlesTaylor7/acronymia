@@ -26,7 +26,7 @@ pub fn Game(cx: Scope) -> impl IntoView {
         game_state.with(|s| s.as_ref().map(|s| s.step.clone()))
     });
 
-    let debug_region_expanded = create_rw_signal(cx, false);
+    let debug_region_expanded = create_rw_signal(cx, true);
     view! {
         cx,
         <div class="flex flex-col items-start mx-20 my-4 gap-4">
@@ -37,8 +37,10 @@ pub fn Game(cx: Scope) -> impl IntoView {
                 >
                     "Toggle Debug View"
                 </button>
-                <When predicate=debug_region_expanded.into()>
-                    <div class="flex flex-col items-start gap-4">
+                    <div 
+                        class:hidden=move || !debug_region_expanded()
+                        class="flex flex-col items-start gap-4"
+                    >
                         <h1 class="font-bold font-xl">"Begin Debug"</h1>
                         <p>"Override player id: "</p>
                         <TextInput
@@ -50,7 +52,6 @@ pub fn Game(cx: Scope) -> impl IntoView {
                         <p>{move || format!("game_state = {:#?}", game_state())}</p>
                         <h1 class="font-bold font-xl">"End Debug"</h1>
                     </div>
-                </When>
             </Debug>
             <h1 class="text-xl font-bold">"Acronymia"</h1>
             { move || match game_step() {

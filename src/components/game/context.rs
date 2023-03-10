@@ -14,11 +14,8 @@ pub fn provide_game_context(cx: Scope) {
     let player_id = signal_player_id(cx);
     provide_typed_context::<Signal_PlayerId>(cx, player_id);
 
-    let game_state = create_sse_signal::<ClientGameState>(cx, player_id);
+    let game_state = create_sse_signal::<ClientGameState>(cx, player_id.into());
     provide_typed_context::<Signal_GameState>(cx, game_state);
-
-    let player_id = signal_player_id(cx);
-    provide_typed_context::<Signal_PlayerId>(cx, player_id);
 
     let player_name = create_rw_signal(cx, "".to_string());
     provide_typed_context::<Signal_PlayerName>(cx, player_name);

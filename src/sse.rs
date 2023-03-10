@@ -24,11 +24,11 @@ use gloo_net::eventsource::futures::*;
 #[cfg(not(feature = "ssr"))]
 pub fn create_sse_signal<T: ServerSentEvent>(
     cx: Scope,
-    id: RwSignal<Option<PlayerId>>,
+    id: Signal<Option<PlayerId>>,
 ) -> Signal<Option<T>> {
     let handle = store_value::<Option<ScopeDisposer>>(cx, None);
 
-    let signal: Memo<Signal<Option<T>>> = create_memo(cx, move |_| {
+    let signal: Signal<Signal<Option<T>>> = Signal::derive(cx, move || {
         log!("run sse effect");
         handle.update_value(|h| {
             std::mem::take(h).map(|h| {
@@ -37,7 +37,8 @@ pub fn create_sse_signal<T: ServerSentEvent>(
             });
         });
 
-        if let Some(id) = id.get() {
+        if let Some(id) = id() {
+            log!("id = {}", &id);
             let (stream, disposer) = cx.run_child_scope(move |cx| subscribe::<T>(cx, id));
             handle.set_value(Some(disposer));
             return to_signal(cx, stream);
@@ -45,7 +46,7 @@ pub fn create_sse_signal<T: ServerSentEvent>(
         Signal::derive(cx, || None)
     });
 
-    Signal::derive(cx, move || signal.with(|s| s.get()))
+    Signal::derive(cx, move || signal.with(|s| s.get_untracked()))
 }
 
 #[cfg(not(feature = "ssr"))]
@@ -63,6 +64,7 @@ fn to_signal<T: ServerSentEvent>(cx: Scope, stream: EventSourceSubscription) -> 
 
 #[cfg(not(feature = "ssr"))]
 fn subscribe<T: ServerSentEvent>(cx: Scope, id: PlayerId) -> EventSourceSubscription {
+    log!("subscribing with {}", &id);
     let mut source = EventSource::new(&format!("/api/events/{}", &id))
         .expect("couldn't connect to SSE server endpoint");
     let stream = source
