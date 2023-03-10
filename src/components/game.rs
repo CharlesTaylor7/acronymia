@@ -24,18 +24,18 @@ pub fn Game(cx: Scope) -> impl IntoView {
     provide_game_context(cx);
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     let game_step = create_memo(cx, move |_| game_state(cx).map(|s| s.step.clone()));
-    let debug_region_collapsed = create_rw_signal(cx, true);
+    let debug_region_expanded = create_rw_signal(cx, false);
     view! {
         cx,
         <div class="flex flex-col items-start mx-20 my-4 gap-4">
             <Debug>
                 <button
                     class="border rounded p-2 bg-slate-200"
-                    on:click=move |_| debug_region_collapsed.update(|b| *b = !*b)
+                    on:click=move |_| debug_region_expanded.update(|b| *b = !*b)
                 >
                     "Toggle Debug View"
                 </button>
-                <When predicate=debug_region_collapsed.into() >
+                <When predicate=debug_region_expanded.into() >
                     <div class="flex flex-col items-start gap-4">
                         <h1 class="font-bold font-xl">"Begin Debug"</h1>
                         <p>"Override player id: "</p>
