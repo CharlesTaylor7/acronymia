@@ -3,10 +3,10 @@ use ::leptos::*;
 use crate::components::reset_button::*;
 use crate::components::text_input::*;
 use crate::components::utils::*;
-use crate::typed_context::*;
-use crate::types::*;
 use crate::sse;
 use crate::sse::*;
+use crate::typed_context::*;
+use crate::types::*;
 
 mod context;
 mod judging;
@@ -18,7 +18,6 @@ use self::judging::*;
 use self::results::*;
 use self::setup::*;
 use self::submission::*;
-
 
 #[component]
 pub fn Game(cx: Scope) -> impl IntoView {

@@ -3,9 +3,9 @@ use ::leptos::*;
 use super::context::*;
 use crate::api;
 use crate::components::text_input::*;
+use crate::sse::*;
 use crate::typed_context::*;
 use crate::types::*;
-use crate::sse::*;
 
 #[component]
 pub fn GameSetup(cx: Scope) -> impl IntoView {

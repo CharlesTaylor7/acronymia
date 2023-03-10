@@ -3,7 +3,9 @@ use ::leptos::*;
 use ::serde::*;
 
 // Trait to ensure server and client use the same event types
-pub trait ServerSentEvent: core::fmt::Debug + PartialEq + Clone + Serialize + for<'de> Deserialize<'de> {
+pub trait ServerSentEvent:
+    core::fmt::Debug + PartialEq + Clone + Serialize + for<'de> Deserialize<'de>
+{
     fn event_type() -> &'static str;
 }
 
@@ -22,7 +24,7 @@ impl Fn<()> for SseSignal<T> {
 pub type SseSignal<T> = Memo<Option<T>>;
 
 pub fn game_state(cx: Scope) -> Option<ClientGameState> {
-    // depend on the dummy signal which just tells us 
+    // depend on the dummy signal which just tells us
     // when the inner event stream is swapped out
     use_context::<Signal<()>>(cx).map(|s| s.get());
     // access the context value which holds the current event stream signal
@@ -38,11 +40,7 @@ use gloo_net::eventsource::futures::*;
 
 // whenever the player id changes, resubscribe to a new stream
 #[cfg(not(feature = "ssr"))]
-pub fn provide_sse_signal<T: ServerSentEvent + 'static>(
-    cx: Scope,
-    id: Signal<Option<PlayerId>>,
-)
-{
+pub fn provide_sse_signal<T: ServerSentEvent + 'static>(cx: Scope, id: Signal<Option<PlayerId>>) {
     let handle = store_value::<Option<ScopeDisposer>>(cx, None);
     let dummy_signal = create_rw_signal(cx, ());
     provide_context::<Signal<()>>(cx, dummy_signal.into());
@@ -64,7 +62,6 @@ pub fn provide_sse_signal<T: ServerSentEvent + 'static>(
             dummy_signal.set(());
         }
     });
-
 }
 
 // use gloo_net::eventsource::EventSourceError;
@@ -72,11 +69,7 @@ pub fn provide_sse_signal<T: ServerSentEvent + 'static>(
 // type Event = Result<(std::string::String, MessageEvent), EventSourceError>;
 //
 #[cfg(not(feature = "ssr"))]
-fn to_signal<T: ServerSentEvent>(
-    cx: Scope, 
-    stream: EventSourceSubscription
-
-) -> Memo<Option<T>> {
+fn to_signal<T: ServerSentEvent>(cx: Scope, stream: EventSourceSubscription) -> Memo<Option<T>> {
     let signal = create_signal_from_stream(cx, stream);
     create_memo(cx, move |_| {
         signal()?
@@ -102,11 +95,7 @@ fn subscribe<T: ServerSentEvent>(cx: Scope, id: PlayerId) -> EventSourceSubscrip
 }
 // stub definition for SSR context
 #[cfg(feature = "ssr")]
-pub fn provide_sse_signal<T: ServerSentEvent + 'static>(
-    _cx: Scope,
-    _id: Signal<Option<PlayerId>>,
-) 
-{
+pub fn provide_sse_signal<T: ServerSentEvent + 'static>(_cx: Scope, _id: Signal<Option<PlayerId>>) {
 }
 
 // server side api handler

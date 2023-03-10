@@ -2,8 +2,8 @@ use leptos::*;
 use std::time::Duration;
 
 #[component]
-pub fn Timer(cx: Scope) -> impl IntoView {
-    let seconds = timer(cx, 60);
+pub fn Timer(cx: Scope, #[prop(optional)] initial: Option<u32>) -> impl IntoView {
+    let seconds = timer(cx, initial.unwrap_or(60));
     view! { cx, "Seconds: "{seconds}}
 }
 
@@ -13,20 +13,26 @@ fn timer(cx: Scope, initial: u32) -> RwSignal<u32> {
 
     #[cfg(not(feature = "ssr"))]
     {
+        use leptos_dom::helpers::IntervalHandle;
+        let stored = store_value::<Option<IntervalHandle>>(cx, None);
         let handle = set_interval(
             move || {
+                log!("call");
                 let s = seconds.get();
                 if s > 0 {
                     seconds.set(s - 1);
+                } else {
+                    stored.with_value(|h| h.map(|h| h.clear()));
                 }
             },
             Duration::new(1, 0),
         );
-        log::debug!("{:?}", &handle);
-        on_cleanup(cx, move || {
-            _ = handle.map(|h| h.clear());
-        });
+        stored.set_value(handle.ok());
 
+        // cleanup the handle if the scope is dropped
+        on_cleanup(cx, move || {
+            stored.with_value(|h| h.map(|h| h.clear()));
+        });
     }
 
     seconds

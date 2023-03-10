@@ -38,8 +38,8 @@ pub fn App(cx: Scope) -> impl IntoView {
                         view=move |cx| view! { cx, <Game/> }
                     />
                     <Route
-                        path="timer-demo"
-                        view=move |cx| view! { cx, <Timer/> }
+                        path="timer"
+                        view=move |cx| view! { cx, <Timer initial=2 /> }
                     />
                 </Routes>
             </main>
