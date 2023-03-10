@@ -25,7 +25,7 @@ where
                 node_ref=input_ref
                 value=default
                 class="border rounded border-slate-400 px-3"
-                disabled=disabled.map(|s| s.get()).unwrap_or(false)
+                prop:disabled=disabled.map(|s| s.get()).unwrap_or(false)
                 on:blur=move|_| callback()
                 on:keyup=move |event| {
                     let key = event.key();
