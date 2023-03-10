@@ -11,13 +11,21 @@ use std::collections::*;
 
 #[cfg(feature = "ssr")]
 lazy_static::lazy_static! {
-    pub static ref STATE: Arc<Mutex<GameState>> = Arc::new(Mutex::new(demo_init(
-        vec!["alice", "bob", "carl"]
-    )));
+    pub static ref STATE: Arc<Mutex<GameState>> = Arc::new(Mutex::new(game_state_default()));
 }
 
 #[cfg(feature = "ssr")]
+fn game_state_default() -> GameState {
+    if cfg!(debug_assertions) {
+        demo_init(vec!["alice", "bob", "carl"])
+    } else {
+        Default::default()
+    }
+}
+#[cfg(feature = "ssr")]
 fn demo_init(players: Vec<&str>) -> GameState {
+    use std::time::Instant;
+
     let players = players
         .into_iter()
         .enumerate()
@@ -36,7 +44,8 @@ fn demo_init(players: Vec<&str>) -> GameState {
         rotation: rotation,
         rounds: Vec::new(),
         submissions: HashMap::new(),
-        step: GameStep::Submission,
+        step: GameStep::Setup,
+        round_started_at: None,
     }
 }
 
@@ -91,18 +100,20 @@ pub async fn start_game() -> Result<(), ServerFnError> {
     Ok(())
 }
 
-/// reset the server state completely
+/// reset the game state to default
 #[server(ResetState, "/api")]
 pub async fn reset_state() -> Result<(), ServerFnError> {
     let mut state = STATE.lock().expect("locking thread crashed");
 
-    *state = Default::default();
+    *state = game_state_default();
     Result::Ok(())
 }
 
 // sse payloads
 #[cfg(feature = "ssr")]
 pub fn client_game_state(id: String) -> ClientGameState {
+    use std::time::Duration;
+
     let state = STATE.lock().expect("locking thread crashed");
 
     let judge_id = state.rotation.get(state.current_judge());
@@ -112,7 +123,28 @@ pub fn client_game_state(id: String) -> ClientGameState {
         Some(judge_id) => Judge::Someone(judge_id.clone()),
     };
 
+    // 30 second timer for everyone
+    const ALLOTTED: Duration = Duration::new(30, 0);
+    let round_timer = state.round_started_at.map(|instant| {
+        let elapsed = instant.elapsed();
+
+        if elapsed < ALLOTTED {
+            let diff = ALLOTTED - elapsed;
+            let rounded_sec = if diff.subsec_nanos() >= 500_000_000 {
+                1
+            } else {
+                0
+            };
+            log!("{}", rounded_sec);
+            diff.as_secs() + rounded_sec
+        } else {
+            0
+        }
+    });
+    log!("{:#?}", round_timer);
+
     ClientGameState {
+        round_timer: round_timer,
         judge: judge,
         step: state.step.clone(),
         players: state

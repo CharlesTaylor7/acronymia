@@ -1,6 +1,7 @@
 use leptos::{Resource, ServerFnError};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::time::Instant;
 
 // aliases
 pub type Server<T> = Result<T, ServerFnError>;
@@ -20,6 +21,7 @@ pub struct GameState {
     pub rotation: Vec<PlayerId>,            // players in order they will be judge
     pub rounds: Vec<Round>, // list of rounds, records past or present chosen judge and acronym
     pub submissions: HashMap<(RoundId, PlayerId), Submission>,
+    pub round_started_at: Option<Instant>,
 }
 #[derive(Serialize, Deserialize, Clone, Default, Debug, PartialEq)]
 pub enum GameStep {
@@ -50,6 +52,7 @@ pub struct ClientGameState {
     pub judge: Judge,
     pub step: GameStep,
     pub players: Vec<Player>,
+    pub round_timer: Option<u64>,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
@@ -77,6 +80,7 @@ impl GameState {
         });
 
         self.step = GameStep::Submission;
+        self.round_started_at = Some(Instant::now());
     }
 
     pub fn current_judge(&self) -> JudgeId {
