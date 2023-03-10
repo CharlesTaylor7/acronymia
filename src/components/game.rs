@@ -23,7 +23,7 @@ use self::submission::*;
 pub fn Game(cx: Scope) -> impl IntoView {
     provide_game_context(cx);
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
-    let game_step = create_memo(cx, move |_| game_state(cx).map(|s| s.step.clone()));
+    let game_step = create_memo(cx, move |_| game_state(cx).with(|g| g.step.clone()));
     let debug_region_expanded = create_rw_signal(cx, false);
     view! {
         cx,
@@ -44,27 +44,18 @@ pub fn Game(cx: Scope) -> impl IntoView {
                             on_input=move |text| player_id.set(Some(text))
                         />
                         <ResetButton/>
-                        <div>{move || format!("game_state = {:#?}", sse::game_state(cx))}</div>
+                        <div>{move || format!("game_state = {:#?}", sse::game_state(cx).get())}</div>
                         <h1 class="font-bold font-xl">"End Debug"</h1>
                     </div>
                 </When>
             </Debug>
             <h1 class="text-xl font-bold">"Acronymia"</h1>
             { move || match game_step() {
-                None => view! {cx, <><GameNotFound /></>},
-                Some(GameStep::Setup) => view! { cx, <><GameSetup /></> },
-                Some(GameStep::Submission) => view! { cx, <><GameSubmission /></> },
-                Some(GameStep::Judging) => view! { cx, <><GameJudging /></> },
-                Some(GameStep::Results) => view! { cx, <><GameResults /></> },
+                GameStep::Setup => view! { cx, <><GameSetup /></> },
+                GameStep::Submission => view! { cx, <><GameSubmission /></> },
+                GameStep::Judging => view! { cx, <><GameJudging /></> },
+                GameStep::Results => view! { cx, <><GameResults /></> },
             }}
         </div>
-    }
-}
-
-#[component]
-fn GameNotFound(_cx: Scope) -> impl IntoView {
-    view! {
-        cx,
-        "Game not found!"
     }
 }

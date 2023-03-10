@@ -19,13 +19,16 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
     let is_creator: Memo<bool> = create_memo(cx, move |_| {
         player_id()
             .and_then(|me| {
-                game_state(cx).and_then(|s| s.players.get(0).as_ref().map(|p| p.id == me))
+                game_state(cx)
+                    .get()
+                    .players
+                    .get(0)
+                    .as_ref()
+                    .map(|p| p.id == me)
             })
             .unwrap_or(false)
     });
-    let players: Memo<Vec<Player>> = create_memo(cx, move |_| {
-        game_state(cx).map(|s| s.players).unwrap_or(Vec::new())
-    });
+    let players: Memo<Vec<Player>> = create_memo(cx, move |_| game_state(cx).get().players);
 
     view! {
         cx,

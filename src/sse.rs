@@ -4,7 +4,7 @@ use ::serde::*;
 
 // Trait to ensure server and client use the same event types
 pub trait ServerSentEvent:
-    core::fmt::Debug + PartialEq + Clone + Serialize + for<'de> Deserialize<'de>
+    Default + core::fmt::Debug + PartialEq + Clone + Serialize + for<'de> Deserialize<'de>
 {
     fn event_type() -> &'static str;
 }
@@ -21,14 +21,16 @@ impl Fn<()> for SseSignal<T> {
 }
 */
 
-pub type SseSignal<T> = Memo<Option<T>>;
+pub type SseSignal<T> = RwSignal<T>;
 
-pub fn game_state(cx: Scope) -> Option<ClientGameState> {
+pub fn game_state(cx: Scope) -> SseSignal<ClientGameState> {
     // depend on the dummy signal which just tells us
     // when the inner event stream is swapped out
     use_context::<Signal<()>>(cx).map(|s| s.get());
-    // access the context value which holds the current event stream signal
-    use_context::<SseSignal<ClientGameState>>(cx)?.get()
+
+    // read the signal from context
+    use_context::<SseSignal<ClientGameState>>(cx)
+        .expect("did you forget to call provide_game_state?")
 }
 
 pub fn provide_game_state(cx: Scope, id: Signal<Option<PlayerId>>) {
@@ -44,9 +46,9 @@ pub fn provide_sse_signal<T: ServerSentEvent + 'static>(cx: Scope, id: Signal<Op
     let handle = store_value::<Option<ScopeDisposer>>(cx, None);
     let dummy_signal = create_rw_signal(cx, ());
     provide_context::<Signal<()>>(cx, dummy_signal.into());
-    //let stored_signal = store_value::<Option<SseSignal<T>>>(cx, None);
-    //let stored_signal = store_value::<Option<SseSignal<T>>>(cx, None);
-    //provide_conte
+
+    // provide a placeholder signal
+    provide_context::<SseSignal<T>>(cx, create_rw_signal(cx, Default::default()));
 
     create_effect(cx, move |_| {
         handle.update_value(|h| {
@@ -64,21 +66,46 @@ pub fn provide_sse_signal<T: ServerSentEvent + 'static>(cx: Scope, id: Signal<Op
     });
 }
 
-// use gloo_net::eventsource::EventSourceError;
-// use web_sys::MessageEvent;
-// type Event = Result<(std::string::String, MessageEvent), EventSourceError>;
-//
 #[cfg(not(feature = "ssr"))]
-fn to_signal<T: ServerSentEvent>(cx: Scope, stream: EventSourceSubscription) -> Memo<Option<T>> {
-    let signal = create_signal_from_stream(cx, stream);
-    create_memo(cx, move |_| {
-        signal()?
-            .ok()?
-            .1
-            .data()
-            .as_string()
-            .and_then(|x| serde_json::from_str::<T>(&x).ok())
-    })
+type Event =
+    Result<(std::string::String, web_sys::MessageEvent), gloo_net::eventsource::EventSourceError>;
+
+#[cfg(not(feature = "ssr"))]
+fn parse_event<T: ServerSentEvent>(event: Event) -> Option<T> {
+    event
+        .ok()?
+        .1
+        .data()
+        .as_string()
+        .and_then(|x| serde_json::from_str::<T>(&x).ok())
+}
+
+#[cfg(not(feature = "ssr"))]
+fn to_signal<T: ServerSentEvent>(cx: Scope, stream: EventSourceSubscription) -> SseSignal<T> {
+    create_rw_signal_from_stream::<T>(
+        cx,
+        stream.filter_map(|e| std::future::ready(parse_event(e))),
+    )
+}
+
+#[cfg(not(feature = "ssr"))]
+use futures::{Stream, StreamExt};
+
+// based on the source code:
+// https://docs.rs/leptos_reactive/0.2.1/src/leptos_reactive/signal.rs.html#383-389
+#[cfg(not(feature = "ssr"))]
+pub fn create_rw_signal_from_stream<T: Default>(
+    cx: Scope,
+    #[allow(unused_mut)] // allowed because needed for SSR
+    mut stream: impl Stream<Item = T> + Unpin + 'static,
+) -> RwSignal<T> {
+    let signal = create_rw_signal(cx, Default::default());
+    spawn_local(async move {
+        while let Some(value) = stream.next().await {
+            signal.set(value);
+        }
+    });
+    signal
 }
 
 #[cfg(not(feature = "ssr"))]
@@ -95,7 +122,8 @@ fn subscribe<T: ServerSentEvent>(cx: Scope, id: PlayerId) -> EventSourceSubscrip
 }
 // stub definition for SSR context
 #[cfg(feature = "ssr")]
-pub fn provide_sse_signal<T: ServerSentEvent + 'static>(_cx: Scope, _id: Signal<Option<PlayerId>>) {
+pub fn provide_sse_signal<T: ServerSentEvent + 'static>(cx: Scope, _id: Signal<Option<PlayerId>>) {
+    provide_context::<SseSignal<T>>(cx, create_rw_signal(cx, Default::default()));
 }
 
 // server side api handler
