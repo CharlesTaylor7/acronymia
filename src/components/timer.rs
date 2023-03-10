@@ -2,13 +2,13 @@ use leptos::*;
 use std::time::Duration;
 
 #[component]
-pub fn Timer(cx: Scope, #[prop(optional)] initial: Option<u32>) -> impl IntoView {
-    let seconds = timer(cx, initial.unwrap_or(60));
+pub fn Timer(cx: Scope, initial: u32) -> impl IntoView {
+    let seconds = timer(cx, initial);
     view! { cx, "Seconds: "{seconds}}
 }
 
 /// counts down from initial value to 0
-fn timer(cx: Scope, initial: u32) -> RwSignal<u32> {
+pub fn timer(cx: Scope, initial: u32) -> Signal<u32> {
     let seconds = create_rw_signal(cx, initial);
 
     #[cfg(not(feature = "ssr"))]
@@ -17,7 +17,6 @@ fn timer(cx: Scope, initial: u32) -> RwSignal<u32> {
         let stored = store_value::<Option<IntervalHandle>>(cx, None);
         let handle = set_interval(
             move || {
-                log!("call");
                 let s = seconds.get();
                 if s > 0 {
                     seconds.set(s - 1);
@@ -35,7 +34,7 @@ fn timer(cx: Scope, initial: u32) -> RwSignal<u32> {
         });
     }
 
-    seconds
+    seconds.into()
 }
 
 /// counts up from an initial value

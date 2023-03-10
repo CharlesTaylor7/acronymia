@@ -45,17 +45,16 @@ Pages:
 - Active Game (SPA): `/game/<id>/`
 - Game configaration `/game/<id>/config`
 
-### TODO 
-- [ ] Setup step
+### TODO for MVP
+- [x] Setup step
   - [x] Players can set their nickname
-  - [ ] Allow game creator to start game (for MVP creator is the first registered player)
+  - [x] Allow game creator to start game (for MVP creator is the first registered player)
 - [ ] Submission step
+  - [ ] a synchronized 30 second timer. 
   - [ ] player view 
       - acronym input
-      - 30 second timer
   - [ ] judge view 
       - # of submissions received
-      - timer 
 - [ ] Judging step
   - [ ] player view
       - [ ] readonly list of submissions
@@ -66,8 +65,7 @@ Pages:
   - [ ] Show a scoreboard of player points
 
 ### Deferred from MVP
-
-- Multiple room support
+- rounds end manually when judge wants them too. Syncrhonizing time is tricky.
 - Literally everything
 
 # Development

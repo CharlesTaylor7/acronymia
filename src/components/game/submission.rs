@@ -1,9 +1,11 @@
 use ::leptos::*;
+use crate::components::timer::*;
 
 #[component]
-pub fn GameSubmission(_cx: Scope) -> impl IntoView {
+pub fn GameSubmission(cx: Scope) -> impl IntoView {
+    let seconds = timer(cx, 30);
     view! {
         cx,
-        "Submission!"
+        "Seconds remaining: "{seconds}
     }
 }
