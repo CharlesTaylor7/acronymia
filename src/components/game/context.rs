@@ -1,4 +1,3 @@
-use ::uuid::*;
 use crate::*;
 use sse::*;
 use typed_context::*;
@@ -28,15 +27,11 @@ pub fn provide_game_context(cx: Scope) {
 fn signal_player_id(cx: Scope) -> RwSignal<Option<PlayerId>> {
     let player_id: RwSignal<Option<String>> = create_rw_signal(cx, None);
 
-    // this only runs once because it does not depend on any reactive values
-    // but its wrapped in create_effect to ensure it runs on the client side
     #[cfg(feature = "local-storage")]
-    create_effect(cx, move |_| {
+    if player_id().is_none() {
+        use ::uuid::*;
         const STORAGE_KEY: &str = "acronymia-player-id";
 
-        if player_id().is_some() {
-            return ();
-        }
         let new_player_id = move |storage: web_sys::Storage| {
             let id = Uuid::new_v4().to_string();
             _ = storage.set_item(STORAGE_KEY, &id);
@@ -49,7 +44,7 @@ fn signal_player_id(cx: Scope) -> RwSignal<Option<PlayerId>> {
             },
             _ => (),
         }
-    });
+    }
 
     player_id
 }

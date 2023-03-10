@@ -15,7 +15,6 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
     let kick_player = create_action(cx, move |id: &PlayerId| api::kick_player(id.clone()));
     let start_game = create_action(cx, move |_: &()| api::start_game());
 
-    let players = Signal::derive(cx, move || Vec::new() as Vec<Player>);
     let players: Memo<Vec<Player>> = create_memo(cx, move |_| {
         game_state(cx).map(|s| s.players).unwrap_or(Vec::new())
     });
