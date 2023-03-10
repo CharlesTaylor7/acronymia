@@ -35,22 +35,21 @@ pub fn Game(cx: Scope) -> impl IntoView {
                 >
                     "Toggle Debug View"
                 </button>
-                <div
-                    class:hidden=debug_region_collapsed
-                    class="flex flex-col items-start gap-4"
-                >
-                    <h1 class="font-bold font-xl">"Begin Debug"</h1>
-                    <p>"Override player id: "</p>
-                    <TextInput
-                        default=player_id().unwrap_or("".to_string())
-                        disabled=MaybeSignal::derive(cx, move|| player_id().is_some())
-                        on_input=move |text| player_id.set(Some(text))
-                    />
-                    <ResetButton/>
-                    <p>{move || format!("player_id = {:#?}", player_id())}</p>
-                    <p>{move || format!("game_state = {:#?}", sse::game_state(cx))}</p>
-                    <h1 class="font-bold font-xl">"End Debug"</h1>
-                </div>
+                <When predicate=debug_region_collapsed.into() >
+                    <div class="flex flex-col items-start gap-4">
+                        <h1 class="font-bold font-xl">"Begin Debug"</h1>
+                        <p>"Override player id: "</p>
+                        <TextInput
+                            default=player_id().unwrap_or("".to_string())
+                            disabled=MaybeSignal::derive(cx, move|| player_id().is_some())
+                            on_input=move |text| player_id.set(Some(text))
+                        />
+                        <ResetButton/>
+                        <p>{move || format!("player_id = {:#?}", player_id())}</p>
+                        <p>{move || format!("game_state = {:#?}", sse::game_state(cx))}</p>
+                        <h1 class="font-bold font-xl">"End Debug"</h1>
+                    </div>
+                </When>
             </Debug>
             <h1 class="text-xl font-bold">"Acronymia"</h1>
             { move || match game_step() {
