@@ -135,13 +135,11 @@ pub fn client_game_state(id: String) -> ClientGameState {
             } else {
                 0
             };
-            log!("{}", rounded_sec);
             diff.as_secs() + rounded_sec
         } else {
             0
         }
     });
-    log!("{:#?}", round_timer);
 
     ClientGameState {
         round_timer: round_timer,
