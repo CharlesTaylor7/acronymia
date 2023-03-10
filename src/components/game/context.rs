@@ -12,8 +12,7 @@ pub fn provide_game_context(cx: Scope) {
     let player_id = signal_player_id(cx);
     provide_typed_context::<Signal_PlayerId>(cx, player_id);
 
-    let game_state = create_sse_signal::<ClientGameState>(cx, player_id.into());
-    provide_context(cx, game_state);
+    provide_game_state(cx, player_id.into());
 
     let player_name = create_rw_signal(cx, "".to_string());
     provide_typed_context::<Signal_PlayerName>(cx, player_name);
@@ -31,7 +30,7 @@ fn signal_player_id(cx: Scope) -> RwSignal<Option<PlayerId>> {
 
     // this only runs once because it does not depend on any reactive values
     // but its wrapped in create_effect to ensure it runs on the client side
-    #[cfg(feature = "localstorage")]
+    #[cfg(feature = "local-storage")]
     create_effect(cx, move |_| {
         const STORAGE_KEY: &str = "acronymia-player-id";
 

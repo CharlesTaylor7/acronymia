@@ -23,11 +23,8 @@ use self::submission::*;
 #[component]
 pub fn Game(cx: Scope) -> impl IntoView {
     provide_game_context(cx);
-    let game_state = use_context::<SseSignal<ClientGameState>>(cx).unwrap();
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
-    let game_step = create_signal(cx, GameSetup).0; // temporary
-    //let game_step = create_memo(cx, move |_| *game_state().map(|s| s.step.clone()));
-
+    let game_step = create_memo(cx, move |_| game_state(cx).map(|s| s.step.clone()));
     let debug_region_collapsed = create_rw_signal(cx, true);
     view! {
         cx,
@@ -52,12 +49,11 @@ pub fn Game(cx: Scope) -> impl IntoView {
                     />
                     <ResetButton/>
                     <p>{move || format!("player_id = {:#?}", player_id())}</p>
-                    <p>{move || format!("game_state = {:#?}", sse::get(game_state))}</p>
+                    <p>{move || format!("game_state = {:#?}", sse::game_state(cx))}</p>
                     <h1 class="font-bold font-xl">"End Debug"</h1>
                 </div>
             </Debug>
             <h1 class="text-xl font-bold">"Acronymia"</h1>
-            /*
             { move || match game_step() {
                 None => view! {cx, <><GameNotFound /></>},
                 Some(GameStep::Setup) => view! { cx, <><GameSetup /></> },
@@ -65,7 +61,6 @@ pub fn Game(cx: Scope) -> impl IntoView {
                 Some(GameStep::Judging) => view! { cx, <><GameJudging /></> },
                 Some(GameStep::Results) => view! { cx, <><GameResults /></> },
             }}
-            */
         </div>
     }
 }

@@ -5,6 +5,7 @@ use crate::api;
 use crate::components::text_input::*;
 use crate::typed_context::*;
 use crate::types::*;
+use crate::sse::*;
 
 #[component]
 pub fn GameSetup(cx: Scope) -> impl IntoView {
@@ -15,12 +16,9 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
     let start_game = create_action(cx, move |_: &()| api::start_game());
 
     let players = Signal::derive(cx, move || Vec::new() as Vec<Player>);
-    /*
-    let game_state = use_context::<Signal_GameState>(cx);
     let players: Memo<Vec<Player>> = create_memo(cx, move |_| {
-        game_state().as_ref().map(|s| s.players.clone()).unwrap_or(Vec::new())
+        game_state(cx).map(|s| s.players).unwrap_or(Vec::new())
     });
-    */
 
     view! {
         cx,
