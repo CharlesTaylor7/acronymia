@@ -99,3 +99,11 @@ pub fn last<'a, T>(v: &'a Vec<T>) -> Option<&'a T> {
     }
     v.get(v.len() - 1)
 }
+
+pub fn last_mut<'a, T>(v: &'a mut Vec<T>) -> Option<&'a mut T> {
+    let n = v.len();
+    if n == 0 {
+        return None;
+    }
+    v.get_mut(n - 1)
+}

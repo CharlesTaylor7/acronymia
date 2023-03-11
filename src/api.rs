@@ -1,5 +1,5 @@
-use leptos::*;
 use crate::types::*;
+use leptos::*;
 
 #[cfg(feature = "ssr")]
 use std::sync::*;
@@ -45,14 +45,16 @@ fn demo_init(players: Vec<&str>) -> GameState {
     }
 }
 
+// TODO: apis need to be both restricted by game step & player role
 #[cfg(feature = "ssr")]
 pub fn register_server_functions() {
     _ = JoinGame::register();
     _ = KickPlayer::register();
     _ = StartGame::register();
     _ = SubmitAcronym::register();
+    _ = JudgeRound::register();
     // hide unsafe api in production
-    #[cfg(debug_assertions)] 
+    #[cfg(debug_assertions)]
     _ = ResetState::register();
 }
 
@@ -99,7 +101,10 @@ pub async fn start_game() -> Result<(), ServerFnError> {
 /// start the game
 /// TODO: restrict this to non judges
 #[server(SubmitAcronym, "/api")]
-pub async fn submit_acronym(player_id: PlayerId, submission: Submission) -> Result<(), ServerFnError> {
+pub async fn submit_acronym(
+    player_id: PlayerId,
+    submission: Submission,
+) -> Result<(), ServerFnError> {
     let mut state = STATE.lock().expect("locking thread crashed");
 
     let round_id = state.rounds.len() - 1;
@@ -108,6 +113,23 @@ pub async fn submit_acronym(player_id: PlayerId, submission: Submission) -> Resu
     Ok(())
 }
 
+/// start the game
+/// TODO: restrict this to the judge
+#[server(JudgeRound, "/api")]
+pub async fn judge_round(_me: PlayerId, winner_id: PlayerId) -> Result<(), ServerFnError> {
+    let mut state = STATE.lock().expect("locking thread crashed");
+
+    match state.step {
+        GameStep::Judging => {
+            last_mut(&mut state.rounds).map(|r| {
+                r.winner = Some(winner_id);
+            });
+
+            Ok(())
+        }
+        _ => api_err("can't judge outside of the judge step"),
+    }
+}
 
 /// reset the game state to default
 #[server(ResetState, "/api")]
@@ -166,4 +188,9 @@ pub fn client_game_state(id: String) -> ClientGameState {
             .cloned()
             .collect(),
     }
+}
+
+#[cfg(feature = "ssr")]
+fn api_err<T, S: ToString>(message: S) -> Result<T, ServerFnError> {
+    Err(ServerFnError::ServerError(message.to_string()))
 }

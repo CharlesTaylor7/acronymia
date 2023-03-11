@@ -1,5 +1,3 @@
-use ::leptos::*;
-
 use super::context::*;
 use crate::api;
 use crate::components::text_input::*;
@@ -7,8 +5,7 @@ use crate::components::utils::*;
 use crate::sse::*;
 use crate::typed_context::*;
 use crate::types::*;
-use ::wasm_bindgen::*;
-use leptos::{ev, html::*, *};
+use ::leptos::*;
 
 #[component]
 pub fn GameSetup(cx: Scope) -> impl IntoView {
