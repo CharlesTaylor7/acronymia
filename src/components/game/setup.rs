@@ -14,7 +14,13 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
     let player_name = use_typed_context::<Signal_PlayerName>(cx);
     let join_game = use_typed_context::<Action_JoinGame>(cx);
     let kick_player = create_action(cx, move |id: &PlayerId| api::kick_player(id.clone()));
-    let start_game = create_action(cx, move |_: &()| api::start_game());
+    let start_game = create_action(cx, move |_: &()| {
+        game_state(cx).update(|g| {
+            g.step = GameStep::Submission;
+            g.round_timer = Some(30);
+        });
+        api::start_game()
+    });
 
     let is_creator: Memo<bool> = create_memo(cx, move |_| {
         player_id()
@@ -46,7 +52,7 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
                 >
                     "Join!"
                 </button>
-                <When predicate=MaybeSignal::derive(cx, move|| is_creator())>
+                <When predicate=MaybeSignal::derive(cx, move|| is_creator() || DEBUG_MODE)>
                     <button
                         class="border rounded p-2 bg-green-300 border-slate-200"
                         on:click=move |_| start_game.dispatch(())

@@ -18,7 +18,6 @@ pub fn timer(cx: Scope, initial: u64) -> RwSignal<u64> {
         let handle = set_interval(
             move || {
                 seconds.update(|s| {
-                    log!("browser");
                     if *s > 0 {
                         *s = *s - 1
                     } else {
@@ -51,16 +50,15 @@ pub fn apply_timer_to_game(cx: Scope) {
         let stored = store_value::<Option<IntervalHandle>>(cx, None);
         let handle = set_interval(
             move || {
-                game_state(cx).update(|g| {
-                    g.round_timer.as_mut().map(|s| {
-                        log!("browser");
-                        if *s > 0 {
-                            *s = *s - 1
-                        } else {
-                            // clear interval when time reaches 0
-                            stored.with_value(|h| h.map(|h| h.clear()));
-                        }
-                    });
+                log!("tick");
+                game_state(cx).update(|g| match g.round_timer {
+                    Some(s) if s > 0 => {
+                        g.round_timer = Some(s - 1);
+                    }
+                    _ => {
+                        g.round_timer = None;
+                        stored.with_value(|h| h.map(|h| h.clear()));
+                    }
                 })
             },
             Duration::new(1, 0),

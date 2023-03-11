@@ -99,6 +99,7 @@ pub fn create_rw_signal_from_stream<T: Default>(
     let signal = create_rw_signal(cx, Default::default());
     spawn_local(async move {
         while let Some(value) = stream.next().await {
+            log!("sse");
             signal.set(value);
         }
     });
