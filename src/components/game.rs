@@ -28,6 +28,13 @@ pub fn Game(cx: Scope) -> impl IntoView {
     view! {
         cx,
         <div class="flex flex-col items-start mx-20 my-4 gap-4">
+           <h1 class="text-xl font-bold">"Acronymia"</h1>
+            { move || match game_step() {
+                GameStep::Setup => view! { cx, <><GameSetup /></> },
+                GameStep::Submission => view! { cx, <><GameSubmission /></> },
+                GameStep::Judging => view! { cx, <><GameJudging /></> },
+                GameStep::Results => view! { cx, <><GameResults /></> },
+            }}
             <Debug>
                 <button
                     class="border rounded p-2 bg-slate-200"
@@ -49,13 +56,6 @@ pub fn Game(cx: Scope) -> impl IntoView {
                     </div>
                 </When>
             </Debug>
-            <h1 class="text-xl font-bold">"Acronymia"</h1>
-            { move || match game_step() {
-                GameStep::Setup => view! { cx, <><GameSetup /></> },
-                GameStep::Submission => view! { cx, <><GameSubmission /></> },
-                GameStep::Judging => view! { cx, <><GameJudging /></> },
-                GameStep::Results => view! { cx, <><GameResults /></> },
-            }}
         </div>
     }
 }
