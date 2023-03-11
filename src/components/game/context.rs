@@ -15,11 +15,6 @@ pub fn provide_game_context(cx: Scope) {
 
     let player_name = create_rw_signal(cx, "".to_string());
     provide_typed_context::<Signal_PlayerName>(cx, player_name);
-
-    let join_game = create_action(cx, move |_: &()| {
-        api::join_game(player_id().unwrap_or("".to_owned()), player_name())
-    });
-    provide_typed_context::<Action_JoinGame>(cx, join_game);
 }
 
 /// a signal for the player id

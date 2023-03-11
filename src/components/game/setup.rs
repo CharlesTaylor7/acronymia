@@ -7,12 +7,16 @@ use crate::components::utils::*;
 use crate::sse::*;
 use crate::typed_context::*;
 use crate::types::*;
+use ::wasm_bindgen::*;
+use leptos::{ev, html::*, *};
 
 #[component]
 pub fn GameSetup(cx: Scope) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     let player_name = use_typed_context::<Signal_PlayerName>(cx);
-    let join_game = use_typed_context::<Action_JoinGame>(cx);
+    let join_game = create_action(cx, move |_: &()| {
+        api::join_game(player_id().unwrap_or("".to_owned()), player_name())
+    });
     let kick_player = create_action(cx, move |id: &PlayerId| api::kick_player(id.clone()));
     let start_game = create_action(cx, move |_: &()| {
         game_state(cx).update(|g| {
@@ -46,13 +50,17 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
                 on_input=move |text| player_name.set(text)
             />
             <div class="flex flex-row gap-4">
-                <button
-                    class="border rounded p-2 bg-blue-300 border-slate-200"
-                    prop:disabled=MaybeSignal::derive(cx, move|| player_id().is_none())
-                    on:click=move |_| join_game.dispatch(())
-                >
-                    "Join!"
-                </button>
+                {with_autoblur(cx, move || join_game.dispatch(()),
+                    view! {cx,
+                        <button
+                            class="border rounded p-2 bg-blue-300 border-slate-200"
+                            prop:disabled=MaybeSignal::derive(cx, move|| player_id().is_none())
+                            //on:click=move |_| join_game.dispatch(())
+                        >
+                            "Join!"
+                        </button>
+                    }
+                )}
 
                 <When predicate=MaybeSignal::derive(cx, move|| is_creator() || DEBUG_MODE)>
                     <button
@@ -84,4 +92,17 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
             </ul>
         </div>
     }
+}
+
+fn with_autoblur<F>(cx: Scope, on_click: F, el: HtmlElement<Button>) -> HtmlElement<Button>
+where
+    F: 'static + Fn(),
+{
+    let node_ref = create_node_ref::<Button>(cx);
+    el.node_ref(node_ref).on(ev::click, move |_| {
+        if let Some(el) = node_ref.get() {
+            el.blur();
+        }
+        on_click();
+    })
 }
