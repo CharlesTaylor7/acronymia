@@ -143,6 +143,7 @@ pub fn client_game_state(id: String) -> ClientGameState {
         round_timer: round_timer,
         judge: judge,
         step: state.step.clone(),
+        acronym: last(&state.rounds).map(|r| r.acronym.clone()),
         players: state
             .rotation
             .iter()

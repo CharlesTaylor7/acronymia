@@ -40,9 +40,9 @@ pub struct Player {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Round {
-    judge: JudgeId,
-    acronym: String,
-    winner: Option<PlayerId>,
+    pub judge: JudgeId,
+    pub acronym: String,
+    pub winner: Option<PlayerId>,
 }
 
 /// game state for a single client
@@ -52,6 +52,7 @@ pub struct ClientGameState {
     pub judge: Judge,
     pub step: GameStep,
     pub players: Vec<Player>,
+    pub acronym: Option<String>,
     pub round_timer: Option<u64>,
 }
 
@@ -94,4 +95,11 @@ impl GameState {
     pub fn next_judge(&self) -> JudgeId {
         (self.current_judge() + 1) % self.rotation.len()
     }
+}
+
+pub fn last<'a, T>(v: &'a Vec<T>) -> Option<&'a T> {
+    if v.len() == 0 {
+        return None
+    }
+    v.get(v.len() - 1)
 }
