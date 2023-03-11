@@ -1,6 +1,4 @@
 use leptos::*;
-
-#[cfg(feature = "ssr")]
 use crate::types::*;
 
 #[cfg(feature = "ssr")]
@@ -52,6 +50,9 @@ pub fn register_server_functions() {
     _ = JoinGame::register();
     _ = KickPlayer::register();
     _ = StartGame::register();
+    _ = SubmitAcronym::register();
+    // hide unsafe api in production
+    #[cfg(debug_assertions)] 
     _ = ResetState::register();
 }
 
@@ -61,7 +62,6 @@ pub fn register_server_functions() {
 /// allows you to update your name if you already joined
 #[server(JoinGame, "/api")]
 pub async fn join_game(id: String, name: String) -> Result<(), ServerFnError> {
-    log!("id={} name={}", &id, &name);
     let mut state = STATE.lock().expect("locking thread crashed");
 
     let player = Player {
@@ -69,7 +69,6 @@ pub async fn join_game(id: String, name: String) -> Result<(), ServerFnError> {
         name: name,
     };
     if let None = state.players.insert(id.clone(), player) {
-        log!("new player joined: {}", id.clone());
         state.rotation.push(id);
     }
 
@@ -80,7 +79,6 @@ pub async fn join_game(id: String, name: String) -> Result<(), ServerFnError> {
 /// TODO: restrict this to the room "owner"
 #[server(KickPlayer, "/api")]
 pub async fn kick_player(id: String) -> Result<(), ServerFnError> {
-    log!("kicking {}", &id);
     let mut state = STATE.lock().expect("locking thread crashed");
 
     state.rotation.retain(|p| *p != id);
@@ -91,12 +89,25 @@ pub async fn kick_player(id: String) -> Result<(), ServerFnError> {
 /// TODO: restrict this to the room "owner"
 #[server(StartGame, "/api")]
 pub async fn start_game() -> Result<(), ServerFnError> {
-    log!("starting game");
     let mut state = STATE.lock().expect("locking thread crashed");
 
     state.start_round();
+
     Ok(())
 }
+
+/// start the game
+/// TODO: restrict this to non judges
+#[server(SubmitAcronym, "/api")]
+pub async fn submit_acronym(player_id: PlayerId, submission: Submission) -> Result<(), ServerFnError> {
+    let mut state = STATE.lock().expect("locking thread crashed");
+
+    let round_id = state.rounds.len() - 1;
+    state.submissions.insert((round_id, player_id), submission);
+
+    Ok(())
+}
+
 
 /// reset the game state to default
 #[server(ResetState, "/api")]
@@ -104,6 +115,7 @@ pub async fn reset_state() -> Result<(), ServerFnError> {
     let mut state = STATE.lock().expect("locking thread crashed");
 
     *state = game_state_default();
+
     Result::Ok(())
 }
 

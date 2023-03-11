@@ -7,7 +7,7 @@ use std::time::Instant;
 pub type Server<T> = Result<T, ServerFnError>;
 pub type Res<T> = Resource<u32, T>;
 pub type Submission = Vec<String>; // user submitted pick
-pub type RoundId = u32;
+pub type RoundId = usize; // index into the rounds vector
 pub type PlayerId = String; // uuid
 pub type JudgeId = usize; // index into the rotation vector
 
