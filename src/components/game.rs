@@ -42,7 +42,7 @@ pub fn Game(cx: Scope) -> impl IntoView {
                 >
                     "Toggle Debug View"
                 </button>
-                <When predicate=debug_region_expanded.into() >
+                <When predicate=debug_region_expanded >
                     <div class="flex flex-col items-start gap-4">
                         <h1 class="font-bold font-xl">"Begin Debug"</h1>
                         <p>"Override player id: "</p>

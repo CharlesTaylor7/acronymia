@@ -1,5 +1,6 @@
 #![feature(type_alias_impl_trait)]
 #![feature(unboxed_closures)]
+#![feature(let_chains)]
 pub mod api;
 pub mod components;
 pub mod sse;

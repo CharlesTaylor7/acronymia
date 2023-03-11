@@ -52,6 +52,7 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
                 >
                     "Join!"
                 </button>
+
                 <When predicate=MaybeSignal::derive(cx, move|| is_creator() || DEBUG_MODE)>
                     <button
                         class="border rounded p-2 bg-green-300 border-slate-200"

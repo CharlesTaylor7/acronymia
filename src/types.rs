@@ -52,7 +52,7 @@ pub struct ClientGameState {
     pub judge: Judge,
     pub step: GameStep,
     pub players: Vec<Player>,
-    pub acronym: Option<String>,
+    pub acronym: String,
     pub round_timer: Option<u64>,
 }
 

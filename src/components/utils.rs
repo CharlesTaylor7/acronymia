@@ -14,11 +14,10 @@ pub fn Debug(cx: Scope, children: Box<dyn Fn(Scope) -> Fragment>) -> impl IntoVi
 
 /// Conditionally render a view. Just to reduce boilerplate
 #[component]
-pub fn When(
-    cx: Scope,
-    predicate: MaybeSignal<bool>,
-    children: Box<dyn Fn(Scope) -> Fragment>,
-) -> impl IntoView {
+pub fn When<P>(cx: Scope, predicate: P, children: Box<dyn Fn(Scope) -> Fragment>) -> impl IntoView
+where
+    P: 'static + Fn() -> bool,
+{
     move || {
         if predicate() {
             view! {cx, <>{children(cx)}</>}
