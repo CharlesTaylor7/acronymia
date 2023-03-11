@@ -7,6 +7,7 @@ pub fn TextInput<F>(
     on_input: F,
     #[prop(optional)] default: Option<String>,
     #[prop(optional)] disabled: Option<MaybeSignal<bool>>,
+    #[prop(optional)] focus: Option<MaybeSignal<bool>>,
 ) -> impl IntoView
 where
     F: FnOnce(String) -> () + 'static + Copy,
@@ -17,6 +18,18 @@ where
         let value = element.value();
         on_input(value);
     };
+
+    let focus1 = focus.unwrap_or(Default::default());
+    let focus2 = clone_maybe_signal(&focus1);
+
+    create_effect(cx, move |_| {
+        let focus = focus1();
+        let s = input_ref.get();
+        if focus && let Some(el) = s {
+            el.focus();
+        }
+    });
+
     view! {
         cx,
         <div>
@@ -25,7 +38,8 @@ where
                 node_ref=input_ref
                 value=default
                 class="border rounded border-slate-400 px-3"
-                prop:disabled=disabled.map(|s| s.get()).unwrap_or(false)
+                autofocus=focus2()
+                prop:disabled=disabled.unwrap_or(Default::default())
                 on:blur=move|_| callback()
                 on:keyup=move |event| {
                     let key = event.key();
@@ -35,5 +49,14 @@ where
                 }
             />
         </div>
+    }
+}
+
+// TODO: temporary until MaybeSignal implements Clone
+// https://github.com/leptos-rs/leptos/pull/660
+fn clone_maybe_signal<T: Clone>(signal: &MaybeSignal<T>) -> MaybeSignal<T> {
+    match signal {
+        MaybeSignal::Static(item) => MaybeSignal::Static(item.clone()),
+        MaybeSignal::Dynamic(signal) => MaybeSignal::Dynamic(signal.clone()),
     }
 }

@@ -42,6 +42,7 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
             "Pick a Nickname to join: "
             <TextInput
                 default=player_name()
+                focus=MaybeSignal::Static(true)
                 on_input=move |text| player_name.set(text)
             />
             <div class="flex flex-row gap-4">

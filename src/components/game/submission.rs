@@ -40,6 +40,8 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
                 (0..n)
                     .map(|i| view! { cx,
                         <TextInput
+                            // focus on the first input
+                            focus=MaybeSignal::Static(i == 0)
                             on_input=move|text| {
                                 submission.update_value(move |s| {
                                     if let Some(elem) = s.get_mut(i) {
