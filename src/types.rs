@@ -9,6 +9,7 @@ pub type Res<T> = Resource<u32, T>;
 pub type Submission = Vec<String>; // user submitted pick
 pub type RoundId = usize; // index into the rounds vector
 pub type PlayerId = String; // uuid
+pub type PlayerName = String;
 pub type JudgeId = usize; // index into the rotation vector
 
 /// Server game state
@@ -54,17 +55,20 @@ pub struct ClientGameState {
     pub players: Vec<Player>,
     pub acronym: String,
     pub round_timer: Option<u64>,
+    // everyone can see the current submission count
     pub submission_count: usize,
+    // empty vector when not at the judging step
+    pub submissions: Vec<(PlayerName, Submission)>,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub enum Judge {
-    Me(JudgeInfo),     // info privy to me as the judge
-    Someone(PlayerId), // id of the judge
+    Me,
+    Name(String),
 }
 impl Default for Judge {
     fn default() -> Judge {
-        Judge::Someone(Default::default())
+        Judge::Name(Default::default())
     }
 }
 

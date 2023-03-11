@@ -150,9 +150,9 @@ pub fn client_game_state(id: String) -> ClientGameState {
 
     let judge_id = state.rotation.get(state.current_judge());
     let judge = match judge_id {
-        None => Judge::Someone("".to_owned()),
-        Some(judge_id) if id == *judge_id => Judge::Me(JudgeInfo {}),
-        Some(judge_id) => Judge::Someone(judge_id.clone()),
+        None => Default::default(),
+        Some(judge_id) if id == *judge_id => Judge::Me,
+        Some(judge_id) => Judge::Name(state.players.get(judge_id).expect("player").name.clone()),
     };
 
     // 30 second timer for everyone
@@ -180,6 +180,8 @@ pub fn client_game_state(id: String) -> ClientGameState {
         submission_count: last(&state.rounds)
             .map(|r| r.submissions.len())
             .unwrap_or(0),
+        // TODO: send submissions depending on game step
+        submissions: Vec::new(),
         acronym: last(&state.rounds)
             .map(|r| r.acronym.clone())
             .unwrap_or("".to_owned()),

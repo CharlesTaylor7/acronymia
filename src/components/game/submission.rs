@@ -10,12 +10,7 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
     apply_timer_to_game(cx);
     let acronym = store_value(cx, game_state(cx).with(|g| g.acronym.clone()));
     let submission = store_value(cx, vec!["".to_owned(); acronym.with_value(|a| a.len())]);
-    let judge = create_memo(cx, move |_| {
-        game_state(cx).with(|g| match g.judge {
-            Judge::Me(_) => true,
-            _ => false,
-        })
-    });
+    let judge = create_memo(cx, move |_| game_state(cx).with(|g| g.judge.clone()));
     view! {
         cx,
         {move|| match game_state(cx).with(|g| g.round_timer) {
@@ -35,7 +30,7 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
             },
         }}
 
-        <When predicate=judge >
+        <When predicate=move|| judge() == Judge::Me >
             <p>
                 "You are the judge. "
             </p>
@@ -44,7 +39,7 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
                 {acronym.with_value(|a| view_acronym(cx, a))}
             </p>
         </When>
-        <When predicate=move|| !judge() >
+        <When predicate=move|| judge() != Judge::Me >
             <p>
                 "What is "{acronym.with_value(|a| view_acronym(cx, a))}" ?"
             </p>
