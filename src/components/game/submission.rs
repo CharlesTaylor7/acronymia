@@ -9,7 +9,7 @@ use ::leptos::*;
 pub fn GameSubmission(cx: Scope) -> impl IntoView {
     apply_timer_to_game(cx);
     let acronym = store_value(cx, game_state(cx).with(|g| g.acronym.clone()));
-    let submission = store_value(cx, vec![""; acronym.with_value(|a| a.len())]);
+    let submission = store_value(cx, vec!["".to_owned(); acronym.with_value(|a| a.len())]);
     let judge = create_memo(cx, move |_| {
         game_state(cx).with(|g| match g.judge {
             Judge::Me(_) => true,
@@ -38,7 +38,16 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
             {
                 let n = acronym.with_value(|a| a.len());
                 (0..n)
-                    .map(|_| view! { cx, <TextInput on_input=move|_| () /> })
+                    .map(|i| view! { cx,
+                        <TextInput
+                            on_input=move|text| {
+                                submission.update_value(move |s| {
+                                    if let Some(elem) = s.get_mut(i) {
+                                        *elem = text;
+                                    }
+                                })
+                            }
+                        /> })
                     .collect::<Vec<_>>()
             }
             <button
