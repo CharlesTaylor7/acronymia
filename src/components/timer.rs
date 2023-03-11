@@ -56,7 +56,7 @@ pub fn apply_timer_to_game(cx: Scope) {
                         g.round_timer = Some(s - 1);
                     }
                     _ => {
-                        g.round_timer = None;
+                        g.round_timer = Some(0);
                         stored.with_value(|h| h.map(|h| h.clear()));
                     }
                 })
