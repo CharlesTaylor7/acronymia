@@ -11,7 +11,6 @@ pub fn timer(cx: Scope, initial: u64) -> RwSignal<u64> {
     let seconds = create_rw_signal(cx, initial);
     #[cfg(not(feature = "ssr"))]
     {
-        use crate::sse::*;
         use leptos_dom::helpers::IntervalHandle;
         use std::time::Duration;
 

@@ -24,8 +24,6 @@ fn game_state_default() -> GameState {
 }
 #[cfg(feature = "ssr")]
 fn demo_init(players: Vec<&str>) -> GameState {
-    use std::time::Instant;
-
     let players = players
         .into_iter()
         .enumerate()

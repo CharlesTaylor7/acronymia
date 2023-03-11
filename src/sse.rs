@@ -52,9 +52,7 @@ pub fn provide_sse_signal<T: ServerSentEvent + 'static>(cx: Scope, id: Signal<Op
 
     create_effect(cx, move |_| {
         handle.update_value(|h| {
-            std::mem::take(h).map(|h| {
-                h.dispose();
-            });
+            std::mem::take(h).map(|h| h.dispose());
         });
 
         if let Some(id) = id() {
@@ -91,12 +89,11 @@ fn to_signal<T: ServerSentEvent>(cx: Scope, stream: EventSourceSubscription) -> 
 #[cfg(not(feature = "ssr"))]
 use futures::{Stream, StreamExt};
 
-// based on the source code:
+// based on create_signal_from_stream:
 // https://docs.rs/leptos_reactive/0.2.1/src/leptos_reactive/signal.rs.html#383-389
 #[cfg(not(feature = "ssr"))]
 pub fn create_rw_signal_from_stream<T: Default>(
     cx: Scope,
-    #[allow(unused_mut)] // allowed because needed for SSR
     mut stream: impl Stream<Item = T> + Unpin + 'static,
 ) -> RwSignal<T> {
     let signal = create_rw_signal(cx, Default::default());

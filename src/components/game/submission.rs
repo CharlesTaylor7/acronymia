@@ -1,6 +1,5 @@
 use crate::components::timer::*;
 use crate::sse::*;
-use ::core::time::*;
 use ::leptos::*;
 
 #[component]
