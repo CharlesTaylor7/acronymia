@@ -1,18 +1,32 @@
+use super::context::*;
+use crate::api;
 use crate::components::text_input::*;
 use crate::components::timer::*;
 use crate::components::utils::*;
 use crate::sse::*;
+use crate::typed_context::*;
 use crate::types::*;
 use ::leptos::*;
 
 #[component]
 pub fn GameSubmission(cx: Scope) -> impl IntoView {
     apply_timer_to_game(cx);
+    let player_id = use_typed_context::<Signal_PlayerId>(cx);
     let acronym = store_value(cx, game_state(cx).with(|g| g.acronym.clone()));
     let submission = store_value(cx, vec!["".to_owned(); acronym.with_value(|a| a.len())]);
     let judge = create_memo(cx, move |_| game_state(cx).with(|g| g.judge.clone()));
+    let submissions = create_memo(cx, move |_| game_state(cx).with(|g| g.submission_count));
+    let player_count = game_state(cx).with(|g| g.players.len());
+    let submit = create_action(cx, move |_: &()| {
+        use futures::future::OptionFuture;
+        OptionFuture::from(player_id().map(|id| api::submit_acronym(id, submission.get_value())))
+    });
+
     view! {
         cx,
+        <p>
+            "Submissions received: "{submissions}"/"{player_count}
+        </p>
         {move|| match game_state(cx).with(|g| g.round_timer) {
             Some(secs) => view! { cx,
                 <>
@@ -62,6 +76,7 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
             }
             <button
                 class="border rounded p-2 bg-green-300 border-slate-200"
+                on:click=move|_| submit.dispatch(())
             >
                 "Submit!"
             </button>
