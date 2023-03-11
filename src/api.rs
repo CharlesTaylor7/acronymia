@@ -123,7 +123,7 @@ pub fn client_game_state(id: String) -> ClientGameState {
 
     // 30 second timer for everyone
     const ALLOTTED: Duration = Duration::new(30, 0);
-    let round_timer = state.round_started_at.map(|instant| {
+    let round_timer = state.round_started_at.and_then(|instant| {
         let elapsed = instant.elapsed();
 
         if elapsed < ALLOTTED {
@@ -133,9 +133,9 @@ pub fn client_game_state(id: String) -> ClientGameState {
             } else {
                 0
             };
-            diff.as_secs() + rounded_sec
+            Some(diff.as_secs() + rounded_sec)
         } else {
-            0
+            None
         }
     });
 

@@ -18,9 +18,22 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
     });
     view! {
         cx,
-        <p>
-            "Seconds remaining: "{move|| game_state(cx).with(|g| g.round_timer)}
-        </p>
+        {move|| match game_state(cx).with(|g| g.round_timer) {
+            Some(secs) => view! { cx,
+                <>
+                <p>
+                    "Seconds remaining: "{secs}
+                </p>
+                </>
+            },
+            None => view! { cx,
+                <>
+                <p>
+                    "Times up!"
+                </p>
+                </>
+            },
+        }}
 
         <When predicate=judge >
             <p>
