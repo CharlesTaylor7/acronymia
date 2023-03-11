@@ -49,7 +49,7 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
             <div class="flex flex-row gap-4">
                 <button
                     class="border rounded p-2 bg-blue-300 border-slate-200"
-                    prop:disabled=MaybeSignal::derive(cx, move|| player_id().is_none())
+                    prop:disabled=Signal::derive(cx, move|| player_id().is_none())
                     on:click=move |_| join_game.dispatch(())
                 >
                     "Join!"

@@ -20,7 +20,6 @@ pub struct GameState {
     pub players: HashMap<PlayerId, Player>, // registered players
     pub rotation: Vec<PlayerId>,            // players in order they will be judge
     pub rounds: Vec<Round>, // list of rounds, records past or present chosen judge and acronym
-    pub submissions: HashMap<(RoundId, PlayerId), Submission>,
     pub round_started_at: Option<Instant>,
 }
 #[derive(Serialize, Deserialize, Clone, Default, Debug, PartialEq)]
@@ -43,6 +42,7 @@ pub struct Round {
     pub judge: JudgeId,
     pub acronym: String,
     pub winner: Option<PlayerId>,
+    pub submissions: HashMap<PlayerId, Submission>,
 }
 
 /// game state for a single client
@@ -54,6 +54,7 @@ pub struct ClientGameState {
     pub players: Vec<Player>,
     pub acronym: String,
     pub round_timer: Option<u64>,
+    pub submission_count: usize,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
@@ -78,6 +79,7 @@ impl GameState {
             judge: self.next_judge(),
             acronym: "fart".to_string(),
             winner: None,
+            submissions: HashMap::new(),
         });
 
         self.step = GameStep::Submission;

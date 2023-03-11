@@ -39,7 +39,6 @@ fn demo_init(players: Vec<&str>) -> GameState {
         players: players,
         rotation: rotation,
         rounds: Vec::new(),
-        submissions: HashMap::new(),
         step: GameStep::Setup,
         round_started_at: None,
     }
@@ -107,8 +106,9 @@ pub async fn submit_acronym(
 ) -> Result<(), ServerFnError> {
     let mut state = STATE.lock().expect("locking thread crashed");
 
-    let round_id = state.rounds.len() - 1;
-    state.submissions.insert((round_id, player_id), submission);
+    last_mut(&mut state.rounds).map(|r| {
+        r.submissions.insert(player_id, submission);
+    });
 
     Ok(())
 }
@@ -177,6 +177,9 @@ pub fn client_game_state(id: String) -> ClientGameState {
         round_timer: round_timer,
         judge: judge,
         step: state.step.clone(),
+        submission_count: last(&state.rounds)
+            .map(|r| r.submissions.len())
+            .unwrap_or(0),
         acronym: last(&state.rounds)
             .map(|r| r.acronym.clone())
             .unwrap_or("".to_owned()),
