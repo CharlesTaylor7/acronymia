@@ -50,17 +50,13 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
                 on_input=move |text| player_name.set(text)
             />
             <div class="flex flex-row gap-4">
-                {with_autoblur(cx, move || join_game.dispatch(()),
-                    view! {cx,
-                        <button
-                            class="border rounded p-2 bg-blue-300 border-slate-200"
-                            prop:disabled=MaybeSignal::derive(cx, move|| player_id().is_none())
-                            //on:click=move |_| join_game.dispatch(())
-                        >
-                            "Join!"
-                        </button>
-                    }
-                )}
+                <button
+                    class="border rounded p-2 bg-blue-300 border-slate-200"
+                    prop:disabled=MaybeSignal::derive(cx, move|| player_id().is_none())
+                    on:click=move |_| join_game.dispatch(())
+                >
+                    "Join!"
+                </button>
 
                 <When predicate=MaybeSignal::derive(cx, move|| is_creator() || DEBUG_MODE)>
                     <button
@@ -92,17 +88,4 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
             </ul>
         </div>
     }
-}
-
-fn with_autoblur<F>(cx: Scope, on_click: F, el: HtmlElement<Button>) -> HtmlElement<Button>
-where
-    F: 'static + Fn(),
-{
-    let node_ref = create_node_ref::<Button>(cx);
-    el.node_ref(node_ref).on(ev::click, move |_| {
-        if let Some(el) = node_ref.get() {
-            el.blur();
-        }
-        on_click();
-    })
 }

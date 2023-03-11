@@ -25,6 +25,20 @@ pub fn Game(cx: Scope) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     let game_step = create_memo(cx, move |_| game_state(cx).with(|g| g.step.clone()));
     let debug_region_expanded = create_rw_signal(cx, false);
+
+    create_effect(cx, move |_| {
+        use wasm_bindgen::*;
+
+        // whenever the game step changes, blur focused elements so that the
+        // autofocus attribute on the next page will work
+        let _ = game_step();
+        let q = document().query_selector(":focus");
+        log!("{:#?}", q);
+        if let Ok(Some(el)) = q {
+            log!("{:#?}", el.unchecked_into::<web_sys::HtmlElement>().blur());
+        }
+    });
+
     view! {
         cx,
         <div class="flex flex-col items-start mx-20 my-4 gap-4">
