@@ -93,10 +93,9 @@ impl GameState {
     }
 }
 
-
 pub fn last<'a, T>(v: &'a Vec<T>) -> Option<&'a T> {
     if v.len() == 0 {
-        return None
+        return None;
     }
     v.get(v.len() - 1)
 }
