@@ -85,17 +85,14 @@ impl GameState {
     }
 
     pub fn current_judge(&self) -> JudgeId {
-        let length = self.rounds.len();
-        if length == 0 {
-            return 0;
-        }
-        self.rounds[length - 1].judge
+        last(&self.rounds).as_ref().map(|r| r.judge).unwrap_or(0)
     }
 
     pub fn next_judge(&self) -> JudgeId {
         (self.current_judge() + 1) % self.rotation.len()
     }
 }
+
 
 pub fn last<'a, T>(v: &'a Vec<T>) -> Option<&'a T> {
     if v.len() == 0 {
