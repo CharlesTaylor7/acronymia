@@ -104,10 +104,9 @@ pub async fn submit_acronym(
     player_id: PlayerId,
     submission: String, // should be Submission
 ) -> Result<(), ServerFnError> {
-
     // manually deserialize
-    let submission = serde_json::from_str::<Submission>(&submission)
-        .expect("deserializing submission failed");
+    let submission =
+        serde_json::from_str::<Submission>(&submission).expect("deserializing submission failed");
 
     let mut state = STATE.lock().expect("locking thread crashed");
 

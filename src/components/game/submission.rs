@@ -6,6 +6,7 @@ use crate::components::utils::*;
 use crate::sse::*;
 use crate::typed_context::*;
 use crate::types::*;
+use ::futures::future::OptionFuture;
 use ::leptos::*;
 
 #[component]
@@ -18,11 +19,13 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
     let submissions = create_memo(cx, move |_| game_state(cx).with(|g| g.submission_count));
     let player_count = game_state(cx).with(|g| g.players.len());
     let submit = create_action(cx, move |_: &()| {
-        use futures::future::OptionFuture;
-        let id = player_id().unwrap_or(String::new());
-        log!("{}: {:#?}", id, submission);
-        api::submit_acronym(id, serde_json::to_string(&submission.get_value()).expect("serializing submission failed"))
-
+        OptionFuture::from(player_id().map(|id| {
+            api::submit_acronym(
+                id,
+                serde_json::to_string(&submission.get_value())
+                    .expect("serializing submission failed"),
+            )
+        }))
     });
 
     view! {
