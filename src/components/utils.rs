@@ -2,12 +2,10 @@ use leptos::*;
 
 pub const DEBUG_MODE: bool = cfg!(debug_assertions);
 
-/// A component that only exists in debug mode
-#[component]
-#[allow(clippy::needless_pass_by_value)] // children argument is required to be Box by leptos
-pub fn Debug(cx: Scope, children: Box<dyn Fn(Scope) -> Fragment>) -> impl IntoView {
+/// Show a component only in debug mode
+pub fn debug_view(cx: Scope, view: impl IntoView) -> impl IntoView {
     if DEBUG_MODE {
-        view! {cx, <>{children(cx)}</>}
+        view! {cx, <>{view}</>}
     } else {
         view! {cx, <></>}
     }

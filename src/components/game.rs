@@ -46,7 +46,7 @@ pub fn Game(cx: Scope) -> impl IntoView {
                 GameStep::Judging => view! { cx, <><GameJudging /></> },
                 GameStep::Results => view! { cx, <><GameResults /></> },
             }}
-            <Debug>
+            {debug_view(cx, view! {cx,
                 <button
                     class="border rounded p-2 bg-slate-200"
                     on:click=move |_| debug_region_expanded.update(|b| *b = !*b)
@@ -61,7 +61,7 @@ pub fn Game(cx: Scope) -> impl IntoView {
                         <h1 class="font-bold font-xl">"End Debug"</h1>
                     </div>
                 </When>
-            </Debug>
+            })}
         </div>
     }
 }
