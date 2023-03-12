@@ -10,6 +10,7 @@
 #![allow(clippy::let_underscore_untyped)]
 #![allow(clippy::default_trait_access)]
 #![allow(clippy::uninlined_format_args)]
+#![allow(clippy::used_underscore_binding)]
 pub mod api;
 pub mod components;
 pub mod sse;

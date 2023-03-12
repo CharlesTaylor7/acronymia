@@ -90,11 +90,11 @@ impl GameState {
         self.round_started_at = Some(Instant::now());
     }
 
-    pub fn current_judge(&self) -> JudgeId {
-        self.rounds.last().as_ref().map_or(0, |r| r.judge)
+    pub fn current_judge(&self) -> Option<JudgeId> {
+        self.rounds.last().as_ref().map(|r| r.judge)
     }
 
     pub fn next_judge(&self) -> JudgeId {
-        (self.current_judge() + 1) % self.rotation.len()
+        self.current_judge().map_or(0, |j| (j + 1) % self.rotation.len())
     }
 }

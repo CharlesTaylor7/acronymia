@@ -116,7 +116,7 @@ pub async fn submit_acronym(
 /// start the game
 /// TODO: restrict this to the judge
 #[server(JudgeRound, "/api")]
-pub async fn judge_round(me: PlayerId, winner_id: PlayerId) -> Result<(), ServerFnError> {
+pub async fn judge_round(_me: PlayerId, winner_id: PlayerId) -> Result<(), ServerFnError> {
     let mut state = STATE.lock().expect("locking thread crashed");
 
     match state.step {
@@ -148,7 +148,7 @@ pub fn client_game_state(id: String) -> ClientGameState {
 
     let state = STATE.lock().expect("locking thread crashed");
 
-    let judge_id = state.rotation.get(state.current_judge());
+    let judge_id = state.current_judge().and_then(|j| state.rotation.get(j));
     let judge = match judge_id {
         None => Default::default(),
         Some(judge_id) if id == *judge_id => Judge::Me,
