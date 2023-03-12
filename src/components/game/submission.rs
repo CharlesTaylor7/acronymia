@@ -1,7 +1,7 @@
 use super::context::*;
+use super::timer::*;
 use crate::api;
 use crate::components::text_input::*;
-use crate::components::timer::*;
 use crate::components::utils::*;
 use crate::sse::*;
 use crate::typed_context::*;
@@ -11,7 +11,7 @@ use ::leptos::*;
 
 #[component]
 pub fn GameSubmission(cx: Scope) -> impl IntoView {
-    apply_timer_to_game(cx);
+    apply_timer(cx);
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     let acronym = store_value(cx, game_state(cx).with(|g| g.acronym.clone()));
     let submission = store_value(cx, vec![String::new(); acronym.with_value(|a| a.len())]);

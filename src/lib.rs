@@ -12,6 +12,7 @@
 #![allow(clippy::default_trait_access)]
 #![allow(clippy::uninlined_format_args)]
 #![allow(clippy::used_underscore_binding)]
+#![allow(clippy::redundant_closure_for_method_calls)]
 pub mod api;
 pub mod components;
 pub mod sse;

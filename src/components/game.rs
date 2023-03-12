@@ -12,6 +12,7 @@ mod player_roster;
 mod results;
 mod setup;
 mod submission;
+mod timer;
 use self::context::*;
 use self::judging::*;
 use self::player_roster::*;

@@ -38,36 +38,3 @@ pub fn timer(cx: Scope, initial: u64) -> RwSignal<u64> {
 
     seconds
 }
-/// counts down from initial value to 0
-pub fn apply_timer_to_game(cx: Scope) {
-    _ = cx;
-    #[cfg(not(feature = "ssr"))]
-    {
-        use crate::sse::*;
-        use leptos_dom::helpers::IntervalHandle;
-        use std::time::Duration;
-
-        let stored = store_value::<Option<IntervalHandle>>(cx, None);
-        let handle = set_interval(
-            move || {
-                log!("tick");
-                game_state(cx).update(|g| match g.round_timer {
-                    Some(s) if s > 0 => {
-                        g.round_timer = Some(s - 1);
-                    }
-                    _ => {
-                        g.round_timer = Some(0);
-                        stored.with_value(|h| h.map(|h| h.clear()));
-                    }
-                });
-            },
-            Duration::new(1, 0),
-        );
-        stored.set_value(handle.ok());
-
-        // clear interval if the scope is dropped
-        on_cleanup(cx, move || {
-            stored.with_value(|h| h.map(|h| h.clear()));
-        });
-    }
-}

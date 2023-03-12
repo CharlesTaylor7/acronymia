@@ -1,4 +1,5 @@
 use crate::*;
+use leptos_dom::helpers::IntervalHandle;
 use sse::*;
 use typed_context::*;
 use types::*;
@@ -7,6 +8,7 @@ define_context!(Signal_PlayerId, RwSignal<Option<String>>);
 define_context!(Signal_PlayerName, RwSignal<String>);
 define_context!(Memo_Players, Memo<Vec<Player>>);
 define_context!(Action_JoinGame, Action<(), Result<(), ServerFnError>>);
+define_context!(TimerHandle, StoredValue<Option<IntervalHandle>>);
 
 pub fn provide_game_context(cx: Scope) {
     let player_id = signal_player_id(cx);
@@ -18,6 +20,9 @@ pub fn provide_game_context(cx: Scope) {
 
     let players = create_memo(cx, move |_| game_state(cx).with(|g| g.players.clone()));
     provide_typed_context::<Memo_Players>(cx, players);
+
+    let timer_handle = store_value(cx, None);
+    provide_typed_context::<TimerHandle>(cx, timer_handle);
 }
 
 /// a signal for the player id
