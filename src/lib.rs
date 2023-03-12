@@ -2,8 +2,10 @@
 #![feature(unboxed_closures)]
 #![feature(let_chains)]
 #![feature(stmt_expr_attributes)]
+// enable all clippy lints
 #![warn(clippy::all)]
 #![warn(clippy::pedantic)]
+// disable the clippy lints I don't like
 #![allow(clippy::wildcard_imports)]
 #![allow(clippy::must_use_candidate)]
 #![allow(clippy::module_name_repetitions)]
