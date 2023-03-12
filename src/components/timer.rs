@@ -40,7 +40,7 @@ pub fn timer(cx: Scope, initial: u64) -> RwSignal<u64> {
 }
 /// counts down from initial value to 0
 pub fn apply_timer_to_game(cx: Scope) {
-    let _ = cx;
+    _ = cx;
     #[cfg(not(feature = "ssr"))]
     {
         use crate::sse::*;

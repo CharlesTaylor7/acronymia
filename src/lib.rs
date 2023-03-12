@@ -7,7 +7,6 @@
 #![allow(clippy::wildcard_imports)]
 #![allow(clippy::must_use_candidate)]
 #![allow(clippy::module_name_repetitions)]
-#![allow(clippy::let_underscore_untyped)]
 #![allow(clippy::default_trait_access)]
 #![allow(clippy::uninlined_format_args)]
 #![allow(clippy::used_underscore_binding)]

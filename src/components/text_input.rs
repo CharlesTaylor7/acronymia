@@ -26,7 +26,7 @@ where
         let focus = focus1();
         let s = input_ref.get();
         if focus && let Some(el) = s {
-            let _ = el.focus();
+            _ = el.focus();
         }
     });
 

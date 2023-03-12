@@ -31,7 +31,7 @@ pub fn Game(cx: Scope) -> impl IntoView {
 
         // whenever the game step changes, blur focused elements so that the
         // autofocus attribute on the next page will work
-        let _ = game_step();
+        _ = game_step();
         let q = document().query_selector(":focus");
         log!("{:#?}", q);
         if let Ok(Some(el)) = q {
