@@ -30,11 +30,6 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
 
     view! {
         cx,
-        <p>"pending: "{submit.pending()}</p>
-        <p>"input: "{submit.input()}</p>
-        <p>"value: "{submit.value()}</p>
-        <p>"version: "{submit.version()}</p>
-
         <p>
             "Submissions received: "{submissions}"/"{player_count - 1} // judge doesn't submit
         </p>
