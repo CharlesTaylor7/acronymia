@@ -5,16 +5,19 @@ use types::*;
 
 define_context!(Signal_PlayerId, RwSignal<Option<String>>);
 define_context!(Signal_PlayerName, RwSignal<String>);
+define_context!(Memo_Players, Memo<Vec<Player>>);
 define_context!(Action_JoinGame, Action<(), Result<(), ServerFnError>>);
 
 pub fn provide_game_context(cx: Scope) {
     let player_id = signal_player_id(cx);
     provide_typed_context::<Signal_PlayerId>(cx, player_id);
+    provide_game_state(cx, create_memo(cx, move |_| player_id()).into());
 
     let player_name = signal_player_name(cx);
     provide_typed_context::<Signal_PlayerName>(cx, player_name);
 
-    provide_game_state(cx, create_memo(cx, move |_| player_id()).into());
+    let players = create_memo(cx, move |_| game_state(cx).with(|g| g.players.clone()));
+    provide_typed_context::<Memo_Players>(cx, players);
 }
 
 /// a signal for the player id
