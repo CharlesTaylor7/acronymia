@@ -28,7 +28,7 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
     view! {
         cx,
         <p>
-            "Submissions received: "{submissions}"/"{player_count - 1}
+            "Submissions received: "{submissions}"/"{player_count - 1} // judge doesn't submit
         </p>
         {move|| match game_state(cx).with(|g| g.round_timer) {
             Some(secs) => view! { cx,
