@@ -13,7 +13,10 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
     apply_timer_to_game(cx);
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     let acronym = store_value(cx, game_state(cx).with(|g| g.acronym.clone()));
-    let submission = store_value(cx, vec!["".to_owned(); acronym.with_value(|a| a.len())]);
+    let submission = store_value(
+        cx,
+        vec![String::new(); acronym.with_value(std::string::String::len)],
+    );
     let judge = create_memo(cx, move |_| game_state(cx).with(|g| g.judge.clone()));
     let submissions = create_memo(cx, move |_| game_state(cx).with(|g| g.submission_count));
     let player_count = game_state(cx).with(|g| g.players.len());
@@ -58,7 +61,7 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
                 "What is "{acronym.with_value(|a| view_acronym(cx, a))}" ?"
             </p>
             {
-                let n = acronym.with_value(|a| a.len());
+                let n = acronym.with_value(std::string::String::len);
                 (0..n)
                     .map(|i| view! { cx,
                         <TextInput
@@ -69,7 +72,7 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
                                     if let Some(elem) = s.get_mut(i) {
                                         *elem = text;
                                     }
-                                })
+                                });
                             }
                         /> })
                     .collect::<Vec<_>>()

@@ -19,12 +19,12 @@ pub fn timer(cx: Scope, initial: u64) -> RwSignal<u64> {
             move || {
                 seconds.update(|s| {
                     if *s > 0 {
-                        *s = *s - 1
+                        *s -= 1;
                     } else {
                         // clear interval when time reaches 0
                         stored.with_value(|h| h.map(|h| h.clear()));
                     }
-                })
+                });
             },
             Duration::new(1, 0),
         );
@@ -59,7 +59,7 @@ pub fn apply_timer_to_game(cx: Scope) {
                         g.round_timer = Some(0);
                         stored.with_value(|h| h.map(|h| h.clear()));
                     }
-                })
+                });
             },
             Duration::new(1, 0),
         );

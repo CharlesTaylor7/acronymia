@@ -10,7 +10,7 @@ pub fn TextInput<F>(
     #[prop(optional)] focus: Option<MaybeSignal<bool>>,
 ) -> impl IntoView
 where
-    F: FnOnce(String) -> () + 'static + Copy,
+    F: FnOnce(String) + 'static + Copy,
 {
     let input_ref = create_node_ref::<Input>(cx);
     let callback = move || {
@@ -57,6 +57,7 @@ where
 fn clone_maybe_signal<T: Clone>(signal: &MaybeSignal<T>) -> MaybeSignal<T> {
     match signal {
         MaybeSignal::Static(item) => MaybeSignal::Static(item.clone()),
+        #[allow(clippy::clone_on_copy)]
         MaybeSignal::Dynamic(signal) => MaybeSignal::Dynamic(signal.clone()),
     }
 }

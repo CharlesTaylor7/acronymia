@@ -2,6 +2,14 @@
 #![feature(unboxed_closures)]
 #![feature(let_chains)]
 #![feature(stmt_expr_attributes)]
+#![warn(clippy::all)]
+#![warn(clippy::pedantic)]
+#![allow(clippy::wildcard_imports)]
+#![allow(clippy::must_use_candidate)]
+#![allow(clippy::module_name_repetitions)]
+#![allow(clippy::let_underscore_untyped)]
+#![allow(clippy::default_trait_access)]
+#![allow(clippy::uninlined_format_args)]
 pub mod api;
 pub mod components;
 pub mod sse;

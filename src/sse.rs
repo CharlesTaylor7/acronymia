@@ -26,7 +26,9 @@ pub type SseSignal<T> = RwSignal<T>;
 pub fn game_state(cx: Scope) -> SseSignal<ClientGameState> {
     // depend on the dummy signal which just tells us
     // when the inner event stream is swapped out
-    use_context::<Signal<()>>(cx).map(|s| s.get());
+    if let Some(s) = use_context::<Signal<()>>(cx) {
+        s.get();
+    }
 
     // read the signal from context
     use_context::<SseSignal<ClientGameState>>(cx)
@@ -34,7 +36,7 @@ pub fn game_state(cx: Scope) -> SseSignal<ClientGameState> {
 }
 
 pub fn provide_game_state(cx: Scope, id: Signal<Option<PlayerId>>) {
-    provide_sse_signal::<ClientGameState>(cx, id)
+    provide_sse_signal::<ClientGameState>(cx, id);
 }
 
 #[cfg(not(feature = "ssr"))]
@@ -52,15 +54,19 @@ pub fn provide_sse_signal<T: ServerSentEvent + 'static>(cx: Scope, id: Signal<Op
 
     create_effect(cx, move |_| {
         handle.update_value(|h| {
-            std::mem::take(h).map(|h| h.dispose());
+            if let Some(h) = std::mem::take(h) {
+                h.dispose();
+            }
         });
 
-        if let Some(id) = id() {
-            let (stream, disposer) = cx.run_child_scope(move |cx| subscribe::<T>(cx, id));
-            handle.set_value(Some(disposer));
-            provide_context::<SseSignal<T>>(cx, to_signal::<T>(cx, stream));
-            dummy_signal.set(());
-        }
+        id.with(|id| {
+            if let Some(id) = id {
+                let (stream, disposer) = cx.run_child_scope(move |cx| subscribe::<T>(cx, id));
+                handle.set_value(Some(disposer));
+                provide_context::<SseSignal<T>>(cx, to_signal::<T>(cx, stream));
+                dummy_signal.set(());
+            }
+        });
     });
 }
 
@@ -107,8 +113,8 @@ pub fn create_rw_signal_from_stream<T: Default>(
 }
 
 #[cfg(not(feature = "ssr"))]
-fn subscribe<T: ServerSentEvent>(cx: Scope, id: PlayerId) -> EventSourceSubscription {
-    let mut source = EventSource::new(&format!("/api/events/{}", &id))
+fn subscribe<T: ServerSentEvent>(cx: Scope, id: &PlayerId) -> EventSourceSubscription {
+    let mut source = EventSource::new(&format!("/api/events/{}", id))
         .expect("couldn't connect to SSE server endpoint");
     let stream = source
         .subscribe(<T as ServerSentEvent>::event_type())

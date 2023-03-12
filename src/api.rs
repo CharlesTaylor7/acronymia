@@ -106,7 +106,7 @@ pub async fn submit_acronym(
 ) -> Result<(), ServerFnError> {
     let mut state = STATE.lock().expect("locking thread crashed");
 
-    last_mut(&mut state.rounds).map(|r| {
+    state.rounds.last_mut().map(|r| {
         r.submissions.insert(player_id, submission);
     });
 
@@ -116,12 +116,12 @@ pub async fn submit_acronym(
 /// start the game
 /// TODO: restrict this to the judge
 #[server(JudgeRound, "/api")]
-pub async fn judge_round(_me: PlayerId, winner_id: PlayerId) -> Result<(), ServerFnError> {
+pub async fn judge_round(me: PlayerId, winner_id: PlayerId) -> Result<(), ServerFnError> {
     let mut state = STATE.lock().expect("locking thread crashed");
 
     match state.step {
         GameStep::Judging => {
-            last_mut(&mut state.rounds).map(|r| {
+            state.rounds.last_mut().map(|r| {
                 r.winner = Some(winner_id);
             });
 
@@ -177,12 +177,16 @@ pub fn client_game_state(id: String) -> ClientGameState {
         round_timer: round_timer,
         judge: judge,
         step: state.step.clone(),
-        submission_count: last(&state.rounds)
+        submission_count: state
+            .rounds
+            .last()
             .map(|r| r.submissions.len())
             .unwrap_or(0),
         // TODO: send submissions depending on game step
         submissions: Vec::new(),
-        acronym: last(&state.rounds)
+        acronym: state
+            .rounds
+            .last()
             .map(|r| r.acronym.clone())
             .unwrap_or("".to_owned()),
         players: state

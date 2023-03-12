@@ -61,7 +61,7 @@ pub fn Game(cx: Scope) -> impl IntoView {
                         <h1 class="font-bold font-xl">"Begin Debug"</h1>
                         <p>"Override player id: "</p>
                         <TextInput
-                            default=player_id().unwrap_or("".to_string())
+                            default=player_id().unwrap_or(String::new())
                             on_input=move |text| player_id.set(Some(text))
                         />
                         <ResetButton/>

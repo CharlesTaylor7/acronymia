@@ -68,7 +68,7 @@ pub enum Judge {
 }
 impl Default for Judge {
     fn default() -> Judge {
-        Judge::Name(Default::default())
+        Judge::Name(String::new())
     }
 }
 
@@ -91,25 +91,10 @@ impl GameState {
     }
 
     pub fn current_judge(&self) -> JudgeId {
-        last(&self.rounds).as_ref().map(|r| r.judge).unwrap_or(0)
+        self.rounds.last().as_ref().map_or(0, |r| r.judge)
     }
 
     pub fn next_judge(&self) -> JudgeId {
         (self.current_judge() + 1) % self.rotation.len()
     }
-}
-
-pub fn last<'a, T>(v: &'a Vec<T>) -> Option<&'a T> {
-    if v.len() == 0 {
-        return None;
-    }
-    v.get(v.len() - 1)
-}
-
-pub fn last_mut<'a, T>(v: &'a mut Vec<T>) -> Option<&'a mut T> {
-    let n = v.len();
-    if n == 0 {
-        return None;
-    }
-    v.get_mut(n - 1)
 }

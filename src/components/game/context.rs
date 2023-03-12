@@ -13,7 +13,7 @@ pub fn provide_game_context(cx: Scope) {
 
     provide_game_state(cx, create_memo(cx, move |_| player_id()).into());
 
-    let player_name = create_rw_signal(cx, "".to_string());
+    let player_name = create_rw_signal(cx, String::new());
     provide_typed_context::<Signal_PlayerName>(cx, player_name);
 }
 

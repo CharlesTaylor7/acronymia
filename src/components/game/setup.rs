@@ -12,7 +12,7 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     let player_name = use_typed_context::<Signal_PlayerName>(cx);
     let join_game = create_action(cx, move |_: &()| {
-        api::join_game(player_id().unwrap_or("".to_owned()), player_name())
+        api::join_game(player_id().unwrap_or(String::new()), player_name())
     });
     let kick_player = create_action(cx, move |id: &PlayerId| api::kick_player(id.clone()));
     let start_game = create_action(cx, move |_: &()| {
@@ -29,7 +29,7 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
                 game_state(cx)
                     .get()
                     .players
-                    .get(0)
+                    .first()
                     .as_ref()
                     .map(|p| p.id == me)
             })

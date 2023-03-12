@@ -25,24 +25,25 @@ where
     );
 }
 
+/// # Panics
+/// Will panic if you neglected to call `provide_typed_context`::<K>
+/// in either the current `Scope` or a parent one.
 pub fn use_typed_context<K>(cx: Scope) -> K::R
 where
     K: ContextKey,
 {
     use_context::<ContextWrapper<K, K::R>>(cx)
-        .expect(&format!(
-            "no context with key {k} exists, did you forget to call provide_typed_context::<{k}>?",
-            k = std::any::type_name::<K>()
-        ))
+        .unwrap_or_else(|| panic!("no context with key {k} exists, did you forget to call provide_typed_context::<{k}>?",
+            k = std::any::type_name::<K>()))
         .item
 }
 
-/// Example: define_context_key!(PlayerId, RwSignal<String>)
-/// this defines a new context key called PlayerId,
-/// that holds a value of type RwSignal<String>
+/// Example: `define_context_key!(PlayerId`, `RwSignal`<String>)
+/// this defines a new context key called `PlayerId`,
+/// that holds a value of type `RwSignal`<String>
 ///
-/// provide_typed_context & use_typed_context can only be called with types that implement
-/// ContextKey which enforces just a bit more sanity than the default use_context
+/// `provide_typed_context` & `use_typed_context` can only be called with types that implement
+/// `ContextKey` which enforces just a bit more sanity than the default `use_context`
 /// provided by leptos
 macro_rules! define_context {
     ($KEY: ident, $VALUE: ty) => {
