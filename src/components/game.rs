@@ -8,11 +8,13 @@ use crate::types::*;
 
 mod context;
 mod judging;
+mod player_roster;
 mod results;
 mod setup;
 mod submission;
 use self::context::*;
 use self::judging::*;
+use self::player_roster::*;
 use self::results::*;
 use self::setup::*;
 use self::submission::*;
@@ -56,7 +58,8 @@ pub fn Game(cx: Scope) -> impl IntoView {
                 <When predicate=debug_region_expanded >
                     <div class="flex flex-col items-start gap-4">
                         <h1 class="font-bold font-xl">"Begin Debug"</h1>
-                        <ResetButton/>
+                        <ResetButton />
+                        <PlayerRoster />
                         <div>{move || format!("game_state = {:#?}", sse::game_state(cx).get())}</div>
                         <h1 class="font-bold font-xl">"End Debug"</h1>
                     </div>

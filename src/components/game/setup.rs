@@ -1,11 +1,11 @@
 use super::context::*;
+use super::player_roster::*;
 use crate::api;
 use crate::components::text_input::*;
 use crate::components::utils::*;
 use crate::sse::*;
 use crate::typed_context::*;
 use crate::types::*;
-use ::leptos::ev::MouseEvent;
 use ::leptos::*;
 use futures::future::OptionFuture;
 
@@ -17,7 +17,6 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
     let join_game = create_action(cx, move |_: &()| {
         OptionFuture::from(player_id().map(|id| api::join_game(id, player_name())))
     });
-    let kick_player = create_action(cx, move |id: &PlayerId| api::kick_player(id.clone()));
     let start_game = create_action(cx, move |_: &()| {
         game_state(cx).update(|g| {
             g.step = GameStep::Submission;
@@ -65,54 +64,7 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
                 </When>
             </div>
             <p>{move || players.get().len()}" players joined"</p>
-            <ul class="list-inside list-disc flex flex-col items-start" >
-                {move||
-                    players.with(|ps| ps
-                        .iter()
-                        .map(|p| view! { cx,
-                            <PlayerView
-                                player=p.clone()
-                                kick_player=kick_player
-                                impersonate=SignalSetter::from(player_id)
-                            />
-                        })
-                        .collect::<Vec<_>>()
-                    )
-                }
-            </ul>
+            <PlayerRoster />
         </div>
-    }
-}
-
-#[component]
-fn PlayerView(
-    cx: Scope,
-    player: Player,
-    kick_player: Action<PlayerId, Server<()>>,
-    impersonate: SignalSetter<Option<PlayerId>>,
-) -> impl IntoView {
-    // TODO: why do I have to clone this variable so many times?
-    // If I try to only once in each callback, I get weird ownership errors.
-    let id1 = player.id.clone();
-    let id2 = player.id.clone();
-    view! {
-        cx,
-        <li>
-            {player.name}
-            {debug_view(cx, view! {cx,
-                <button
-                    class="bg-blue-300 border rounded mx-2 px-2 border-slate-200"
-                    on:click=move |_| impersonate(Some(id1.clone()))
-                >
-                    "Impersonate"
-                </button>
-                <button
-                    class="bg-red-200 border rounded mx-2 px-2 border-slate-200"
-                    on:click=move |_| kick_player.dispatch(id2.clone())
-                >
-                    "Kick"
-                </button>
-            })}
-        </li>
     }
 }
