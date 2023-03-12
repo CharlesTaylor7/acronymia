@@ -11,10 +11,10 @@ pub fn provide_game_context(cx: Scope) {
     let player_id = signal_player_id(cx);
     provide_typed_context::<Signal_PlayerId>(cx, player_id);
 
-    provide_game_state(cx, create_memo(cx, move |_| player_id()).into());
-
-    let player_name = create_rw_signal(cx, String::new());
+    let player_name = signal_player_name(cx);
     provide_typed_context::<Signal_PlayerName>(cx, player_name);
+
+    provide_game_state(cx, create_memo(cx, move |_| player_id()).into());
 }
 
 /// a signal for the player id
@@ -42,4 +42,30 @@ fn signal_player_id(cx: Scope) -> RwSignal<Option<PlayerId>> {
     }
 
     player_id
+}
+
+/// a signal for the player name
+/// that caches its value inside local storage
+fn signal_player_name(cx: Scope) -> RwSignal<PlayerName> {
+    let player_name: RwSignal<String> = create_rw_signal(cx, String::new());
+
+    #[cfg(feature = "local-storage")]
+    {
+        use ::uuid::*;
+        const STORAGE_KEY: &str = "acronymia-player-name";
+
+        if let Ok(Some(storage)) = window().local_storage() {
+            if let Ok(Some(name)) = storage.get_item(STORAGE_KEY) {
+                player_name.set(name);
+            }
+
+            create_effect(cx, move |_| {
+                player_name.with(|name| {
+                    _ = storage.set_item(STORAGE_KEY, &name);
+                });
+            });
+        }
+    }
+
+    player_name
 }
