@@ -81,7 +81,8 @@ impl GameState {
     pub fn start_round(&mut self) {
         self.rounds.push(Round {
             judge: self.next_judge(),
-            acronym: "fart".to_string(),
+            //acronym: "fart".to_string(),
+            acronym: "f".to_string(),
             winner: None,
             submissions: HashMap::new(),
         });
