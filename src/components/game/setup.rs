@@ -6,13 +6,15 @@ use crate::sse::*;
 use crate::typed_context::*;
 use crate::types::*;
 use ::leptos::*;
+use futures::future::OptionFuture;
+
 
 #[component]
 pub fn GameSetup(cx: Scope) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     let player_name = use_typed_context::<Signal_PlayerName>(cx);
     let join_game = create_action(cx, move |_: &()| {
-        api::join_game(player_id().unwrap_or(String::new()), player_name())
+        OptionFuture::from(player_id().map(|id| api::join_game(id, player_name())))
     });
     let kick_player = create_action(cx, move |id: &PlayerId| api::kick_player(id.clone()));
     let start_game = create_action(cx, move |_: &()| {
