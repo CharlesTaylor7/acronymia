@@ -64,12 +64,10 @@ For an example workaround see the `submit_acronym` server function in `src/api.r
 - [x] Setup step
   - [x] Players can set their nickname
   - [x] Allow game creator to start game (for MVP creator is the first registered player)
-- [ ] Submission step
-  - [ ] a synchronized 30 second timer. 
-  - [ ] player view 
-      - acronym input
-  - [ ] judge view 
-      - # of submissions received
+- [x] Submission step
+  - [x] a synchronized 30 second timer.
+  - [x] acronym input
+  - [x] of submissions received
 - [ ] Judging step
   - [ ] player view
       - [ ] readonly list of submissions
@@ -78,6 +76,8 @@ For an example workaround see the `submit_acronym` server function in `src/api.r
       - [ ] after a winner for the round is selected the next round starts with a small delay. Say 5 seconds for everyone to see the result
 - [ ] Results step
   - [ ] Show a scoreboard of player points
+
+- [ ] Refactor SSE & server functions into using websockets for a more realtime experience
 
 ### Deferred from MVP
 - rounds end manually when judge wants them too. Syncrhonizing time is tricky.
