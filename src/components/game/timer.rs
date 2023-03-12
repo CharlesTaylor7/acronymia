@@ -10,7 +10,7 @@ pub fn apply_timer(cx: Scope) {
 
     let stored = use_typed_context::<TimerHandle>(cx);
     if stored.with_value(|s| s.is_some()) {
-        return ();
+        return;
     }
 
     let cleanup = move || {
