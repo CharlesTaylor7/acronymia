@@ -4,11 +4,13 @@ use rand::prelude::*;
 /// https://en.wikipedia.org/wiki/Fisher-Yates_shuffle
 pub fn shuffle<T>(slice: &mut [T]) {
     let n = slice.len();
-    if n == 0 { return }
+    if n == 0 {
+        return;
+    }
 
     let mut rng = rand::thread_rng();
-    for i in 1..=(n-1) {
+    for i in 1..=(n - 1) {
         let j = rng.gen_range(0..=i);
-        slice.swap(i, j);            
+        slice.swap(i, j);
     }
 }

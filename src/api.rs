@@ -110,7 +110,7 @@ pub async fn submit_acronym(
 
     let mut state = STATE.lock().expect("locking thread crashed");
 
-    if let Some (round) = state.rounds.last_mut() {
+    if let Some(round) = state.rounds.last_mut() {
         round.submissions.insert(player_id, submission);
         if round.submissions.len() + 1 == state.rotation.len() {
             state.step = GameStep::Judging;
@@ -180,11 +180,12 @@ pub fn client_game_state(id: String) -> ClientGameState {
     });
 
     let empty_vec = Vec::new();
-    let mut submissions = if state.step == GameStep::Judging { 
-        state.rounds
+    let mut submissions = if state.step == GameStep::Judging {
+        state
+            .rounds
             .last()
             .map_or(empty_vec, |r| r.submissions.values().cloned().collect())
-    } else { 
+    } else {
         empty_vec
     };
     shuffle(&mut submissions);

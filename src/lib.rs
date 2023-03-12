@@ -15,10 +15,10 @@
 #![allow(clippy::redundant_closure_for_method_calls)]
 pub mod api;
 pub mod components;
+pub mod random;
 pub mod sse;
 pub mod typed_context;
 pub mod types;
-pub mod random;
 
 use cfg_if::cfg_if;
 

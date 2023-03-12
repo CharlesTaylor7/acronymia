@@ -22,7 +22,8 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
         OptionFuture::from(player_id().map(|id| {
             api::submit_acronym(
                 id,
-                serde_json::to_string(&submission.get_value())
+                submission
+                    .with_value(serde_json::to_string)
                     .expect("serializing submission failed"),
             )
         }))
