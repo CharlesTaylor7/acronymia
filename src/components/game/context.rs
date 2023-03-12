@@ -60,7 +60,7 @@ fn signal_player_name(cx: Scope) -> RwSignal<PlayerName> {
 
             create_effect(cx, move |_| {
                 player_name.with(|name| {
-                    _ = storage.set_item(STORAGE_KEY, &name);
+                    _ = storage.set_item(STORAGE_KEY, name);
                 });
             });
         }
