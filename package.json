@@ -1,7 +1,6 @@
 {
   "scripts": {
-    "watch-css": "npx tailwindcss -i ./input.css -o ./style/output.css --watch",
-    "watch-server": "cargo leptos watch"
+    "watch-css": "npx tailwindcss -i ./input.css -o ./style/output.css --watch"
   },
   "devDependencies": {
     "tailwindcss": "^3.2.7"
