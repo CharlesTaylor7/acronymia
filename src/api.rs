@@ -204,7 +204,7 @@ pub fn client_game_state(id: String) -> ClientGameState {
             .rounds
             .last()
             .map(|r| r.acronym.clone())
-            .unwrap_or("".to_owned()),
+            .unwrap_or(String::new()),
         players: state
             .rotation
             .iter()
