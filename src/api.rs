@@ -110,9 +110,12 @@ pub async fn submit_acronym(
 
     let mut state = STATE.lock().expect("locking thread crashed");
 
-    state.rounds.last_mut().map(|r| {
-        r.submissions.insert(player_id, submission);
-    });
+    if let Some (round) = state.rounds.last_mut() {
+        round.submissions.insert(player_id, submission);
+        if round.submissions.len() + 1 == state.rotation.len() {
+            state.step = GameStep::Judging;
+        }
+    }
 
     Ok(())
 }
@@ -148,9 +151,9 @@ pub async fn reset_state() -> Result<(), ServerFnError> {
 // sse payloads
 #[cfg(feature = "ssr")]
 pub fn client_game_state(id: String) -> ClientGameState {
-    use std::time::Duration;
+    use crate::random::shuffle;
 
-    let state = STATE.lock().expect("locking thread crashed");
+    let mut state = STATE.lock().expect("locking thread crashed");
 
     let judge_id = state.current_judge().and_then(|j| state.rotation.get(j));
     let judge = match judge_id {
@@ -159,13 +162,11 @@ pub fn client_game_state(id: String) -> ClientGameState {
         Some(judge_id) => Judge::Name(state.players.get(judge_id).expect("player").name.clone()),
     };
 
-    // 30 second timer for everyone
-    const ALLOTTED: Duration = Duration::new(30, 0);
     let round_timer = state.round_started_at.and_then(|instant| {
         let elapsed = instant.elapsed();
 
-        if elapsed < ALLOTTED {
-            let diff = ALLOTTED - elapsed;
+        if elapsed < ROUND_TIMER_DURATION {
+            let diff = ROUND_TIMER_DURATION - elapsed;
             let rounded_sec = if diff.subsec_nanos() >= 500_000_000 {
                 1
             } else {
@@ -173,21 +174,31 @@ pub fn client_game_state(id: String) -> ClientGameState {
             };
             Some(diff.as_secs() + rounded_sec)
         } else {
+            state.step = GameStep::Judging;
             None
         }
     });
+
+    let empty_vec = Vec::new();
+    let mut submissions = if state.step == GameStep::Judging { 
+        state.rounds
+            .last()
+            .map_or(empty_vec, |r| r.submissions.values().cloned().collect())
+    } else { 
+        empty_vec
+    };
+    shuffle(&mut submissions);
 
     ClientGameState {
         round_timer: round_timer,
         judge: judge,
         step: state.step.clone(),
+        submissions: submissions,
         submission_count: state
             .rounds
             .last()
             .map(|r| r.submissions.len())
             .unwrap_or(0),
-        // TODO: send submissions depending on game step
-        submissions: Vec::new(),
         acronym: state
             .rounds
             .last()

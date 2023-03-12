@@ -1,7 +1,7 @@
 use leptos::{Resource, ServerFnError};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 // aliases
 pub type Server<T> = Result<T, ServerFnError>;
@@ -58,7 +58,7 @@ pub struct ClientGameState {
     // everyone can see the current submission count
     pub submission_count: usize,
     // empty vector when not at the judging step
-    pub submissions: Vec<(PlayerName, Submission)>,
+    pub submissions: Vec<Submission>,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
@@ -76,6 +76,9 @@ impl Default for Judge {
 pub struct JudgeInfo {
     // info privy to me as the judge
 }
+
+/// 30 second timer for everyone
+pub const ROUND_TIMER_DURATION: Duration = Duration::new(30, 0);
 
 impl GameState {
     pub fn start_round(&mut self) {
