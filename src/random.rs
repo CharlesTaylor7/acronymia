@@ -4,7 +4,7 @@ use rand::prelude::*;
 /// https://en.wikipedia.org/wiki/Fisher-Yates_shuffle
 pub fn shuffle<T>(slice: &mut [T]) {
     let n = slice.len();
-    if n == 0 {
+    if n < 2 {
         return;
     }
 
