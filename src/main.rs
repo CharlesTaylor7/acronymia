@@ -2,7 +2,7 @@ use cfg_if::cfg_if;
 
 cfg_if! {
     if #[cfg(feature = "ssr")] {
-        use acronymia::{App, AppProps};
+        use acronymia::components::app::{App, AppProps};
         use acronymia::sse;
         use acronymia::api;
         use actix_files::Files;

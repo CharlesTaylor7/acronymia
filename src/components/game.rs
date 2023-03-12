@@ -59,9 +59,9 @@ pub fn Game(cx: Scope) -> impl IntoView {
                 <When predicate=debug_region_expanded >
                     <div class="flex flex-col items-start gap-4">
                         <h1 class="font-bold font-xl">"Begin Debug"</h1>
-                        <ResetButton />
                         <PlayerRoster />
                         <div>{move || format!("game_state = {:#?}", sse::game_state(cx).get())}</div>
+                        <ResetButton />
                         <h1 class="font-bold font-xl">"End Debug"</h1>
                     </div>
                 </When>
