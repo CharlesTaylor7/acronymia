@@ -95,6 +95,7 @@ impl GameState {
     }
 
     pub fn next_judge(&self) -> JudgeId {
-        self.current_judge().map_or(0, |j| (j + 1) % self.rotation.len())
+        self.current_judge()
+            .map_or(0, |j| (j + 1) % self.rotation.len())
     }
 }

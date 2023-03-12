@@ -8,7 +8,6 @@ use crate::types::*;
 use ::leptos::*;
 use futures::future::OptionFuture;
 
-
 #[component]
 pub fn GameSetup(cx: Scope) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);

@@ -45,6 +45,21 @@ Pages:
 - Active Game (SPA): `/game/<id>/`
 - Game configaration `/game/<id>/config`
 
+
+### Known Leptos bugs
+These are bugs we've observed in Leptos.
+This list serves 2 purposes.
+  (1) workarounds for these issues.
+  (2) a todo list of bug reports/PRs that I'd like to submit to the upstream repo.
+
+- Putting a raw text element at the top level of component that lives inside a dynamic child can cause panics:
+https://github.com/leptos-rs/leptos/blob/586f524015a543c9599205a91eac59bd7fca3c47/leptos_dom/src/components/dyn_child.rs#L245
+  - Workaround: wrap text nodes in an html tag: span, div, etc.
+
+- Server api functions can silently fail. If you use certain types in the function arguments the code compiles but fails completely silently at runtime. There's no panic, no console warning, no nothing. Strings & numbers work fine, vectors & structs don't. I believe it's actually supposed to work with any type that's serializable with Serde. 
+For an example workaround see the `submit_acronym` server function in `src/api.rs`. I had to manually serialize & deserialize the submission vector.
+
+
 ### TODO for MVP
 - [x] Setup step
   - [x] Players can set their nickname
@@ -67,6 +82,7 @@ Pages:
 ### Deferred from MVP
 - rounds end manually when judge wants them too. Syncrhonizing time is tricky.
 - Literally everything
+
 
 # Development
 

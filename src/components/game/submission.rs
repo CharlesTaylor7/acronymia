@@ -13,20 +13,25 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
     apply_timer_to_game(cx);
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     let acronym = store_value(cx, game_state(cx).with(|g| g.acronym.clone()));
-    let submission = store_value(
-        cx,
-        vec![String::new(); acronym.with_value(std::string::String::len)],
-    );
+    let submission = store_value(cx, vec![String::new(); acronym.with_value(|a| a.len())]);
     let judge = create_memo(cx, move |_| game_state(cx).with(|g| g.judge.clone()));
     let submissions = create_memo(cx, move |_| game_state(cx).with(|g| g.submission_count));
     let player_count = game_state(cx).with(|g| g.players.len());
     let submit = create_action(cx, move |_: &()| {
         use futures::future::OptionFuture;
-        OptionFuture::from(player_id().map(|id| api::submit_acronym(id, submission.get_value())))
+        let id = player_id().unwrap_or(String::new());
+        log!("{}: {:#?}", id, submission);
+        api::submit_acronym(id, serde_json::to_string(&submission.get_value()).expect("serializing submission failed"))
+
     });
 
     view! {
         cx,
+        <p>"pending: "{submit.pending()}</p>
+        <p>"input: "{submit.input()}</p>
+        <p>"value: "{submit.value()}</p>
+        <p>"version: "{submit.version()}</p>
+
         <p>
             "Submissions received: "{submissions}"/"{player_count - 1} // judge doesn't submit
         </p>
