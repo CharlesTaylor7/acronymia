@@ -55,10 +55,14 @@ pub struct ClientGameState {
     pub players: Vec<Player>,
     pub acronym: String,
     pub round_timer: Option<u64>,
-    // everyone can see the current submission count
     pub submission_count: usize,
-    // empty vector when not at the judging step
+    // ^ everyone can see the current submission count
     pub submissions: Vec<(PlayerId, Submission)>,
+    // ^ empty vector when not at the judging step
+    // this technically enables cheating,
+    // if a savvy player were to inspect the network tab &
+    // memorize the player id for each person over multiple rounds.
+    // But this would be annoying enough to execute, that I don't think it matters in practice.
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
