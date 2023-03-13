@@ -20,12 +20,7 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
     let player_count = game_state(cx).with(|g| g.players.len());
     let submit = create_action(cx, move |_: &()| {
         OptionFuture::from(player_id().map(|id| {
-            api::submit_acronym(
-                id,
-                submission
-                    .with_value(serde_json::to_string)
-                    .expect("serializing submission failed"),
-            )
+            api::submit_acronym(id, submission.get_value())
         }))
     });
 
