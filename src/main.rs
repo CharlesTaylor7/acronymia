@@ -10,6 +10,7 @@ cfg_if! {
         use leptos::*;
         use leptos_actix::{generate_route_list, LeptosRoutes};
 
+
         #[get("/api/events/{id}")]
         async fn server_events(path: web::Path<String>) -> impl Responder {
             HttpResponse::Ok()
@@ -19,7 +20,6 @@ cfg_if! {
 
         #[actix_web::main]
         async fn main() -> std::io::Result<()> {
-
             _ = acronymia::api::register_server_functions();
 
             // setting to `None` defaults to cargo-leptos & its env vars

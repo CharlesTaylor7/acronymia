@@ -176,15 +176,20 @@ pub fn client_game_state(id: String) -> ClientGameState {
     });
 
     let empty_vec = Vec::new();
-    let mut submissions = if state.step == GameStep::Judging {
-        state
-            .rounds
-            .last()
-            .map_or(empty_vec, |r| r.submissions.values().cloned().collect())
+    let submissions = 
+        if state.step == GameStep::Judging && 
+            let Some(round) = state.rounds.last() {
+                let mut subs = round
+                    .submissions
+                    .iter()
+                    .map(|(key, value)| (key.clone(), value.clone()))
+                    .collect::<Vec<_>>();
+                shuffle(&mut subs);
+                subs
     } else {
         empty_vec
     };
-    shuffle(&mut submissions);
+    //shuffle(&mut submissions);
 
     ClientGameState {
         round_timer: round_timer,

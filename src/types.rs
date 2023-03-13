@@ -58,7 +58,7 @@ pub struct ClientGameState {
     // everyone can see the current submission count
     pub submission_count: usize,
     // empty vector when not at the judging step
-    pub submissions: Vec<Submission>,
+    pub submissions: Vec<(PlayerId, Submission)>,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
