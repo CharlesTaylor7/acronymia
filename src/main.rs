@@ -4,12 +4,12 @@ cfg_if! {
     if #[cfg(feature = "ssr")] {
         use acronymia::components::app::{App, AppProps};
         use acronymia::sse;
+        use acronymia::server::sync;
         use acronymia::api;
         use actix_files::Files;
         use actix_web::*;
         use leptos::*;
         use leptos_actix::{generate_route_list, LeptosRoutes};
-
 
         #[get("/api/events/{id}")]
         async fn server_events(path: web::Path<String>) -> impl Responder {
@@ -21,6 +21,7 @@ cfg_if! {
         #[actix_web::main]
         async fn main() -> std::io::Result<()> {
             _ = acronymia::api::register_server_functions();
+            sync::spawn_state_thread();
 
             // setting to `None` defaults to cargo-leptos & its env vars
             let conf = get_configuration(None).await.unwrap();

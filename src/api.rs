@@ -13,13 +13,14 @@ lazy_static::lazy_static! {
 }
 
 #[cfg(feature = "ssr")]
-fn game_state_default() -> GameState {
+pub fn game_state_default() -> GameState {
     if cfg!(debug_assertions) {
         demo_init(vec!["alice", "bob", "carl"])
     } else {
         Default::default()
     }
 }
+
 #[cfg(feature = "ssr")]
 fn demo_init(players: Vec<&str>) -> GameState {
     let players = players

@@ -79,6 +79,18 @@ pub struct JudgeInfo {
     // info privy to me as the judge
 }
 
+/// message from a client to the server
+#[derive(Clone, Debug)]
+pub enum ClientMessage {
+    JoinGame(Player),
+}
+
+/// message from the server broadcast to each client
+#[derive(Clone, Debug)]
+pub enum ServerMessage {
+    Demo(usize), // for testing
+}
+
 /// 30 second timer for everyone
 pub const ROUND_TIMER_DURATION: Duration = Duration::new(30, 0);
 

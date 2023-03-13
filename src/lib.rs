@@ -2,6 +2,7 @@
 #![feature(unboxed_closures)]
 #![feature(let_chains)]
 #![feature(stmt_expr_attributes)]
+#![feature(local_key_cell_methods)]
 // enable all clippy lints
 #![warn(clippy::all)]
 #![warn(clippy::pedantic)]
@@ -16,6 +17,7 @@
 pub mod api;
 pub mod components;
 pub mod random;
+pub mod server;
 pub mod sse;
 pub mod typed_context;
 pub mod types;

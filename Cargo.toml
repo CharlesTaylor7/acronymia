@@ -30,10 +30,11 @@ web-sys = { version = "0.3.61" }
 gloo-net = "0.2.6"
 serde_json = "1.0.94"
 rand = "0.8.5"
+tokio = { version = "1.26.0", features = ["sync"], optional = true }
 
 [features]
 hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate", "local-storage"]
-ssr = ["dep:actix-files", "dep:actix-web", "dep:leptos_actix", "leptos/ssr", "leptos_meta/ssr", "leptos_router/ssr"]
+ssr = ["dep:actix-files", "dep:actix-web", "dep:leptos_actix", "leptos/ssr", "leptos_meta/ssr", "leptos_router/ssr", "dep:tokio"]
 local-storage = ["web-sys/Window", "web-sys/Storage"]
 
 [package.metadata.leptos]
