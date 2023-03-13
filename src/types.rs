@@ -60,9 +60,7 @@ pub struct ClientGameState {
     pub submissions: Vec<(PlayerId, Submission)>,
     // ^ empty vector when not at the judging step
     // this technically enables cheating,
-    // if a savvy player were to inspect the network tab &
-    // memorize the player id for each person over multiple rounds.
-    // But this would be annoying enough to execute, that I don't think it matters in practice.
+    // if a savvy player were to inspect the network tab & cross reference with the players vector
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
