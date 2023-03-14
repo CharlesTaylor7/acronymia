@@ -63,11 +63,6 @@ pub struct ClientGameState {
     // if a savvy player were to inspect the network tab & cross reference with the players vector
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Default, Clone)]
-pub struct JudgeInfo {
-    // info privy to me as the judge
-}
-
 /// message from a client to the server
 #[derive(Clone, Debug)]
 pub enum ClientMessage {
@@ -102,7 +97,11 @@ impl GameState {
     }
 
     pub fn next_judge(&self) -> JudgeId {
-        self.current_judge()
-            .map_or(0, |j| (j + 1) % self.rotation.len())
+        let n = self.rotation.len();
+        if let Some(j) = self.current_judge() && n > 0 {
+            (j + 1) % self.rotation.len()
+        } else {
+            0
+        }
     }
 }
