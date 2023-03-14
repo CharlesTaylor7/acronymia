@@ -1,22 +1,14 @@
-#[cfg(feature = "ssr")]
 use crate::types::*;
+use ::leptos::*;
+use ::std::cell::RefCell;
+use ::tokio::sync::{broadcast, mpsc, Mutex};
 
-#[cfg(feature = "ssr")]
-use std::cell::RefCell;
-
-#[cfg(feature = "ssr")]
-use ::tokio::{
-    sync::{broadcast, mpsc, Mutex},
-};
-
-#[cfg(feature = "ssr")]
 pub struct Global {
     mailbox_sender: mpsc::Sender<ClientMessage>,
     mailbox_receiver: Mutex<mpsc::Receiver<ClientMessage>>,
     broadcast_sender: broadcast::Sender<ServerMessage>,
 }
 
-#[cfg(feature = "ssr")]
 lazy_static::lazy_static! {
     pub static ref GLOBAL: Global = {
         let (mailbox_sender, mailbox_receiver) = mpsc::channel(100);
@@ -30,10 +22,8 @@ lazy_static::lazy_static! {
 }
 
 /// Have to wrap thread local statics in this type
-#[cfg(feature = "ssr")]
 type C<T> = RefCell<Option<T>>;
 
-#[cfg(feature = "ssr")]
 thread_local! {
     // each client's websocket connection is handled by a dedicated tokio thread
     // each server thread has its own inbox & outbox to communicate
@@ -42,7 +32,6 @@ thread_local! {
     pub static MAILER: C<mpsc::Sender<ClientMessage>> = RefCell::new(Some(GLOBAL.mailbox_sender.clone()));
 }
 
-#[cfg(feature = "ssr")]
 pub async fn send(message: ClientMessage) {
     let handle = MAILER.take().expect("MAILER");
 
@@ -54,7 +43,6 @@ pub async fn send(message: ClientMessage) {
     MAILER.set(Some(handle));
 }
 
-#[cfg(feature = "ssr")]
 pub async fn receive<T, F1, F2>(on_ok: F1, on_err: F2)
 where
     F1: FnOnce(ServerMessage),
@@ -72,10 +60,7 @@ where
     result
 }
 
-#[cfg(feature = "ssr")]
 pub fn spawn_state_thread() {
-    use leptos::*;
-
     tokio::spawn(async move {
         let mut receiver = GLOBAL.mailbox_receiver.lock().await;
         let sender = GLOBAL.broadcast_sender.clone();

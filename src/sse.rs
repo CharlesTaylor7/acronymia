@@ -106,29 +106,3 @@ pub fn provide_game_state(cx: Scope, _id: Signal<Option<PlayerId>>) {
     provide_typed_context::<Dummy>(cx, create_rw_signal(cx, ()).into());
     provide_typed_context::<SSE>(cx, create_rw_signal(cx, Default::default()));
 }
-
-// server side api handler
-use cfg_if::cfg_if;
-cfg_if! {
-    if #[cfg(feature = "ssr")] {
-        use ::futures::{stream, Stream};
-        use ::futures::StreamExt;
-        use actix_web::{
-            Error,
-            web::Bytes,
-        };
-
-        pub fn to_stream(event: ClientGameState) ->
-            impl Stream<Item = Result<Bytes, Error>> {
-            stream::once(async {event})
-                .map(|value| Ok::<_, Error>(to_bytes(&value)))
-        }
-
-        fn to_bytes(event: &ClientGameState) -> Bytes {
-            Bytes::from(format!(
-                "event: message\ndata: {}\n\n",
-                 serde_json::to_string(event).unwrap()
-            ))
-        }
-    }
-}

@@ -3,8 +3,7 @@ use cfg_if::cfg_if;
 cfg_if! {
     if #[cfg(feature = "ssr")] {
         use acronymia::components::app::{App, AppProps};
-        use acronymia::sse;
-        use acronymia::server::sync;
+        use acronymia::server::{sse, sync};
         use acronymia::api;
         use actix_files::Files;
         use actix_web::*;
@@ -20,7 +19,7 @@ cfg_if! {
 
         #[actix_web::main]
         async fn main() -> std::io::Result<()> {
-            _ = acronymia::api::register_server_functions();
+            _ = api::register_server_functions();
             sync::spawn_state_thread();
 
             // setting to `None` defaults to cargo-leptos & its env vars
