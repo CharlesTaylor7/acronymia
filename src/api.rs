@@ -147,17 +147,15 @@ pub async fn reset_state() -> Result<(), ServerFnError> {
 
 // sse payloads
 #[cfg(feature = "ssr")]
-pub fn client_game_state(id: String) -> ClientGameState {
+pub fn client_game_state() -> ClientGameState {
     use crate::random::shuffle;
 
     let mut state = STATE.lock().expect("locking thread crashed");
 
-    let judge_id = state.current_judge().and_then(|j| state.rotation.get(j));
-    let judge = match judge_id {
-        None => Default::default(),
-        Some(judge_id) if id == *judge_id => Judge::Me,
-        Some(judge_id) => Judge::Name(state.players.get(judge_id).expect("player").name.clone()),
-    };
+    let judge = state
+        .current_judge()
+        .and_then(|j| state.rotation.get(j))
+        .cloned();
 
     let round_timer = state.round_started_at.and_then(|instant| {
         let elapsed = instant.elapsed();
@@ -193,10 +191,10 @@ pub fn client_game_state(id: String) -> ClientGameState {
     //shuffle(&mut submissions);
 
     ClientGameState {
-        round_timer: round_timer,
-        judge: judge,
+        round_timer,
+        judge,
+        submissions,
         step: state.step.clone(),
-        submissions: submissions,
         submission_count: state
             .rounds
             .last()

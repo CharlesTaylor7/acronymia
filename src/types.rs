@@ -50,7 +50,7 @@ pub struct Round {
 /// some of the server game state should be hidden, and some should be transformed for easier consumption
 #[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq)]
 pub struct ClientGameState {
-    pub judge: Judge,
+    pub judge: Option<PlayerId>,
     pub step: GameStep,
     pub players: Vec<Player>,
     pub acronym: String,
@@ -61,17 +61,6 @@ pub struct ClientGameState {
     // ^ empty vector when not at the judging step
     // this technically enables cheating,
     // if a savvy player were to inspect the network tab & cross reference with the players vector
-}
-
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
-pub enum Judge {
-    Me,
-    Name(String),
-}
-impl Default for Judge {
-    fn default() -> Judge {
-        Judge::Name(String::new())
-    }
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Default, Clone)]

@@ -5,7 +5,6 @@ use crate::components::text_input::*;
 use crate::components::utils::*;
 use crate::sse::*;
 use crate::typed_context::*;
-use crate::types::*;
 use ::futures::future::OptionFuture;
 use ::leptos::*;
 
@@ -44,7 +43,7 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
             },
         }}
 
-        <When predicate=move|| judge() == Judge::Me >
+        <When predicate=move|| judge() == player_id() >
             <p>
                 "You are the judge. "
             </p>
@@ -53,7 +52,7 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
                 {acronym.with_value(|a| view_acronym(cx, a))}
             </p>
         </When>
-        <When predicate=move|| judge() != Judge::Me >
+        <When predicate=move|| judge() != player_id() >
             <p>
                 "What is "{acronym.with_value(|a| view_acronym(cx, a))}" ?"
             </p>

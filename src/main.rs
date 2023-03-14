@@ -11,10 +11,10 @@ cfg_if! {
         use leptos_actix::{generate_route_list, LeptosRoutes};
 
         #[get("/api/events/{id}")]
-        async fn server_events(path: web::Path<String>) -> impl Responder {
+        async fn server_events(_path: web::Path<String>) -> impl Responder {
             HttpResponse::Ok()
                 .insert_header(("Content-Type", "text/event-stream"))
-                .streaming(sse::to_stream(api::client_game_state(path.into_inner())))
+                .streaming(sse::to_stream(api::client_game_state()))
         }
 
         #[actix_web::main]
