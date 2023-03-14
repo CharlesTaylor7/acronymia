@@ -1,14 +1,15 @@
 use super::context::*;
-use crate::api;
+use crate::components::game::send;
 use crate::components::utils::*;
 use crate::typed_context::*;
+use crate::types::ClientMessage::*;
 use crate::types::*;
 use ::leptos::*;
 
 #[component]
 pub fn PlayerRoster(cx: Scope) -> impl IntoView {
     let players = use_typed_context::<Memo_Players>(cx);
-    let kick_player = create_action(cx, move |id: &PlayerId| api::kick_player(id.clone()));
+    let kick_player = create_action(cx, move |id: &PlayerId| send(cx, KickPlayer(id.clone())));
     let impersonate = SignalSetter::from(use_typed_context::<Signal_PlayerId>(cx));
 
     view! {
@@ -35,7 +36,7 @@ pub fn PlayerRoster(cx: Scope) -> impl IntoView {
 fn PlayerView(
     cx: Scope,
     player: Player,
-    kick_player: Action<PlayerId, Server<()>>,
+    kick_player: Action<PlayerId, ()>,
     impersonate: SignalSetter<Option<PlayerId>>,
 ) -> impl IntoView {
     // TODO: why do I have to clone this variable so many times?

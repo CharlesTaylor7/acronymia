@@ -3,23 +3,14 @@ use cfg_if::cfg_if;
 cfg_if! {
     if #[cfg(feature = "ssr")] {
         use acronymia::components::app::{App, AppProps};
-        use acronymia::server::{sse, sync};
-        use acronymia::api;
+        use acronymia::server::{sync, ws};
         use actix_files::Files;
         use actix_web::*;
         use leptos::*;
         use leptos_actix::{generate_route_list, LeptosRoutes};
 
-        #[get("/api/events/{id}")]
-        async fn server_events(_path: web::Path<String>) -> impl Responder {
-            HttpResponse::Ok()
-                .insert_header(("Content-Type", "text/event-stream"))
-                .streaming(sse::to_stream(api::client_game_state()))
-        }
-
         #[actix_web::main]
         async fn main() -> std::io::Result<()> {
-            _ = api::register_server_functions();
             sync::spawn_state_thread();
 
             // setting to `None` defaults to cargo-leptos & its env vars
@@ -36,7 +27,7 @@ cfg_if! {
                 let routes = &routes;
 
                 App::new()
-                    .service(server_events)
+                    .service(web::resource("/ws").route(web::get().to(ws::handle_ws_request)))
                     .route( "/api/{tail:.*}", leptos_actix::handle_server_fns())
                     .leptos_routes(
                         leptos_options.to_owned(),

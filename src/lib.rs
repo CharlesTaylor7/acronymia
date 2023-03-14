@@ -14,10 +14,9 @@
 #![allow(clippy::uninlined_format_args)]
 #![allow(clippy::used_underscore_binding)]
 #![allow(clippy::redundant_closure_for_method_calls)]
-pub mod api;
 pub mod components;
+pub mod extensions;
 pub mod random;
-pub mod sse;
 pub mod typed_context;
 pub mod types;
 
@@ -31,6 +30,8 @@ cfg_if! {
 
 cfg_if! {
     if #[cfg(feature = "hydrate")] {
+        pub mod client;
+
         use leptos::*;
         use wasm_bindgen::prelude::wasm_bindgen;
         use crate::components::app::{App, AppProps};

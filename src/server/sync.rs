@@ -1,6 +1,5 @@
 use crate::types::*;
 use ::leptos::*;
-use ::std::cell::RefCell;
 use ::tokio::sync::{broadcast, mpsc, Mutex};
 
 pub struct Global {
@@ -21,64 +20,34 @@ lazy_static::lazy_static! {
     };
 }
 
-/// Have to wrap thread local statics in this type
-type C<T> = RefCell<Option<T>>;
-
-thread_local! {
-    // each client's websocket connection is handled by a dedicated tokio thread
-    // each server thread has its own inbox & outbox to communicate
-    // with the single state management thread
-    pub static BROADCASTED: C<broadcast::Receiver<ServerMessage>> = RefCell::new(Some(GLOBAL.broadcast_sender.subscribe()));
-    pub static MAILER: C<mpsc::Sender<ClientMessage>> = RefCell::new(Some(GLOBAL.mailbox_sender.clone()));
+/// This is the read-side of a channel which receives messages from the state thread.
+/// i.e. it "subscribes" to server updates messages.
+pub fn subscribe() -> broadcast::Receiver<ServerMessage> {
+    GLOBAL.broadcast_sender.subscribe()
 }
 
-pub async fn send(message: ClientMessage) {
-    let handle = MAILER.take().expect("MAILER");
-
-    let m = handle.send(message).await;
-    if let Err(e) = m {
-        dbg!(e);
-    }
-
-    MAILER.set(Some(handle));
+/// This is the write-side of a channel which messages the state thread.
+/// i.e. it "mails" the server with messages.
+pub fn mailer() -> mpsc::Sender<ClientMessage> {
+    GLOBAL.mailbox_sender.clone()
 }
 
-pub async fn receive<T, F1, F2>(on_ok: F1, on_err: F2)
-where
-    F1: FnOnce(ServerMessage),
-    F2: FnOnce(broadcast::error::RecvError),
-{
-    let mut handle = BROADCASTED.take().expect("BROADCASTED");
-
-    let result = match handle.recv().await {
-        Ok(m) => on_ok(m),
-        Err(e) => on_err(e),
-    };
-
-    BROADCASTED.set(Some(handle));
-
-    result
-}
-
+/// You should only call this once at the top level of the app.
+/// Manages the application state, with message passing infrastructure.
+/// To send to messages to this thread call `mailer`.
+/// To receive (broadcast) messges from this thread, call `subscribe`.
 pub fn spawn_state_thread() {
+    use super::state::*;
+
     tokio::spawn(async move {
         let mut receiver = GLOBAL.mailbox_receiver.lock().await;
         let sender = GLOBAL.broadcast_sender.clone();
-        let mut state = GameState::default();
+        let mut state = default_game_state();
 
         while let Some(message) = receiver.recv().await {
-            match message {
-                ClientMessage::JoinGame(player) => {
-                    let id = player.id.clone();
-                    if let None = state.players.insert(player.id.clone(), player) {
-                        state.rotation.push(id);
-                    }
-
-                    _ = sender.send(ServerMessage::Demo(state.players.len()));
-                }
-            }
+            handle_message(message, &mut state, &sender).await;
         }
 
-        log!("mailbox channel closed");
+        log!("state thread closed");
     });
 }

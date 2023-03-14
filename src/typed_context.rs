@@ -26,7 +26,7 @@ where
 }
 
 /// # Panics
-/// Will panic if you neglected to call `provide_typed_context`::<K>
+/// Will panic if you neglected to call `provide_typed_context::<K>`
 /// in either the current `Scope` or a parent one.
 pub fn use_typed_context<K>(cx: Scope) -> K::R
 where

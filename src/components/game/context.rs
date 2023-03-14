@@ -1,7 +1,7 @@
+use crate::components::game::utils::state::game_state;
 use crate::*;
 use ::leptos::*;
 use leptos_dom::helpers::IntervalHandle;
-use sse::*;
 use typed_context::*;
 use types::*;
 
@@ -14,7 +14,9 @@ define_context!(TimerHandle, StoredValue<Option<IntervalHandle>>);
 pub fn provide_game_context(cx: Scope) {
     let player_id = signal_player_id(cx);
     provide_typed_context::<Signal_PlayerId>(cx, player_id);
-    provide_game_state(cx, create_memo(cx, move |_| player_id()).into());
+
+    #[cfg(feature = "hydrate")]
+    crate::client::ws::connect_to_server(cx);
 
     let player_name = signal_player_name(cx);
     provide_typed_context::<Signal_PlayerName>(cx, player_name);

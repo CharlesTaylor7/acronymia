@@ -1,12 +1,11 @@
-use super::context::*;
-use super::timer::*;
-use crate::api;
+use super::{context::*, timer::*};
+use crate::components::game::utils::state::*;
 use crate::components::text_input::*;
 use crate::components::utils::*;
-use crate::sse::*;
 use crate::typed_context::*;
-use ::futures::future::OptionFuture;
+use crate::types::ClientMessage::*;
 use ::leptos::*;
+use futures::future::OptionFuture;
 
 #[component]
 pub fn GameSubmission(cx: Scope) -> impl IntoView {
@@ -18,7 +17,9 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
     let submissions = create_memo(cx, move |_| game_state(cx).with(|g| g.submission_count));
     let player_count = game_state(cx).with(|g| g.players.len());
     let submit = create_action(cx, move |_: &()| {
-        OptionFuture::from(player_id().map(|id| api::submit_acronym(id, submission.get_value())))
+        OptionFuture::from(
+            player_id().map(|id| send(cx, SubmitAcronym(id, submission.get_value()))),
+        )
     });
 
     view! {

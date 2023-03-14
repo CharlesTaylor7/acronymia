@@ -1,12 +1,10 @@
-use crate::*;
+use crate::components::game::utils::state::*;
+use crate::types::ClientMessage::*;
 use leptos::*;
 
 #[component]
 pub fn ResetButton(cx: Scope) -> impl IntoView {
-    let reset = create_action(cx, move |_: &()| {
-        sse::game_state(cx).update(|g| *g = Default::default());
-        api::reset_state()
-    });
+    let reset = create_action(cx, move |_: &()| send(cx, ResetState));
 
     view! {
         cx,

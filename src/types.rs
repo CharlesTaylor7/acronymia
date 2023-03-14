@@ -64,19 +64,25 @@ pub struct ClientGameState {
 }
 
 /// message from a client to the server
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ClientMessage {
+    /// id of the thread handling a web socket connection with a particular client
+    Connected,
+    ResetState,
     JoinGame(Player),
+    KickPlayer(PlayerId),
+    StartGame,
+    SubmitAcronym(PlayerId, Submission),
+    JudgeRound(PlayerId),
 }
 
 /// message from the server broadcast to each client
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ServerMessage {
-    Demo(usize), // for testing
+    //StateForThread(ThreadId, ClientGameState),
+    GameState(ClientGameState),
+    PlayerJoined(Player),
 }
-
-/// 30 second timer for everyone
-pub const ROUND_TIMER_DURATION: Duration = Duration::new(30, 0);
 
 impl GameState {
     pub fn start_round(&mut self) {
@@ -102,6 +108,70 @@ impl GameState {
             (j + 1) % self.rotation.len()
         } else {
             0
+        }
+    }
+
+    pub fn to_client_state(&self) -> ClientGameState {
+        use crate::random::shuffle;
+
+        let judge = self
+            .current_judge()
+            .and_then(|j| self.rotation.get(j))
+            .cloned();
+
+        let round_timer = self.round_started_at.and_then(|instant| {
+            /// 30 second timer for everyone
+            pub const ROUND_TIMER_DURATION: Duration = Duration::new(30, 0);
+
+            let elapsed = instant.elapsed();
+
+            if elapsed < ROUND_TIMER_DURATION {
+                let diff = ROUND_TIMER_DURATION - elapsed;
+                let rounded_sec = if diff.subsec_nanos() >= 500_000_000 {
+                    1
+                } else {
+                    0
+                };
+                Some(diff.as_secs() + rounded_sec)
+            } else {
+                //self.step = GameStep::Judging;
+                None
+            }
+        });
+
+        let empty_vec = Vec::new();
+        let submissions = {
+            if self.step == GameStep::Judging && let Some(round) = self.rounds.last() {
+                let mut subs = round
+                    .submissions
+                    .iter()
+                    .map(|(key, value)| (key.clone(), value.clone()))
+                    .collect::<Vec<_>>();
+                shuffle(&mut subs);
+                subs
+            } else {
+                empty_vec
+            }
+        };
+
+        ClientGameState {
+            round_timer,
+            judge,
+            submissions,
+            step: self.step.clone(),
+            submission_count: self.rounds.last().map(|r| r.submissions.len()).unwrap_or(0),
+            acronym: self
+                .rounds
+                .last()
+                .map(|r| r.acronym.clone())
+                .unwrap_or(String::new()),
+            players: self
+                .rotation
+                .iter()
+                .map(|id| self.players.get(id))
+                .flatten()
+                .cloned()
+                .collect(),
         }
     }
 }

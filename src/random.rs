@@ -1,7 +1,6 @@
 use rand::prelude::*;
 
-/// Apply a Fisher-Yates shuffle to a buffer
-/// https://en.wikipedia.org/wiki/Fisher-Yates_shuffle
+/// Apply a [Fisher-Yates shuffle](https://en.wikipedia.org/wiki/Fisher-Yates_shuffle) to a buffer
 pub fn shuffle<T>(slice: &mut [T]) {
     let n = slice.len();
     if n < 2 {

@@ -4,7 +4,7 @@ use leptos::*;
 #[cfg(not(feature = "ssr"))]
 pub fn apply_timer(cx: Scope) {
     use crate::components::game::context::*;
-    use crate::sse::*;
+    use crate::components::game::utils::state::game_state;
     use crate::typed_context::use_typed_context;
     use std::time::Duration;
 
@@ -24,7 +24,6 @@ pub fn apply_timer(cx: Scope) {
 
     let handle = set_interval(
         move || {
-            log!("tick");
             game_state(cx).update(|g| match g.round_timer {
                 Some(s) if s > 0 => {
                     g.round_timer = Some(s - 1);

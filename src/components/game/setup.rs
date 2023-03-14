@@ -1,10 +1,9 @@
 use super::context::*;
 use super::player_roster::*;
-use crate::api;
-use crate::components::text_input::*;
-use crate::components::utils::*;
-use crate::sse::*;
+use crate::components::game::utils::state::{game_state, send};
+use crate::components::{text_input::*, utils::*};
 use crate::typed_context::*;
+use crate::types::ClientMessage::*;
 use crate::types::*;
 use ::leptos::*;
 use futures::future::OptionFuture;
@@ -13,17 +12,19 @@ use futures::future::OptionFuture;
 pub fn GameSetup(cx: Scope) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     let player_name = use_typed_context::<Signal_PlayerName>(cx);
+    let player = create_memo(cx, move |_| {
+        player_id().map(|id| Player {
+            id,
+            name: player_name(),
+        })
+    });
+
     let players = use_typed_context::<Memo_Players>(cx);
     let join_game = create_action(cx, move |_: &()| {
-        OptionFuture::from(player_id().map(|id| api::join_game(id, player_name())))
+        OptionFuture::from(player().map(|p| send(cx, JoinGame(p))))
     });
-    let start_game = create_action(cx, move |_: &()| {
-        game_state(cx).update(|g| {
-            g.step = GameStep::Submission;
-            g.round_timer = Some(30);
-        });
-        api::start_game()
-    });
+
+    let start_game = create_action(cx, move |_: &()| send(cx, StartGame));
     let is_creator: Memo<bool> = create_memo(cx, move |_| {
         player_id()
             .and_then(|me| {
