@@ -1,6 +1,8 @@
+use crate::constants::*;
+use crate::server::sync::GLOBAL;
 use crate::types::*;
-use ::tokio::sync::broadcast::Sender;
-use std::collections::*;
+use ::std::collections::*;
+use ::tokio::{sync::broadcast::Sender, task::spawn, time::*};
 
 // TODO: client actions need to be both restricted by game step & player role
 pub async fn handle_message(
@@ -28,13 +30,34 @@ pub async fn handle_message(
         }
         ClientMessage::ResetState => {
             *state = default_game_state();
-            _ = sender.send(ServerMessage::GameState(state.to_client_state()))
+            _ = sender.send(ServerMessage::GameState(state.to_client_state()));
         }
 
         ClientMessage::StartGame => {
-            state.start_round();
+            state.rounds.push(Round {
+                judge: state.next_judge(),
+                //TODO: randomize acronym
+                acronym: "f".to_string(),
+                winner: None,
+                submissions: HashMap::new(),
+            });
 
-            _ = sender.send(ServerMessage::GameState(state.to_client_state()))
+            state.step = GameStep::Submission;
+            let now = Instant::now();
+            state.timer_started_at = Some(now);
+
+            _ = sender.send(ServerMessage::GameState(state.to_client_state()));
+            // spawn a thread to timeout the submission step
+            let sender = sender.clone();
+            spawn(async move {
+                sleep_until(now + ROUND_TIMER_DURATION).await;
+                let mut state = GLOBAL.state.lock().await;
+                // if its still the submission step, then end the step.
+                if state.step == GameStep::Submission {
+                    state.step = GameStep::Judging;
+                    _ = sender.send(ServerMessage::GameState(state.to_client_state()));
+                }
+            });
         }
 
         ClientMessage::SubmitAcronym(player_id, submission) => {
@@ -55,36 +78,5 @@ pub async fn handle_message(
 
             _ = sender.send(ServerMessage::GameState(state.to_client_state()))
         }
-    }
-}
-
-pub fn default_game_state() -> GameState {
-    if cfg!(debug_assertions) {
-        demo_init(vec!["alice", "bob", "carl"])
-    } else {
-        Default::default()
-    }
-}
-
-fn demo_init(players: Vec<&str>) -> GameState {
-    let players = players
-        .into_iter()
-        .enumerate()
-        .map(|(id, name)| Player {
-            id: id.to_string(),
-            name: name.to_owned(),
-        })
-        .collect::<Vec<_>>();
-    let rotation = players.iter().map(|p| p.id.clone()).collect::<Vec<_>>();
-    let players = players
-        .into_iter()
-        .map(|p| (p.id.clone(), p))
-        .collect::<HashMap<_, _>>();
-    GameState {
-        players: players,
-        rotation: rotation,
-        rounds: Vec::new(),
-        step: GameStep::Setup,
-        round_started_at: None,
     }
 }

@@ -24,12 +24,12 @@ pub fn apply_timer(cx: Scope) {
 
     let handle = set_interval(
         move || {
-            game_state(cx).update(|g| match g.round_timer {
+            game_state(cx).update(|g| match g.timer {
                 Some(s) if s > 0 => {
-                    g.round_timer = Some(s - 1);
+                    g.timer = Some(s - 1);
                 }
                 _ => {
-                    g.round_timer = Some(0);
+                    g.timer = Some(0);
                     cleanup();
                 }
             });

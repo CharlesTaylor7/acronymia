@@ -15,6 +15,7 @@
 #![allow(clippy::used_underscore_binding)]
 #![allow(clippy::redundant_closure_for_method_calls)]
 pub mod components;
+pub mod constants;
 pub mod extensions;
 pub mod random;
 pub mod typed_context;

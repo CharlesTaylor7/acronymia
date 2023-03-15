@@ -88,7 +88,6 @@ async fn handle_heartbeat(
     session: &mut actix_ws::Session,
     last_heartbeat: Instant,
 ) -> Option<CloseReason> {
-    log!("heartbeat");
     // if no heartbeat ping/pong received recently, close the connection
     if Instant::now().duration_since(last_heartbeat) > CLIENT_TIMEOUT {
         let reason = CloseReason {
@@ -109,7 +108,6 @@ async fn handle_client_message(
     last_heartbeat: &mut Instant,
     mailer: &mpsc::Sender<ClientMessage>,
 ) -> Option<CloseReason> {
-    log!("websocket message");
     // websocket closed
     if msg.is_none() {
         return Some(CloseCode::Normal.into());
@@ -156,7 +154,6 @@ async fn handle_server_message(
     msg: Result<ServerMessage, RecvError>,
     session: &mut actix_ws::Session,
 ) -> Option<CloseReason> {
-    log!("server message");
     if let Some(msg) = msg.ok_or_log() {
         if let Some(msg) = serde_json::to_string(&msg).ok_or_log() {
             session.text(msg).await.ok_or_log();

@@ -1,11 +1,18 @@
 use crate::types::*;
 use ::leptos::*;
+use ::std::sync::Arc;
 use ::tokio::sync::{broadcast, mpsc, Mutex};
 
 pub struct Global {
     mailbox_sender: mpsc::Sender<ClientMessage>,
     mailbox_receiver: Mutex<mpsc::Receiver<ClientMessage>>,
     broadcast_sender: broadcast::Sender<ServerMessage>,
+
+    /// This is exposed publicly so that the state thread
+    /// can implement timers.
+    /// Websocket connection threads should NOT use this directly.
+    /// The channels are `subscribe` and `mailer` methods are what you want.
+    pub state: Arc<Mutex<GameState>>,
 }
 
 lazy_static::lazy_static! {
@@ -16,6 +23,7 @@ lazy_static::lazy_static! {
             mailbox_sender,
             mailbox_receiver: Mutex::new(mailbox_receiver),
             broadcast_sender,
+            state: Arc::new(Mutex::new(default_game_state())),
         }
     };
 }
@@ -42,9 +50,9 @@ pub fn spawn_state_thread() {
     tokio::spawn(async move {
         let mut receiver = GLOBAL.mailbox_receiver.lock().await;
         let sender = GLOBAL.broadcast_sender.clone();
-        let mut state = default_game_state();
 
         while let Some(message) = receiver.recv().await {
+            let mut state = GLOBAL.state.lock().await;
             handle_message(message, &mut state, &sender).await;
         }
 
