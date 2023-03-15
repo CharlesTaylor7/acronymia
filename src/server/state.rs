@@ -26,6 +26,7 @@ pub async fn handle_message(
         }
         ClientMessage::KickPlayer(id) => {
             state.rotation.retain(|p| *p != id);
+            state.players.remove(&id);
             _ = sender.send(ServerMessage::GameState(state.to_client_state()))
         }
         ClientMessage::ResetState => {
@@ -61,6 +62,10 @@ pub async fn handle_message(
         }
 
         ClientMessage::SubmitAcronym(player_id, submission) => {
+            if state.players.get(&player_id).is_none() {
+                return;
+            }
+
             if let Some(round) = state.rounds.last_mut() {
                 round.submissions.insert(player_id, submission);
                 if round.submissions.len() + 1 == state.rotation.len() {
