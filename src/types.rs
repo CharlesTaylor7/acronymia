@@ -74,7 +74,7 @@ pub enum ClientMessage {
     ResetState,
     JoinGame(Player),
     KickPlayer(PlayerId),
-    StartGame,
+    StartRound,
     SubmitAcronym(PlayerId, Submission),
     JudgeRound(PlayerId),
 }

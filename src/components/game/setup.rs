@@ -24,7 +24,7 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
         OptionFuture::from(player().map(|p| send(cx, JoinGame(p))))
     });
 
-    let start_game = create_action(cx, move |_: &()| send(cx, StartGame));
+    let start_game = create_action(cx, move |_: &()| send(cx, StartRound));
     let is_creator: Memo<bool> = create_memo(cx, move |_| {
         player_id()
             .and_then(|me| {

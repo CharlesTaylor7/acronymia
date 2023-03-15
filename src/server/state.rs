@@ -33,7 +33,7 @@ pub async fn handle_message(
             _ = sender.send(ServerMessage::GameState(state.to_client_state()));
         }
 
-        ClientMessage::StartGame => {
+        ClientMessage::StartRound => {
             state.rounds.push(Round {
                 judge: state.next_judge(),
                 //TODO: randomize acronym
