@@ -13,29 +13,26 @@ pub fn GameJudging(cx: Scope) -> impl IntoView {
             .collect::<Vec<(usize, Vec<String>)>>()
     });
 
+    // I still need to grab the select size from the number of submissions
+
     view! {
         cx,
         <>
             <header>"Judging!"</header>
 
             <main>
-                <fieldset>
-                    <legend>"Please select the best submission:"</legend>
-
+                <select size="2" required="required">
                     <For
                         each=submissions
                         key=|(i, _)| i.clone()
-                        view=move |cx, (i, words): (usize, Vec<String>)| {
+                        view=move |cx, (_i, words): (usize, Vec<String>)| {
                             view! {
                                 cx,
-                                <div>
-                                    <input type="radio" name="best" id={ format!("submission_{i}") } value={ words.clone().join(" ") } checked={ i == 0 } required="required" />
-                                    <label for={ format!("submission_{i}") }>{ words.join(" ") }</label>
-                                </div>
+                                <option value={ words.clone().join(" ") }>{ words.join(" ") }</option>
                             }
                         }
                     />
-                </fieldset>
+                </select>
 
                 <button>"Select"</button>
             </main>
