@@ -191,6 +191,10 @@ fn demo_init(players: Vec<&str>) -> GameState {
             name: name.to_owned(),
         })
         .collect::<Vec<_>>();
+    let mut submissions = HashMap::new();
+    submissions.insert("1".to_owned(), vec!["Option 1".to_owned()]);
+    submissions.insert("2".to_owned(), vec!["Option 2".to_owned()]);
+
     let rotation = players.iter().map(|p| p.id.clone()).collect::<Vec<_>>();
     let players = players
         .into_iter()
@@ -199,8 +203,8 @@ fn demo_init(players: Vec<&str>) -> GameState {
     GameState {
         players: players,
         rotation: rotation,
-        rounds: Vec::new(),
-        step: GameStep::Setup,
+        rounds: vec! [Round{judge: 0, acronym: "foo".to_owned(), winner: None, submissions  }],
+        step: GameStep::Judging,
         timer_started_at: None,
     }
 }
