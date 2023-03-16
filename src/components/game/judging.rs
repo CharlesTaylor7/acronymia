@@ -32,8 +32,8 @@ pub fn GameJudging(cx: Scope) -> impl IntoView {
                             view! {
                                 cx,
                                 <div>
-                                    <input type="radio" name="best" id={ i.clone() } value={ submission.clone().to_owned() } />
-                                    <label for={ i.clone() }>{ submission.to_owned() }</label>
+                                    <input type="radio" name="best" id={ format!("submission_{i}") } value={ submission.clone().to_owned() } checked={ i == 0 } required="required" />
+                                    <label for={ format!("submission_{i}") }>{ submission.to_owned() }</label>
                                 </div>
                             }
                         }
