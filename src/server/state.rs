@@ -2,6 +2,7 @@ use crate::constants::*;
 use crate::server::sync::GLOBAL;
 use crate::types::*;
 use ::std::collections::*;
+use super::letter_bag::*;
 use ::tokio::{sync::broadcast::Sender, task::spawn, time::*};
 
 // TODO: client actions need to be both restricted by game step & player role
@@ -37,8 +38,7 @@ pub async fn handle_message(
         ClientMessage::StartRound => {
             state.rounds.push(Round {
                 judge: state.next_judge(),
-                //TODO: randomize acronym
-                acronym: "f".to_string(),
+                acronym: random_initialism(3),
                 winner: None,
                 submissions: HashMap::new(),
             });
