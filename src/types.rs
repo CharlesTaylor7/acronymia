@@ -64,6 +64,8 @@ pub struct ClientGameState {
     // ^ empty vector when not at the judging step
     // this technically enables cheating,
     // if a savvy player were to inspect the network tab & cross reference with the players vector
+    pub scores: Vec<(PlayerName, i64)>,
+    // ^ empty until the results step
 }
 
 /// message from a client to the server
@@ -150,10 +152,35 @@ impl GameState {
             }
         };
 
+        let scores = if self.step == GameStep::Results {
+            let mut score_map = HashMap::new();
+            for round in self.rounds.iter() {
+                if let Some(winner) = &round.winner {
+                    insert_or_add(&mut score_map, winner, 1);
+                } else {
+                    // The judge is penalized for a timeout.
+                    // This is because any round where you don't select a winner
+                    // you've denied any of your peers a point.
+                    // Penalizing the judge fixes this issue from a "game theory" perspective
+                    insert_or_add(&mut score_map, &self.rotation[round.judge], -1);
+                }
+            }
+            let mut scores = Vec::with_capacity(self.rotation.len());
+            for id in self.rotation.iter() {
+                let score = score_map.get(id).map_or(0, |s| *s);
+                scores.push((self.players[id].name.clone(), score));
+            }
+
+            scores
+        } else {
+            Vec::new()
+        };
+
         ClientGameState {
             timer,
             judge,
             submissions,
+            scores: scores,
             step: self.step.clone(),
             submission_count: self.rounds.last().map(|r| r.submissions.len()).unwrap_or(0),
             acronym: self
@@ -169,6 +196,16 @@ impl GameState {
                 .cloned()
                 .collect(),
         }
+    }
+}
+
+#[cfg(feature = "ssr")]
+fn insert_or_add<K>(map: &mut HashMap<K, i64>, key: K, amount: i64)
+where
+    K: std::hash::Hash + Eq,
+{
+    if let Ok(val) = map.try_insert(key, amount) {
+        *val += amount;
     }
 }
 
