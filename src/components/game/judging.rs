@@ -41,7 +41,8 @@ pub fn GameJudging(cx: Scope) -> impl IntoView {
             />
 
             <button
-                class="border rounded p-2 bg-green-300 border-slate-200"
+                class="border rounded p-2 bg-green-300 border-slate-200 disabled:cursor-not-allowed"
+                disabled=move|| selected().is_none()
             >
             "Submit"
             </button>
