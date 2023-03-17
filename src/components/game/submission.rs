@@ -6,13 +6,16 @@ use crate::typed_context::*;
 use crate::types::ClientMessage::*;
 use ::leptos::*;
 use futures::future::OptionFuture;
+use super::acronym::*;
 
 #[component]
 pub fn GameSubmission(cx: Scope) -> impl IntoView {
     apply_timer(cx);
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
-    let acronym = store_value(cx, game_state(cx).with(|g| g.acronym.clone()));
-    let submission = store_value(cx, vec![String::new(); acronym.with_value(|a| a.len())]);
+    let acronym = move|| game_state(cx).with(|g| g.acronym.clone());
+    let num_of_words = game_state(cx).with(|g| g.acronym.len());
+
+    let submission = store_value(cx, vec![String::new(); num_of_words]);
     let judge = create_memo(cx, move |_| game_state(cx).with(|g| g.judge.clone()));
     let submissions = create_memo(cx, move |_| game_state(cx).with(|g| g.submission_count));
     let player_count = game_state(cx).with(|g| g.players.len());
@@ -50,16 +53,15 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
             </p>
             <p>
                 "Submissions incoming for "
-                {acronym.with_value(|a| view_acronym(cx, a))}
+                {view! {cx, <Acronym letters=acronym() />}}
             </p>
         </When>
         <When predicate=move|| judge() != player_id() >
             <p>
-                "What is "{acronym.with_value(|a| view_acronym(cx, a))}" ?"
+                "What is "{view! {cx, <Acronym letters=acronym() />}}" ?"
             </p>
             {
-                let n = acronym.with_value(std::string::String::len);
-                (0..n)
+                (0..num_of_words)
                     .map(|i| view! { cx,
                         <TextInput
                             // focus on the first input
@@ -84,18 +86,3 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
     }
 }
 
-/// - apply bold
-/// - capitalize letters
-/// - insert periods
-fn view_acronym(cx: Scope, s: &str) -> impl IntoView + Clone {
-    use core::iter::once;
-    view! { cx,
-        <span class="inline font-bold">
-        {
-            s.chars()
-                .flat_map(|c| c.to_uppercase().chain(once('.')))
-                .collect::<String>()
-        }
-        </span>
-    }
-}

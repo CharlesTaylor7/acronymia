@@ -13,6 +13,7 @@ mod setup;
 mod submission;
 mod timer;
 pub mod utils;
+mod acronym;
 use self::context::*;
 use self::judging::*;
 use self::player_roster::*;

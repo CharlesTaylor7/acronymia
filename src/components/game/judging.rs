@@ -1,10 +1,12 @@
 use crate::components::game::utils::state::*;
 use crate::types::*;
 use leptos::*;
+use super::acronym::*;
 
 #[component]
 pub fn GameJudging(cx: Scope) -> impl IntoView {
     let selected = create_rw_signal(cx, None);
+    let acronym = game_state(cx).with(|g| g.acronym.clone());
     let submissions = move || game_state(cx).with(|g| g.submissions.clone());
     let option_class = move |id: &PlayerId| {
         let id = id.clone();
@@ -23,7 +25,7 @@ pub fn GameJudging(cx: Scope) -> impl IntoView {
     view! {
         cx,
         <div class="flex flex-col items-start gap-4">
-            <header>"What is "<span class="inline font-bold">"F.O.O.?"</span></header>
+            <header>"What is "<Acronym letters=acronym /></header>
             <For
                 each=submissions
                 key=|(id, _)| id.clone()
