@@ -32,27 +32,31 @@ pub fn provide_game_context(cx: Scope) {
     let players = create_memo(cx, move |_| game_state(cx).with(|g| g.players.clone()));
     provide_typed_context::<Memo_Players>(cx, players);
 
-    let judge = create_memo(cx, move |_| {
-        game_state(cx).with(|g| {
-            g.judge
-                .as_ref()
-                .map(|judge_id| {
-                    if Some(judge_id.clone()) == player_id() {
-                        Some(Judge::Me)
-                    } else {
-                        players()
-                            .iter()
-                            .find(|p| p.id == *judge_id)
-                            .map(|p| Judge::Name(p.name.clone()))
-                    }
-                })
-                .flatten()
-        })
-    });
+    let judge = create_memo(cx, move |_| get_judge(player_id, players));
     provide_typed_context::<Memo_Judge>(cx, judge);
 
     let timer_handle = store_value(cx, None);
     provide_typed_context::<TimerHandle>(cx, timer_handle);
+}
+
+fn get_judge(player_id: Signal<Option<PlayerId>>, players: Memo<Vec<Player>>) -> Option<Judge> {
+    // determines the judge, with at most a single clone operation
+    game_state(cx).with(|g| {
+        g.judge
+            .as_ref()
+            .map(|judge_id| {
+                if player_id.with(|id| id.as_ref() == Some(judge_id)) {
+                    Some(Judge::Me)
+                } else {
+                    players.with(|ps| {
+                        ps.iter()
+                            .find(|p| p.id == *judge_id)
+                            .map(|p| Judge::Name(p.name.clone()))
+                    })
+                }
+            })
+            .flatten()
+    })
 }
 
 /// a signal for the player id
