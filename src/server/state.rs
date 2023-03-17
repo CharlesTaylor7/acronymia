@@ -96,13 +96,23 @@ fn start_judging_step(state: &mut GameState, messenger: &Sender<ServerMessage>) 
     state.shuffle_current_round_submissions();
 
     // TODO:
-    // (1) I want to show the round winner to everyone on the judging step,
+    // I want to show the round winner to everyone on the judging step,
     // and then redirect after a few seconds
     // back to a new submission step
     //
-    // (2) we need to check if the we've complete enough rounds to end the game.
-    set_timer(state, messenger, start_submission_step);
+    set_timer(state, messenger, end_judging_step);
     _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
+}
+
+fn end_judging_step(state: &mut GameState, messenger: &Sender<ServerMessage>) {
+    // if everyone has gone twice as judge
+    if 2 * state.rotation.len() == state.rounds.len() {
+        state.cancel_timer();
+        state.step == GameStep::Results;
+        _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
+    } else {
+        start_submission_step(state, messenger);
+    }
 }
 
 fn set_timer(
