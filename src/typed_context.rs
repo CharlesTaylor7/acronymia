@@ -50,7 +50,7 @@ macro_rules! define_context {
         #[derive(Clone)]
         #[allow(non_camel_case_types)]
         pub enum $KEY {}
-        impl ContextKey for $KEY {
+        impl crate::typed_context::ContextKey for $KEY {
             type R = $VALUE;
         }
     };

@@ -2,7 +2,6 @@ use super::{context::*, timer::*};
 use crate::components::game::utils::state::*;
 use crate::components::text_input::*;
 use crate::components::utils::*;
-use crate::typed_context::*;
 use crate::types::ClientMessage::*;
 use ::leptos::*;
 use futures::future::OptionFuture;
@@ -16,7 +15,7 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
     let num_of_words = game_state(cx).with(|g| g.acronym.len());
 
     let submission = store_value(cx, vec![String::new(); num_of_words]);
-    let judge = create_memo(cx, move |_| game_state(cx).with(|g| g.judge.clone()));
+    let judge = use_typed_context::<Memo_Judge>(cx);
     let submissions = create_memo(cx, move |_| game_state(cx).with(|g| g.submission_count));
     let player_count = game_state(cx).with(|g| g.players.len());
     let submit = create_action(cx, move |_: &()| {

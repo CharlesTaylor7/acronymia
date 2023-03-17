@@ -5,7 +5,6 @@ use leptos::*;
 pub fn apply_timer(cx: Scope) {
     use crate::components::game::context::*;
     use crate::components::game::utils::state::game_state;
-    use crate::typed_context::use_typed_context;
     use std::time::Duration;
 
     let stored = use_typed_context::<TimerHandle>(cx);

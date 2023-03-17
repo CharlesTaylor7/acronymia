@@ -4,9 +4,23 @@ use leptos::*;
 use super::acronym::*;
 use crate::types::ClientMessage::*;
 use futures::future::OptionFuture;
+use super::context::*;
 
 #[component]
 pub fn GameJudging(cx: Scope) -> impl IntoView {
+    let player_id = use_typed_context::<Signal_PlayerId>(cx);
+    let judge = use_typed_context::<Memo_Judge>(cx);
+    {move|| 
+        if judge() == player_id() {
+            view! { cx, <><JudgePerspective /></>}
+        } else {
+            view! { cx, <><PlayerPerspective /></>}
+        }
+    }
+}
+
+#[component]
+fn JudgePerspective(cx: Scope) -> impl IntoView {
     let selected = create_rw_signal(cx, None);
     let acronym = game_state(cx).with(|g| g.acronym.clone());
     let submissions = move || game_state(cx).with(|g| g.submissions.clone());
@@ -54,4 +68,10 @@ pub fn GameJudging(cx: Scope) -> impl IntoView {
             </button>
         </div>
     }
+
+}
+
+#[component]
+fn PlayerPerspective(cx: Scope) -> impl IntoView {
+   "Player perspective" 
 }
