@@ -1,5 +1,5 @@
 #[cfg(feature = "ssr")]
-use ::tokio::time::Instant;
+use ::tokio::{sync::oneshot, time::Instant};
 use leptos::{log, Resource, ServerFnError};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -24,6 +24,7 @@ pub struct GameState {
     pub rotation: Vec<PlayerId>,            // players in order they will be judge
     pub rounds: Vec<Round>, // list of rounds, records past or present chosen judge and acronym
     pub timer_started_at: Option<Instant>,
+    pub timer_cancellation: Option<oneshot::Sender<()>>,
     pub shuffled_submissions: Vec<(PlayerId, Submission)>,
 }
 
@@ -110,6 +111,12 @@ impl GameState {
             (j + 1) % self.rotation.len()
         } else {
             0
+        }
+    }
+
+    pub fn cancel_timer(&mut self) {
+        if let Some(cancel) = self.timer_cancellation.take() {
+            _ = cancel.send(());
         }
     }
 
@@ -262,6 +269,7 @@ fn demo_init(players: Vec<&str>) -> GameState {
         }],
         step: GameStep::Setup,
         timer_started_at: None,
+        timer_cancellation: None,
         shuffled_submissions: Vec::new(),
     }
 }

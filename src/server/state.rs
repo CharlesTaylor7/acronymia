@@ -3,18 +3,22 @@ use crate::constants::*;
 use crate::server::sync::GLOBAL;
 use crate::types::*;
 use ::std::collections::*;
-use ::std::ops::DerefMut;
-use ::tokio::{sync::broadcast::Sender, task::spawn, time::*};
+use ::tokio::{
+    select,
+    sync::{broadcast::Sender, oneshot},
+    task::spawn,
+    time::{sleep_until, Instant},
+};
 
 // TODO: client actions need to be both restricted by game step & player role
 pub async fn handle_message(
     message: ClientMessage,
     state: &mut GameState,
-    sender: &Sender<ServerMessage>,
+    messenger: &Sender<ServerMessage>,
 ) {
     match message {
         ClientMessage::Connected => {
-            _ = sender.send(ServerMessage::GameState(state.to_client_state()));
+            _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
         }
         // register your name for the current game
         // allows you to update your name if you already joined
@@ -24,16 +28,16 @@ pub async fn handle_message(
                 state.rotation.push(id);
             }
 
-            _ = sender.send(ServerMessage::PlayerJoined(player))
+            _ = messenger.send(ServerMessage::PlayerJoined(player))
         }
         ClientMessage::KickPlayer(id) => {
             state.rotation.retain(|p| *p != id);
             state.players.remove(&id);
-            _ = sender.send(ServerMessage::GameState(state.to_client_state()))
+            _ = messenger.send(ServerMessage::GameState(state.to_client_state()))
         }
 
         ClientMessage::StartGame => {
-            start_submission_step(state, sender);
+            start_submission_step(state, messenger);
         }
 
         ClientMessage::SubmitAcronym(player_id, submission) => {
@@ -52,7 +56,7 @@ pub async fn handle_message(
 
                 // if all submissions are in, go to judging step
                 if round.submissions.len() + 1 == state.rotation.len() {
-                    start_judging_step(state, &sender);
+                    start_judging_step(state, &messenger);
                 }
             }
         }
@@ -62,17 +66,18 @@ pub async fn handle_message(
                 r.winner = Some(winner_id);
             });
 
-            _ = sender.send(ServerMessage::GameState(state.to_client_state()))
+            _ = messenger.send(ServerMessage::GameState(state.to_client_state()))
         }
 
         ClientMessage::ResetState => {
             *state = default_game_state();
-            _ = sender.send(ServerMessage::GameState(state.to_client_state()));
+            _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
         }
     }
 }
 
-fn start_submission_step(state: &mut GameState, sender: &Sender<ServerMessage>) {
+fn start_submission_step(state: &mut GameState, messenger: &Sender<ServerMessage>) {
+    state.cancel_timer();
     state.rounds.push(Round {
         judge: state.next_judge(),
         acronym: random_initialism(3),
@@ -81,45 +86,49 @@ fn start_submission_step(state: &mut GameState, sender: &Sender<ServerMessage>) 
     });
 
     state.step = GameStep::Submission;
-
-    let now = Instant::now();
-    state.timer_started_at = Some(now);
-
-    _ = sender.send(ServerMessage::GameState(state.to_client_state()));
-    // spawn a thread to timeout the submission step
-    let sender = sender.clone();
-    spawn(async move {
-        sleep_until(now + ROUND_TIMER_DURATION).await;
-        let mut state = GLOBAL.state.lock().await;
-        let state = state.deref_mut();
-        start_judging_step(state, &sender);
-    });
+    set_timer(state, messenger, start_judging_step);
+    _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
 }
 
-/// If its still the submission step,
-/// go to the judging step and set the server timer.
-fn start_judging_step(state: &mut GameState, sender: &Sender<ServerMessage>) {
+fn start_judging_step(state: &mut GameState, messenger: &Sender<ServerMessage>) {
+    state.cancel_timer();
     state.step = GameStep::Judging;
     state.shuffle_current_round_submissions();
 
+    // TODO:
+    // (1) I want to show the round winner to everyone on the judging step,
+    // and then redirect after a few seconds
+    // back to a new submission step
+    //
+    // (2) we need to check if the we've complete enough rounds to end the game.
+    set_timer(state, messenger, start_submission_step);
+    _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
+}
+
+fn set_timer(
+    state: &mut GameState,
+    messenger: &Sender<ServerMessage>,
+    on_timeout: impl FnOnce(&mut GameState, &Sender<ServerMessage>) + 'static + Send,
+) {
+    // set a timer
+    let (cancel, cancelled) = oneshot::channel();
     let now = Instant::now();
     state.timer_started_at = Some(now);
-
-    _ = sender.send(ServerMessage::GameState(state.to_client_state()));
+    state.timer_cancellation = Some(cancel);
 
     // spawn a thread to timeout the judging step
-    let sender = sender.clone();
+    let messenger = messenger.clone();
     spawn(async move {
-        sleep_until(now + ROUND_TIMER_DURATION).await;
-        let mut state = GLOBAL.state.lock().await;
-        let state = state.deref_mut();
+        let sleep_then_lock_state = async move {
+            sleep_until(now + ROUND_TIMER_DURATION).await;
+            GLOBAL.state.lock().await
+        };
 
-        // TODO:
-        // (1) I want to show the round winner to everyone on the judging step,
-        // and then redirect after a few seconds
-        // back to a new submission step
-        //
-        // (2) we need to check if the we've complete enough rounds to end the game.
-        start_submission_step(state, &sender);
+        select! {
+            biased;
+            mut state = sleep_then_lock_state => on_timeout(&mut state, &messenger),
+            // do nothing if cancelled
+            _ = cancelled => { },
+        }
     });
 }
