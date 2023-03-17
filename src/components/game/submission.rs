@@ -1,3 +1,4 @@
+use super::acronym::*;
 use super::{context::*, timer::*};
 use crate::components::game::utils::state::*;
 use crate::components::text_input::*;
@@ -5,13 +6,12 @@ use crate::components::utils::*;
 use crate::types::ClientMessage::*;
 use ::leptos::*;
 use futures::future::OptionFuture;
-use super::acronym::*;
 
 #[component]
 pub fn GameSubmission(cx: Scope) -> impl IntoView {
     apply_timer(cx);
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
-    let acronym = move|| game_state(cx).with(|g| g.acronym.clone());
+    let acronym = move || game_state(cx).with(|g| g.acronym.clone());
     let num_of_words = game_state(cx).with(|g| g.acronym.len());
 
     let submission = store_value(cx, vec![String::new(); num_of_words]);
@@ -46,7 +46,7 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
             },
         }}
 
-        <When predicate=move|| judge() == player_id() >
+        <When predicate=move|| judge() == Some(Judge::Me) >
             <p>
                 "You are the judge. "
             </p>
@@ -55,7 +55,7 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
                 {view! {cx, <Acronym letters=acronym() />}}
             </p>
         </When>
-        <When predicate=move|| judge() != player_id() >
+        <When predicate=move|| judge() != Some(Judge::Me) >
             <p>
                 "What is "{view! {cx, <Acronym letters=acronym() />}}" ?"
             </p>
@@ -84,4 +84,3 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
         </When>
     }
 }
-

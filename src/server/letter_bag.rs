@@ -1,8 +1,8 @@
 use rand::prelude::*;
 
-/// Based on a 
+/// Based on a
 /// [Wikipedia](https://en.wikipedia.org/wiki/Letter_frequency#Relative_frequencies_of_the_first_letters_of_a_word_in_English_language).
-/// table of the relative frequency of each letter as the first letter in a word. 
+/// table of the relative frequency of each letter as the first letter in a word.
 /// I'v copied those values, multiplying every percentage by 100 to get whole integers.
 const DISTRIBUTION: [(char, usize); 26] = [
     ('S', 1100),
@@ -58,11 +58,11 @@ fn random_letter() -> char {
     // If 0 <= value < weight_0, then return the first letter in the array.
     // if weight_0 <= value < weight_0 + weight_1 then return the second letter and so on.
     //
-    // But we can optimize by subtracting each weight if there's no match yet. 
+    // But we can optimize by subtracting each weight if there's no match yet.
     // This works out to the same without keeping a running subtally of weights.
     for (letter, weight) in DISTRIBUTION {
         if value < weight {
-            return letter
+            return letter;
         } else {
             value -= weight
         }

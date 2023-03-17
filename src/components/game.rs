@@ -5,6 +5,7 @@ use crate::components::utils::*;
 use crate::typed_context::*;
 use crate::types::*;
 
+mod acronym;
 mod context;
 mod judging;
 mod player_roster;
@@ -13,7 +14,6 @@ mod setup;
 mod submission;
 mod timer;
 pub mod utils;
-mod acronym;
 use self::context::*;
 use self::judging::*;
 use self::player_roster::*;

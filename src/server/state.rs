@@ -1,10 +1,10 @@
+use super::letter_bag::*;
 use crate::constants::*;
 use crate::server::sync::GLOBAL;
 use crate::types::*;
 use ::std::collections::*;
-use super::letter_bag::*;
-use ::tokio::{sync::broadcast::Sender, task::spawn, time::*};
 use ::std::ops::DerefMut;
+use ::tokio::{sync::broadcast::Sender, task::spawn, time::*};
 
 // TODO: client actions need to be both restricted by game step & player role
 pub async fn handle_message(
@@ -33,7 +33,7 @@ pub async fn handle_message(
         }
 
         ClientMessage::StartRound => {
-            start_submission_step(state, sender); 
+            start_submission_step(state, sender);
         }
 
         ClientMessage::SubmitAcronym(player_id, submission) => {
@@ -72,13 +72,13 @@ pub async fn handle_message(
     }
 }
 
-fn start_submission_step(
-    state: &mut GameState,
-    sender: &Sender<ServerMessage>,
-) {
+fn start_submission_step(state: &mut GameState, sender: &Sender<ServerMessage>) {
     // return early if we didn't proceed from the Setup or Judging
-    if [GameStep::Setup, GameStep::Judging].iter().all(|step| *step != state.step) {
-        return
+    if [GameStep::Setup, GameStep::Judging]
+        .iter()
+        .all(|step| *step != state.step)
+    {
+        return;
     }
     state.rounds.push(Round {
         judge: state.next_judge(),
@@ -103,15 +103,11 @@ fn start_submission_step(
     });
 }
 
-
 /// If its still the submission step,
 /// go to the judging step and set the server timer.
-fn start_judging_step(
-    state: &mut GameState,
-    sender: &Sender<ServerMessage>,
-) {
+fn start_judging_step(state: &mut GameState, sender: &Sender<ServerMessage>) {
     if state.step != GameStep::Submission {
-        return
+        return;
     }
     state.step = GameStep::Judging;
 
@@ -127,9 +123,9 @@ fn start_judging_step(
         let mut state = GLOBAL.state.lock().await;
         let state = state.deref_mut();
 
-        // TODO: 
-        // (1) I want to show the round winner to everyone on the judging step, 
-        // and then redirect after a few seconds 
+        // TODO:
+        // (1) I want to show the round winner to everyone on the judging step,
+        // and then redirect after a few seconds
         // back to a new submission step
         //
         // (2) we need to check if the we've complete enough rounds to end the game.

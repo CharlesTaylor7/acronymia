@@ -1,20 +1,20 @@
-use crate::components::game::utils::state::*;
-use crate::types::*;
-use leptos::*;
 use super::acronym::*;
-use crate::types::ClientMessage::*;
-use futures::future::OptionFuture;
 use super::context::*;
+use crate::components::game::utils::state::*;
+use crate::types::ClientMessage::*;
+use crate::types::*;
+use futures::future::OptionFuture;
+use leptos::*;
 
 #[component]
 pub fn GameJudging(cx: Scope) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     let judge = use_typed_context::<Memo_Judge>(cx);
-    {move|| 
-        if judge() == player_id() {
-            view! { cx, <><JudgePerspective /></>}
-        } else {
-            view! { cx, <><PlayerPerspective /></>}
+    {
+        move || match judge() {
+            Some(Judge::Me) => view! { cx, <><JudgePerspective /></>},
+            Some(Judge::Name(name)) => view! { cx, <><PlayerPerspective judge_name=name /></>},
+            None => view! { cx, <>"Error: no judge"</>},
         }
     }
 }
@@ -24,7 +24,9 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
     let selected = create_rw_signal(cx, None);
     let acronym = game_state(cx).with(|g| g.acronym.clone());
     let submissions = move || game_state(cx).with(|g| g.submissions.clone());
-    let submit_winner = create_action(cx, move |_: &()| OptionFuture::from(selected().map(|winner| send(cx, JudgeRound(winner)))));
+    let submit_winner = create_action(cx, move |_: &()| {
+        OptionFuture::from(selected().map(|winner| send(cx, JudgeRound(winner))))
+    });
     let option_class = move |id: &PlayerId| {
         let id = id.clone();
         move || {
@@ -68,10 +70,25 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
             </button>
         </div>
     }
-
 }
 
 #[component]
-fn PlayerPerspective(cx: Scope) -> impl IntoView {
-   "Player perspective" 
+fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
+    let acronym = game_state(cx).with(|g| g.acronym.clone());
+
+    view! { cx,
+        <p><span class="inline font-bold">{judge_name}</span>" is deliberating."</p>
+        <p>"Submissions:"</p>
+        <ul class="list-inside list-disc flex flex-col items-start" >
+            {
+                game_state(cx)
+                    .with(|g| g
+                          .submissions
+                          .iter()
+                          .map(|(_, s)| view! {cx, <li>{s.join(" ")}</li>})
+                          .collect::<Vec<_>>()
+                    )
+            }
+        </ul>
+    }
 }

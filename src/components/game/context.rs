@@ -2,16 +2,22 @@ use crate::components::game::utils::state::game_state;
 use crate::*;
 use ::leptos::*;
 use leptos_dom::helpers::IntervalHandle;
-use typed_context::{define_context, provide_typed_context};
 pub use typed_context::use_typed_context;
+use typed_context::{define_context, provide_typed_context};
 use types::*;
 
 define_context!(Signal_PlayerId, RwSignal<Option<PlayerId>>);
 define_context!(Signal_PlayerName, RwSignal<String>);
 define_context!(Memo_Players, Memo<Vec<Player>>);
-define_context!(Memo_Judge, Memo<Option<PlayerId>>);
+define_context!(Memo_Judge, Memo<Option<Judge>>);
 define_context!(Action_JoinGame, Action<(), Result<(), ServerFnError>>);
 define_context!(TimerHandle, StoredValue<Option<IntervalHandle>>);
+
+#[derive(PartialEq, Eq, Clone)]
+pub enum Judge {
+    Me,
+    Name(String),
+}
 
 pub fn provide_game_context(cx: Scope) {
     #[cfg(feature = "hydrate")]
@@ -26,7 +32,23 @@ pub fn provide_game_context(cx: Scope) {
     let players = create_memo(cx, move |_| game_state(cx).with(|g| g.players.clone()));
     provide_typed_context::<Memo_Players>(cx, players);
 
-    let judge = create_memo(cx, move |_| game_state(cx).with(|g| g.judge.clone()));
+    let judge = create_memo(cx, move |_| {
+        game_state(cx).with(|g| {
+            g.judge
+                .as_ref()
+                .map(|judge_id| {
+                    if Some(judge_id.clone()) == player_id() {
+                        Some(Judge::Me)
+                    } else {
+                        players()
+                            .iter()
+                            .find(|p| p.id == *judge_id)
+                            .map(|p| Judge::Name(p.name.clone()))
+                    }
+                })
+                .flatten()
+        })
+    });
     provide_typed_context::<Memo_Judge>(cx, judge);
 
     let timer_handle = store_value(cx, None);

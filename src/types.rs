@@ -203,7 +203,12 @@ fn demo_init(players: Vec<&str>) -> GameState {
     GameState {
         players: players,
         rotation: rotation,
-        rounds: vec! [Round{judge: 0, acronym: "foo".to_owned(), winner: None, submissions  }],
+        rounds: vec![Round {
+            judge: 0,
+            acronym: "foo".to_owned(),
+            winner: None,
+            submissions,
+        }],
         step: GameStep::Judging,
         timer_started_at: None,
     }
