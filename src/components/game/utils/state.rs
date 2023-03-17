@@ -16,7 +16,7 @@ pub fn game_state(cx: Scope) -> RwSignal<ClientGameState> {
 
 #[cfg(feature = "ssr")]
 pub fn game_state(cx: Scope) -> RwSignal<ClientGameState> {
-    match leptos::use_context::<RwSignal<ClientGameState>>(cx) {
+    match leptos::use_context(cx) {
         Some(s) => s,
         None => {
             let signal = leptos::create_rw_signal(cx, Default::default());

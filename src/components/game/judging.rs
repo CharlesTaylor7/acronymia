@@ -78,7 +78,7 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
 
     view! { cx,
         <p><span class="inline font-bold">{judge_name}</span>" is deliberating."</p>
-        <p>"Submissions:"</p>
+        <p>"Submissions for "<Acronym letters=acronym />": "</p>
         <ul class="list-inside list-disc flex flex-col items-start" >
             {
                 game_state(cx)
