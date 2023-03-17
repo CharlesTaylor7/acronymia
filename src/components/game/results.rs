@@ -5,19 +5,30 @@ use ::leptos::*;
 pub fn GameResults(cx: Scope) -> impl IntoView {
     view! {
         cx,
-        "Scoreboard "
-        <table>
-            <caption>"Scores"</caption>
+        <p>"Scoreboard"</p>
+        <table class="border border-separate border-spacing-0 rounded border-slate-400">
+            <tbody>
                 {game_state(cx).with(|g|
-                    g.scores.iter().map(|(name, score)|
+                    g.scores.iter().enumerate().map(|(i, (name, score))|
                         view! { cx,
                             <tr>
-                                <td>{name}</td>
-                                <td>{score.to_string()}</td>
+                                <td
+                                    class="border-r border-slate-400 p-4"
+                                    class:border-t=i != 0
+                                >
+                                    {name}
+                                </td>
+                                <td
+                                    class="border-slate-400 p-4"
+                                    class:border-t=i != 0
+                                >
+                                    {score.to_string()}
+                                </td>
                             </tr>
                         }
                     ).collect::<Vec<_>>()
                 )}
+            </tbody>
         </table>
     }
 }
