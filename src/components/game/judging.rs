@@ -2,12 +2,15 @@ use crate::components::game::utils::state::*;
 use crate::types::*;
 use leptos::*;
 use super::acronym::*;
+use crate::types::ClientMessage::*;
+use futures::future::OptionFuture;
 
 #[component]
 pub fn GameJudging(cx: Scope) -> impl IntoView {
     let selected = create_rw_signal(cx, None);
     let acronym = game_state(cx).with(|g| g.acronym.clone());
     let submissions = move || game_state(cx).with(|g| g.submissions.clone());
+    let submit_winner = create_action(cx, move |_: &()| OptionFuture::from(selected().map(|winner| send(cx, JudgeRound(winner)))));
     let option_class = move |id: &PlayerId| {
         let id = id.clone();
         move || {
@@ -45,6 +48,7 @@ pub fn GameJudging(cx: Scope) -> impl IntoView {
             <button
                 class="border rounded p-2 bg-green-300 border-slate-200 disabled:cursor-not-allowed"
                 disabled=move|| selected().is_none()
+                on:click=move|_| submit_winner.dispatch(())
             >
             "Submit"
             </button>
