@@ -132,7 +132,6 @@ impl GameState {
                 };
                 Some(diff.as_secs() + rounded_sec)
             } else {
-                //self.step = GameStep::Judging;
                 None
             }
         });
@@ -170,6 +169,8 @@ impl GameState {
                 let score = score_map.get(id).map_or(0, |s| *s);
                 scores.push((self.players[id].name.clone(), score));
             }
+            // sort descending
+            scores.sort_by(|(_, a_score), (_, b_score)| b_score.cmp(&a_score));
 
             scores
         } else {
@@ -246,7 +247,7 @@ fn demo_init(players: Vec<&str>) -> GameState {
             winner: None,
             submissions,
         }],
-        step: GameStep::Judging,
+        step: GameStep::Results,
         timer_started_at: None,
     }
 }
