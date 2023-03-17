@@ -110,6 +110,7 @@ fn start_judging_step(state: &mut GameState, sender: &Sender<ServerMessage>) {
         return;
     }
     state.step = GameStep::Judging;
+    state.shuffle_current_round_submissions();
 
     let now = Instant::now();
     state.timer_started_at = Some(now);

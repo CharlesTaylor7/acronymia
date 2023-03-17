@@ -1,6 +1,6 @@
 #[cfg(feature = "ssr")]
 use ::tokio::time::Instant;
-use leptos::{Resource, ServerFnError};
+use leptos::{log, Resource, ServerFnError};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -24,6 +24,7 @@ pub struct GameState {
     pub rotation: Vec<PlayerId>,            // players in order they will be judge
     pub rounds: Vec<Round>, // list of rounds, records past or present chosen judge and acronym
     pub timer_started_at: Option<Instant>,
+    pub shuffled_submissions: Vec<(PlayerId, Submission)>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Default, Debug, PartialEq)]
@@ -111,9 +112,26 @@ impl GameState {
         }
     }
 
+    pub fn shuffle_current_round_submissions(&mut self) {
+        use crate::random::shuffle;
+
+        if let Some(round) = self.rounds.last() {
+            let mut subs = round
+                .submissions
+                .iter()
+                .map(|(key, value)| (key.clone(), value.clone()))
+                .collect::<Vec<_>>();
+
+            shuffle(&mut subs);
+
+            self.shuffled_submissions = subs;
+        } else {
+            log!("warning: shuffle_current_round_submissions");
+        }
+    }
+
     pub fn to_client_state(&self) -> ClientGameState {
         use crate::constants::*;
-        use crate::random::shuffle;
 
         let judge = self
             .current_judge()
@@ -138,14 +156,8 @@ impl GameState {
 
         let empty_vec = Vec::new();
         let submissions = {
-            if self.step == GameStep::Judging && let Some(round) = self.rounds.last() {
-                let mut subs = round
-                    .submissions
-                    .iter()
-                    .map(|(key, value)| (key.clone(), value.clone()))
-                    .collect::<Vec<_>>();
-                shuffle(&mut subs);
-                subs
+            if self.step == GameStep::Judging {
+                self.shuffled_submissions.clone()
             } else {
                 empty_vec
             }
@@ -247,7 +259,8 @@ fn demo_init(players: Vec<&str>) -> GameState {
             winner: None,
             submissions,
         }],
-        step: GameStep::Results,
+        step: GameStep::Judging,
         timer_started_at: None,
+        shuffled_submissions: Vec::new(),
     }
 }
