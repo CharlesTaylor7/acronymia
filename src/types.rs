@@ -59,27 +59,28 @@ pub struct ClientGameState {
     pub players: Vec<Player>,
     pub acronym: String,
     pub timer: Option<u64>,
+    /// everyone can see the current submission count
     pub submission_count: usize,
-    // ^ everyone can see the current submission count
+    /// Empty vector when not at the judging step.
+    /// This technically enables cheating,
+    /// if a savvy player were to inspect the network tab &
+    /// cross reference with the players vector.
     pub submissions: Vec<(PlayerId, Submission)>,
-    // ^ empty vector when not at the judging step
-    // this technically enables cheating,
-    // if a savvy player were to inspect the network tab & cross reference with the players vector
+    /// Empty until the results step.
     pub scores: Vec<(PlayerName, i64)>,
-    // ^ empty until the results step
 }
 
 /// message from a client to the server
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ClientMessage {
-    /// id of the thread handling a web socket connection with a particular client
     Connected,
-    ResetState,
     JoinGame(Player),
     KickPlayer(PlayerId),
-    StartRound,
+    StartGame,
     SubmitAcronym(PlayerId, Submission),
     JudgeRound(PlayerId),
+    /// for debugging only
+    ResetState,
 }
 
 /// message from the server broadcast to each client
@@ -259,7 +260,7 @@ fn demo_init(players: Vec<&str>) -> GameState {
             winner: None,
             submissions,
         }],
-        step: GameStep::Judging,
+        step: GameStep::Setup,
         timer_started_at: None,
         shuffled_submissions: Vec::new(),
     }

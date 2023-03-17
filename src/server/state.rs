@@ -32,7 +32,7 @@ pub async fn handle_message(
             _ = sender.send(ServerMessage::GameState(state.to_client_state()))
         }
 
-        ClientMessage::StartRound => {
+        ClientMessage::StartGame => {
             start_submission_step(state, sender);
         }
 
@@ -73,13 +73,6 @@ pub async fn handle_message(
 }
 
 fn start_submission_step(state: &mut GameState, sender: &Sender<ServerMessage>) {
-    // return early if we didn't proceed from the Setup or Judging
-    if [GameStep::Setup, GameStep::Judging]
-        .iter()
-        .all(|step| *step != state.step)
-    {
-        return;
-    }
     state.rounds.push(Round {
         judge: state.next_judge(),
         acronym: random_initialism(3),
@@ -106,9 +99,6 @@ fn start_submission_step(state: &mut GameState, sender: &Sender<ServerMessage>) 
 /// If its still the submission step,
 /// go to the judging step and set the server timer.
 fn start_judging_step(state: &mut GameState, sender: &Sender<ServerMessage>) {
-    if state.step != GameStep::Submission {
-        return;
-    }
     state.step = GameStep::Judging;
     state.shuffle_current_round_submissions();
 

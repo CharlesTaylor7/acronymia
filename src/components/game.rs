@@ -64,7 +64,6 @@ pub fn Game(cx: Scope) -> impl IntoView {
 
 #[component]
 fn PlayerName(cx: Scope) -> impl IntoView {
-    //<span class="inline font-bold">
     move || {
         get_name(cx).map_or(
             view! { cx,
