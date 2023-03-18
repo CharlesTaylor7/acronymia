@@ -1,6 +1,5 @@
 use ::tokio::{sync::oneshot, time::Instant};
 use ::leptos::log;
-use ::serde::{Deserialize, Serialize};
 use ::std::collections::HashMap;
 use crate::random::shuffle;
 use crate::constants::*;
@@ -25,7 +24,7 @@ pub struct GameState {
     pub shuffled_submissions: Vec<(PlayerId, Submission)>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Debug)]
 pub struct Round {
     pub judge: JudgeId,
     pub acronym: String,
@@ -151,7 +150,6 @@ impl GameState {
     }
 }
 
-#[cfg(feature = "ssr")]
 fn insert_or_add<K>(map: &mut HashMap<K, i64>, key: K, amount: i64)
 where
     K: std::hash::Hash + Eq,
@@ -161,7 +159,6 @@ where
     }
 }
 
-#[cfg(feature = "ssr")]
 pub fn default_game_state() -> GameState {
     if cfg!(debug_assertions) {
         demo_init(vec!["alice", "bob", "carl"])
@@ -170,7 +167,6 @@ pub fn default_game_state() -> GameState {
     }
 }
 
-#[cfg(feature = "ssr")]
 fn demo_init(players: Vec<&str>) -> GameState {
     let players = players
         .into_iter()
