@@ -108,7 +108,7 @@ fn end_judging_step(state: &mut GameState, messenger: &Sender<ServerMessage>) {
     // if everyone has gone twice as judge
     if 2 * state.rotation.len() == state.rounds.len() {
         state.cancel_timer();
-        state.step == GameStep::Results;
+        state.step = GameStep::Results;
         _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
     } else {
         start_submission_step(state, messenger);
@@ -120,13 +120,11 @@ fn set_timer(
     messenger: &Sender<ServerMessage>,
     on_timeout: impl FnOnce(&mut GameState, &Sender<ServerMessage>) + 'static + Send,
 ) {
-    // set a timer
     let (cancel, cancelled) = oneshot::channel();
     let now = Instant::now();
     state.timer_started_at = Some(now);
     state.timer_cancellation = Some(cancel);
 
-    // spawn a thread to timeout the judging step
     let messenger = messenger.clone();
     spawn(async move {
         let sleep_then_lock_state = async move {
