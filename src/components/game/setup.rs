@@ -1,7 +1,7 @@
 use super::context::*;
 use super::player_roster::*;
 use super::utils::state::{game_state, send};
-use crate::components::{styles::*, text_input::*, utils::*};
+use crate::components::{styles::*, utils::*};
 use crate::types::ClientMessage::*;
 use crate::types::*;
 use ::leptos::*;
@@ -41,9 +41,11 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
         cx,
        <div class="flex flex-col items-start gap-4">
             "Pick a Nickname to join: "
-            <TextInput
+            <input
+                type="text"
+                class=text_input_class()
                 default=player_name()
-                on_input=move |text| player_name.set(text)
+                on:input=move |e| player_name.set(event_target_value(&e))
             />
             <div class="flex flex-row gap-4">
                 <button

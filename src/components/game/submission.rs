@@ -1,6 +1,6 @@
 use super::{acronym::*, context::*, timer::*};
 use crate::components::game::utils::state::*;
-use crate::components::{styles::*, text_input::*};
+use crate::components::styles::*;
 use crate::types::ClientMessage::*;
 use ::futures::future::OptionFuture;
 use ::leptos::*;
@@ -59,13 +59,15 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
         {
             (0..num_of_words)
                 .map(|i| view! { cx,
-                    <TextInput
+                    <input
+                        type="text"
+                        class=text_input_class()
                         // focus on the first input
-                        focus=MaybeSignal::Static(i == 0)
-                        on_input=move|text| {
+                        autofocus={i == 0}
+                        on:input=move|e| {
                             submission.update_value(move |s| {
                                 if let Some(elem) = s.get_mut(i) {
-                                    *elem = text;
+                                    *elem = event_target_value(&e);
                                 }
                             });
                         }
