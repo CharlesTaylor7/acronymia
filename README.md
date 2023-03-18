@@ -19,12 +19,12 @@ Table pulled from [Wikipedia](https://en.wikipedia.org/wiki/Letter_frequency#Rel
 ### Acronym selection
 The judge pulls out letters at random from the bag.
 
-Always 3 for now.
+Always 3 letters for now.
 
 Future Ideas:
-- [ ] Introduce another step, where the judge picks an acronym for the round.
-- [ ] Roll a 1 d6. Add 2. So a random range from 3 to 8.
-- [ ] Make acronyms pronounceable. (For now the game could be called initialismia).
+- [ ] Instead of random letters, let the judge pick an acronym for the round.
+- [ ] The number of letters in the acronym is itself random, between 3 to 8. 
+- [ ] Make the random selection enforce pronounceability. (For now the game could be called initialismia).
 
 
 ## Implementation Notes
