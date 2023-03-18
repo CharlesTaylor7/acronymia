@@ -223,7 +223,7 @@ fn demo_init(players: Vec<&str>) -> GameState {
             winner: None,
             submissions,
         }],
-        step: GameStep::Setup,
+        step: GameStep::Submission,
         timer: Timer::new(),
         shuffled_submissions: Vec::new(),
     }
