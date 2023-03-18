@@ -43,7 +43,7 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     let num_of_words = game_state(cx).with(|g| g.acronym.len());
 
-    let submission = create_rw_signal(cx, vec![Err("empty".to_owned()); num_of_words]);
+    let submission = create_rw_signal(cx, vec![Err("".to_owned()); num_of_words]);
 
     let submit_args =
         move || player_id().and_then(|id| submission.with(|s| all_ok(s).map(|s| (id, s))));
