@@ -24,7 +24,6 @@ pub fn GameJudging(cx: Scope) -> impl IntoView {
 #[component]
 fn JudgePerspective(cx: Scope) -> impl IntoView {
     let selected = create_rw_signal(cx, None);
-    let acronym = game_state(cx).with(|g| g.acronym.clone());
     let submissions = move || game_state(cx).with(|g| g.submissions.clone());
     let submit_winner = create_action(cx, move |_: &()| {
         OptionFuture::from(selected().map(|winner| send(cx, JudgeRound(winner))))
@@ -43,7 +42,7 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
     view! {
         cx,
         <div class="flex flex-col items-start gap-4">
-            <header>"What is "<Acronym letters=acronym /></header>
+            <header>"What is "<Acronym /></header>
             <For
                 each=submissions
                 key=|(id, _)| id.clone()
@@ -73,11 +72,9 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
 
 #[component]
 fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
-    let acronym = game_state(cx).with(|g| g.acronym.clone());
-
     view! { cx,
         <p><span class="inline font-bold">{judge_name}</span>" is deliberating."</p>
-        <p>"Submissions for "<Acronym letters=acronym />": "</p>
+        <p>"Submissions for "<Acronym />": "</p>
         <ul class="list-inside list-disc flex flex-col items-start" >
             {
                 game_state(cx)

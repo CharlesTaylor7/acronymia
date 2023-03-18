@@ -5,6 +5,9 @@ pub fn button_class(custom: &str) -> String {
     )
 }
 
-pub fn text_input_class() -> String{
-    "border rounded border-slate-400 px-3".to_owned()
+pub fn text_input_class(custom: &str) -> String {
+    format!(
+        "{} border rounded border-slate-400 px-3",
+        custom
+    )
 }

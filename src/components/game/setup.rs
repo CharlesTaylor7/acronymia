@@ -43,7 +43,7 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
             "Pick a Nickname to join: "
             <input
                 type="text"
-                class=text_input_class()
+                class=text_input_class("")
                 default=player_name()
                 on:input=move |e| player_name.set(event_target_value(&e))
             />
