@@ -32,14 +32,11 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
     let option_class = move |id: &PlayerId| {
         let id = id.clone();
         move || {
-            format!(
-                "cursor-pointer p-2 border rounded border-slate-300 {}",
-                if selected() == Some(id.clone()) {
-                    "bg-blue-200"
-                } else {
-                    "bg-slate-200 hover:bg-blue-300"
-                }
-            )
+            button_class(if selected.with(|s| s.as_ref() == Some(&id)) {
+                "bg-blue-200"
+            } else {
+                "bg-slate-200 hover:bg-blue-300"
+            })
         }
     };
 
