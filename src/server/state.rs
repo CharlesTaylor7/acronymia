@@ -105,8 +105,14 @@ fn start_judging_step(state: &mut GameState, messenger: &Sender<ServerMessage>) 
 }
 
 fn end_judging_step(state: &mut GameState, messenger: &Sender<ServerMessage>) {
-    // if everyone has gone twice as judge
-    if 2 * state.rotation.len() == state.rounds.len() {
+    let game_length = if cfg!(debug_assertions) {
+        3
+    } else {
+        // everyone goes twice as judge
+        2 * state.rotation.len()
+    }
+
+    if state.rounds.len() == game_length {
         state.cancel_timer();
         state.step = GameStep::Results;
         _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
