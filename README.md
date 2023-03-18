@@ -12,13 +12,9 @@ Potential features include choosing themes for the game, which could change prom
 
 ## Features
 
-### Bag
-There's a scrabble (ish) bag of letters.
-
-1 of each letter for now.
-
-Future:
-ratio matches the ratio of first letters in the english language
+### Letter Bag
+The ratio of letters matches the ratio of first letters in the english language.
+Table pulled from [Wikipedia](https://en.wikipedia.org/wiki/Letter_frequency#Relative_frequencies_of_the_first_letters_of_a_word_in_English_language).
 
 ### Acronym selection
 The judge pulls out letters at random from the bag.
@@ -26,19 +22,16 @@ The judge pulls out letters at random from the bag.
 Always 3 for now.
 
 Future Ideas:
+- [ ] Introduce another step, where the judge picks an acronym for the round.
 - [ ] Roll a 1 d6. Add 2. So a random range from 3 to 8.
-
 - [ ] Make acronyms pronounceable. (For now the game could be called initialismia).
 
 
 ## Implementation Notes
 
-Web sockets or Polling?
-> whichever the framework makes easier
+Uses Web sockets. Polling & SSE were both leading to poor user experience.
 
-No database.
-
-Central server thread with in memory state.
+Central server thread with in memory state & message passing.
 
 Pages:
 - Lobby: "/"
