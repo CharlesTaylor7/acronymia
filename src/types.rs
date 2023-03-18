@@ -1,13 +1,12 @@
 use serde::{Deserialize, Serialize};
 
 /// User submitted pick
-pub type Submission = Vec<String>; 
+pub type Submission = Vec<String>;
 
 /// Uuid generated automatically client side
-pub type PlayerId = String; 
+pub type PlayerId = String;
 
 pub type PlayerName = String;
-
 
 #[derive(Serialize, Deserialize, Clone, Default, Debug, PartialEq)]
 pub enum GameStep {

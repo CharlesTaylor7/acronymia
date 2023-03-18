@@ -1,13 +1,15 @@
-use ::tokio::{sync::oneshot, time::{Duration, Instant}};
+use crate::constants::*;
+use crate::random::shuffle;
+pub use crate::types::*;
 use ::leptos::log;
 use ::std::collections::HashMap;
-use crate::random::shuffle;
-use crate::constants::*;
-pub use crate::types::*;
-
+use ::tokio::{
+    sync::oneshot,
+    time::{Duration, Instant},
+};
 
 /// Index into the rotation vector
-type JudgeId = usize; 
+type JudgeId = usize;
 
 /// Server game state
 /// The idea is to make the state very normalized.
@@ -17,9 +19,9 @@ type JudgeId = usize;
 pub struct GameState {
     pub step: GameStep,
     /// Player information
-    pub players: HashMap<PlayerId, Player>, 
+    pub players: HashMap<PlayerId, Player>,
     /// Player ids in order they will be judge
-    pub rotation: Vec<PlayerId>,            
+    pub rotation: Vec<PlayerId>,
     pub rounds: Vec<Round>,
     pub shuffled_submissions: Vec<(PlayerId, Submission)>,
     pub timer: Timer,
@@ -33,9 +35,8 @@ pub struct Round {
     pub submissions: HashMap<PlayerId, Submission>,
 }
 
-
 #[derive(Debug, Default)]
-pub struct Timer(Option<TimerFields>); 
+pub struct Timer(Option<TimerFields>);
 
 #[derive(Debug)]
 struct TimerFields {
@@ -49,7 +50,10 @@ impl Timer {
     }
 
     pub fn set(&mut self, started_at: Instant, cancellation: oneshot::Sender<()>) {
-        self.0 = Some(TimerFields { started_at, cancellation })
+        self.0 = Some(TimerFields {
+            started_at,
+            cancellation,
+        })
     }
 
     pub fn elapsed(&self) -> Option<Duration> {
@@ -62,7 +66,6 @@ impl Timer {
         }
     }
 }
-
 
 impl GameState {
     pub fn current_judge(&self) -> Option<JudgeId> {
@@ -83,7 +86,6 @@ impl GameState {
     }
 
     pub fn shuffle_current_round_submissions(&mut self) {
-
         if let Some(round) = self.rounds.last() {
             let mut subs = round
                 .submissions

@@ -67,20 +67,16 @@ https://github.com/leptos-rs/leptos/blob/586f524015a543c9599205a91eac59bd7fca3c4
   - [x] a synchronized 30 second timer.
   - [x] acronym input
   - [x] of submissions received
-- [ ] Judging step
-  - [ ] player view
-      - [ ] readonly list of submissions
-  - [ ] judge view 
-      - [ ] list of submissions each of which is a button for selecting winner
+- [x] Judging step
+  - [x] player view
+      - [x] readonly list of submissions
+  - [x] judge view 
+      - [x] list of submissions each of which is a button for selecting winner
       - [ ] after a winner for the round is selected the next round starts with a small delay. Say 5 seconds for everyone to see the result
-- [ ] Results step
-  - [ ] Show a scoreboard of player points
+- [x] Results step
+  - [x] Show a scoreboard of player points
 
-- [ ] Refactor SSE & server functions into using websockets for a more realtime experience
-
-### Deferred from MVP
-- rounds end manually when judge wants them too. Syncrhonizing time is tricky.
-- Literally everything
+- [x] Refactor SSE & server functions into using websockets for a more realtime experience
 
 
 # Development
