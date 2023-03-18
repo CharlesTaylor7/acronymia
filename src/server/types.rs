@@ -45,15 +45,11 @@ struct TimerFields {
 }
 
 impl Timer {
-    pub fn new() -> Self {
-        Timer(None)
-    }
-
-    pub fn set(&mut self, started_at: Instant, cancellation: oneshot::Sender<()>) {
-        self.0 = Some(TimerFields {
+    pub fn new(started_at: Instant, cancellation: oneshot::Sender<()>) -> Self {
+        Self(Some(TimerFields {
             started_at,
             cancellation,
-        })
+        }))
     }
 
     pub fn elapsed(&self) -> Option<Duration> {
@@ -224,7 +220,7 @@ fn demo_init(players: Vec<&str>) -> GameState {
             submissions,
         }],
         step: GameStep::Submission,
-        timer: Timer::new(),
+        timer: Timer::new(Instant::now(), oneshot::channel().0),
         shuffled_submissions: Vec::new(),
     }
 }
