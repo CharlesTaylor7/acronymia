@@ -127,7 +127,7 @@ fn set_timer(
     let messenger = messenger.clone();
     spawn(async move {
         let sleep_then_lock_state = async move {
-            sleep_until(now + ROUND_TIMER_DURATION).await;
+            sleep_until(now + timer_duration()).await;
             GLOBAL.state.lock().await
         };
 

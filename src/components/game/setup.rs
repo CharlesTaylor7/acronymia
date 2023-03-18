@@ -57,13 +57,14 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
                 <When predicate=MaybeSignal::derive(cx, move|| is_creator() || DEBUG_MODE)>
                     <button
                         class=button_class("bg-green-300")
+                        disabled=move|| players.with(|ps| ps.len() < 3)
                         on:click=move |_| start_game.dispatch(())
                     >
                         "Start game!"
                     </button>
                 </When>
             </div>
-            <p>{move || players.get().len()}" players joined"</p>
+            <p>{move || players.with(|ps| ps.len())}" players joined"</p>
             <PlayerRoster />
         </div>
     }

@@ -108,8 +108,8 @@ impl GameState {
             .cloned();
 
         let timer = self.timer.elapsed().and_then(|elapsed| {
-            if elapsed < ROUND_TIMER_DURATION {
-                let diff = ROUND_TIMER_DURATION - elapsed;
+            if elapsed < timer_duration() {
+                let diff = timer_duration() - elapsed;
                 let rounded_sec = if diff.subsec_nanos() >= 500_000_000 {
                     1
                 } else {
