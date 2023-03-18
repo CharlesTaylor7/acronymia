@@ -110,7 +110,7 @@ fn end_judging_step(state: &mut GameState, messenger: &Sender<ServerMessage>) {
     } else {
         // everyone goes twice as judge
         2 * state.rotation.len()
-    }
+    };
 
     if state.rounds.len() == game_length {
         state.cancel_timer();

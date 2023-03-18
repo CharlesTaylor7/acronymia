@@ -208,11 +208,11 @@ fn demo_init(players: Vec<&str>) -> GameState {
         .map(|p| (p.id.clone(), p))
         .collect::<HashMap<_, _>>();
     GameState {
-        players: players,
-        rotation: rotation,
-        rounds: Vec::with_capacity(2 * players.len()),
-        step: GameStep::Submission,
-        timer: Timer::new(Instant::now(), oneshot::channel().0),
+        rounds: Vec::with_capacity(2 * &players.len()),
+        players,
+        rotation,
+        step: GameStep::Setup,
+        timer: Timer::default(),
         shuffled_submissions: Vec::new(),
     }
 }
