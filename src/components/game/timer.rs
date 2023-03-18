@@ -1,10 +1,32 @@
+use crate::components::game::utils::state::game_state;
 use leptos::*;
 
+#[component]
+pub fn Timer(cx: Scope) -> impl IntoView {
+    apply_timer(cx);
+    {
+        move || match game_state(cx).with(|g| g.timer) {
+            Some(secs) => view! { cx,
+                <>
+                <p>
+                    "Seconds remaining: "{secs}
+                </p>
+                </>
+            },
+            None => view! { cx,
+                <>
+                <p>
+                    "Times up!"
+                </p>
+                </>
+            },
+        }
+    }
+}
 /// counts down from initial value to 0
 #[cfg(not(feature = "ssr"))]
-pub fn apply_timer(cx: Scope) {
+fn apply_timer(cx: Scope) {
     use crate::components::game::context::*;
-    use crate::components::game::utils::state::game_state;
     use std::time::Duration;
 
     let stored = use_typed_context::<TimerHandle>(cx);
@@ -43,4 +65,4 @@ pub fn apply_timer(cx: Scope) {
 
 /// stub for ssr
 #[cfg(feature = "ssr")]
-pub fn apply_timer(_cx: Scope) {}
+fn apply_timer(_cx: Scope) {}

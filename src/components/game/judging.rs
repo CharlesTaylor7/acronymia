@@ -1,5 +1,4 @@
-use super::acronym::*;
-use super::context::*;
+use super::{acronym::*, context::*, timer::*};
 use crate::components::game::utils::state::*;
 use crate::types::ClientMessage::*;
 use crate::types::*;
@@ -9,11 +8,14 @@ use leptos::*;
 #[component]
 pub fn GameJudging(cx: Scope) -> impl IntoView {
     let judge = use_typed_context::<Memo_Judge>(cx);
-    {
-        move || match judge() {
-            None => view! {cx, <><span>"Error: No judge"</span></>},
-            Some(Judge::Me) => view! { cx, <><JudgePerspective /></>},
-            Some(Judge::Name(name)) => view! { cx, <><PlayerPerspective judge_name=name /></>},
+    view! { cx,
+        <Timer />
+        {
+            move || match judge() {
+                None => view! {cx, <><span>"Error: No judge"</span></>},
+                Some(Judge::Me) => view! { cx, <><JudgePerspective /></>},
+                Some(Judge::Name(name)) => view! { cx, <><PlayerPerspective judge_name=name /></>},
+            }
         }
     }
 }

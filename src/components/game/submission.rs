@@ -1,15 +1,12 @@
-use super::acronym::*;
-use super::{context::*, timer::*};
+use super::{acronym::*, context::*, timer::*};
 use crate::components::game::utils::state::*;
 use crate::components::text_input::*;
 use crate::types::ClientMessage::*;
+use ::futures::future::OptionFuture;
 use ::leptos::*;
-use futures::future::OptionFuture;
 
 #[component]
 pub fn GameSubmission(cx: Scope) -> impl IntoView {
-    apply_timer(cx);
-
     let judge = use_typed_context::<Memo_Judge>(cx);
     let submissions = create_memo(cx, move |_| game_state(cx).with(|g| g.submission_count));
     let player_count = game_state(cx).with(|g| g.players.len());
@@ -19,22 +16,7 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
         <p>
             "Submissions received: "{submissions}"/"{player_count - 1} // judge doesn't submit
         </p>
-        {move|| match game_state(cx).with(|g| g.timer) {
-            Some(secs) => view! { cx,
-                <>
-                <p>
-                    "Seconds remaining: "{secs}
-                </p>
-                </>
-            },
-            None => view! { cx,
-                <>
-                <p>
-                    "Times up!"
-                </p>
-                </>
-            },
-        }}
+        <Timer />
         {move|| match judge() {
             None => view! {cx, <><span>"Error: No judge"</span></>},
             Some(Judge::Me) => view! {cx, <><JudgePerspective/></>},
