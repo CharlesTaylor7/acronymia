@@ -45,11 +45,14 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
 
     let submission = create_rw_signal(cx, vec![Err("empty".to_owned()); num_of_words]);
 
-    let submit_args = move || {
-        player_id().and_then(|id| submission.with(|s| all_ok(s).map(|s| (id, s))))
-    };
+    let submit_args =
+        move || player_id().and_then(|id| submission.with(|s| all_ok(s).map(|s| (id, s))));
+    let last_submission = store_value(cx, None);
     let submit = create_action(cx, move |_: &()| {
-        OptionFuture::from(submit_args().map(|(id, s)| send(cx, SubmitAcronym(id, s))))
+        OptionFuture::from(submit_args().map(|(id, s)| {
+            last_submission.set_value(Some(s.clone()));
+            send(cx, SubmitAcronym(id, s))
+        }))
     });
 
     view! { cx,
@@ -84,13 +87,29 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
                 }
             }
         />
-        <button
-            class=button_class("bg-green-300")
-            disabled=move|| submit_args().is_none()
-            on:click=move|_| submit.dispatch(())
-        >
-            "Submit!"
-        </button>
+        <div>
+            <button
+                class=button_class("bg-green-300")
+                disabled=move|| submit_args().is_none()
+                on:click=move|_| submit.dispatch(())
+            >
+                "Submit!"
+            </button>
+            <span class="px-2">
+                {move|| if submit.version()() > 0 {
+                    last_submission.get_value().map(|s|
+                        Some(view! {cx,
+                            <span>
+                                "submitted: "
+                                <span class="font-bold">{s.join(" ")}</span>
+                            </span>
+                        })
+                    )
+                } else {
+                    None
+                }}
+            </span>
+        </div>
     }
 }
 
@@ -108,7 +127,7 @@ fn all_ok<T: Clone, E>(v: &[Result<T, E>]) -> Option<Vec<T>> {
         match r {
             Ok(item) => {
                 ok_vec.push(item.clone());
-            },
+            }
             Err(_) => {
                 return None;
             }
@@ -118,16 +137,17 @@ fn all_ok<T: Clone, E>(v: &[Result<T, E>]) -> Option<Vec<T>> {
     Some(ok_vec)
 }
 
-
 #[cfg(feature = "ssr")]
-fn validate_word<'a>(lead: &'a char, word: String) -> Result<String, String> {
+fn validate_word<'a>(_lead: &'a char, word: String) -> Result<String, String> {
     Ok(word)
 }
 
+/// Validates leading character.
+/// TODO: Should we enforce alphanumeric characters?
 #[cfg(feature = "hydrate")]
 fn validate_word<'a>(lead: &'a char, word: String) -> Result<String, String> {
     use js_sys::RegExp;
-    let pattern = RegExp::new(&format!("^{}[a-z]*$", lead), "i");
+    let pattern = RegExp::new(&format!("^{}$", lead), "i");
     if let Some(array) = pattern.exec(&word) {
         Ok(word)
     } else {
