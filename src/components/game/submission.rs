@@ -1,6 +1,6 @@
 use super::{acronym::*, context::*, timer::*};
 use crate::components::game::utils::state::*;
-use crate::components::text_input::*;
+use crate::components::{styles::*, text_input::*};
 use crate::types::ClientMessage::*;
 use ::futures::future::OptionFuture;
 use ::leptos::*;
@@ -73,7 +73,7 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
                 .collect::<Vec<_>>()
         }
         <button
-            class="border rounded p-2 bg-green-300 border-slate-200"
+            class=button_class("bg-green-300")
             on:click=move|_| submit.dispatch(())
         >
             "Submit!"

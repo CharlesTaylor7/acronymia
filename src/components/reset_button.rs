@@ -1,4 +1,5 @@
 use crate::components::game::utils::state::*;
+use crate::components::styles::*;
 use crate::types::ClientMessage::*;
 use leptos::*;
 
@@ -9,7 +10,7 @@ pub fn ResetButton(cx: Scope) -> impl IntoView {
     view! {
         cx,
         <button
-            class="border rounded p-2 bg-blue-300 border-slate-200"
+            class=button_class("bg-blue-300")
             on:click=move |_| reset.dispatch(())
         >
             "Reset state"

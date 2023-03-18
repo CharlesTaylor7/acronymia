@@ -1,7 +1,7 @@
 use ::leptos::*;
 
 use crate::components::reset_button::*;
-use crate::components::utils::*;
+use crate::components::{styles::*, utils::*};
 use crate::typed_context::*;
 use crate::types::*;
 
@@ -40,7 +40,7 @@ pub fn Game(cx: Scope) -> impl IntoView {
             }}
             {debug_view(cx, view! {cx,
                 <button
-                    class="border rounded p-2 bg-slate-200"
+                    class=button_class("bg-slate-200")
                     on:click=move |_| debug_region_expanded.update(|b| *b = !*b)
                 >
                     "Toggle Debug View"

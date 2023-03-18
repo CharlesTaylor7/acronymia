@@ -1,7 +1,7 @@
 use super::context::*;
 use super::player_roster::*;
-use crate::components::game::utils::state::{game_state, send};
-use crate::components::{text_input::*, utils::*};
+use super::utils::state::{game_state, send};
+use crate::components::{styles::*, text_input::*, utils::*};
 use crate::types::ClientMessage::*;
 use crate::types::*;
 use ::leptos::*;
@@ -47,7 +47,7 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
             />
             <div class="flex flex-row gap-4">
                 <button
-                    class="border rounded p-2 bg-blue-300 border-slate-200"
+                    class=button_class("bg-blue-300")
                     prop:disabled=Signal::derive(cx, move|| player_id().is_none())
                     on:click=move |_| join_game.dispatch(())
                 >
@@ -56,7 +56,7 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
 
                 <When predicate=MaybeSignal::derive(cx, move|| is_creator() || DEBUG_MODE)>
                     <button
-                        class="border rounded p-2 bg-green-300 border-slate-200"
+                        class=button_class("bg-green-300")
                         on:click=move |_| start_game.dispatch(())
                     >
                         "Start game!"

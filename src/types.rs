@@ -268,7 +268,7 @@ fn demo_init(players: Vec<&str>) -> GameState {
             winner: None,
             submissions,
         }],
-        step: GameStep::Results,
+        step: GameStep::Setup,
         timer_started_at: None,
         timer_cancellation: None,
         shuffled_submissions: Vec::new(),

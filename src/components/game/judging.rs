@@ -1,5 +1,6 @@
 use super::{acronym::*, context::*, timer::*};
 use crate::components::game::utils::state::*;
+use crate::components::styles::*;
 use crate::types::ClientMessage::*;
 use crate::types::*;
 use futures::future::OptionFuture;
@@ -63,7 +64,7 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
             />
 
             <button
-                class="border rounded p-2 bg-green-300 border-slate-200 disabled:cursor-not-allowed"
+                class=button_class("bg-green-300")
                 disabled=move|| selected().is_none()
                 on:click=move|_| submit_winner.dispatch(())
             >

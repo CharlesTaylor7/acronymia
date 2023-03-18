@@ -86,7 +86,6 @@ fn signal_player_id(cx: Scope) -> RwSignal<Option<PlayerId>> {
             _ => (),
         }
     }
-
     player_id
 }
 
