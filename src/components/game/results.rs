@@ -1,6 +1,7 @@
 use crate::components::game::utils::state::*;
 use ::leptos::*;
 
+
 #[component]
 pub fn GameResults(cx: Scope) -> impl IntoView {
     view! {

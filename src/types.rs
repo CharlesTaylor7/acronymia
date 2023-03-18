@@ -226,8 +226,8 @@ fn insert_or_add<K>(map: &mut HashMap<K, i64>, key: K, amount: i64)
 where
     K: std::hash::Hash + Eq,
 {
-    if let Ok(val) = map.try_insert(key, amount) {
-        *val += amount;
+    if let Err(mut occupied) = map.try_insert(key, amount) {
+        occupied.value += amount;
     }
 }
 
@@ -268,7 +268,7 @@ fn demo_init(players: Vec<&str>) -> GameState {
             winner: None,
             submissions,
         }],
-        step: GameStep::Setup,
+        step: GameStep::Results,
         timer_started_at: None,
         timer_cancellation: None,
         shuffled_submissions: Vec::new(),
