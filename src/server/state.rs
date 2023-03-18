@@ -122,8 +122,7 @@ fn set_timer(
 ) {
     let (cancel, cancelled) = oneshot::channel();
     let now = Instant::now();
-    state.timer_started_at = Some(now);
-    state.timer_cancellation = Some(cancel);
+    state.timer.set(now, cancel);
 
     let messenger = messenger.clone();
     spawn(async move {

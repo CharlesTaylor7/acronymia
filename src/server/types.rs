@@ -1,4 +1,4 @@
-use ::tokio::{sync::oneshot, time::Instant};
+use ::tokio::{sync::oneshot, time::{Duration, Instant}};
 use ::leptos::log;
 use ::std::collections::HashMap;
 use crate::random::shuffle;
@@ -16,12 +16,13 @@ type JudgeId = usize;
 #[derive(Default, Debug)]
 pub struct GameState {
     pub step: GameStep,
-    pub players: HashMap<PlayerId, Player>, // registered players
-    pub rotation: Vec<PlayerId>,            // players in order they will be judge
-    pub rounds: Vec<Round>, // list of rounds, records past or present chosen judge and acronym
-    pub timer_started_at: Option<Instant>,
-    pub timer_cancellation: Option<oneshot::Sender<()>>,
+    /// Player information
+    pub players: HashMap<PlayerId, Player>, 
+    /// Player ids in order they will be judge
+    pub rotation: Vec<PlayerId>,            
+    pub rounds: Vec<Round>,
     pub shuffled_submissions: Vec<(PlayerId, Submission)>,
+    pub timer: Timer,
 }
 
 #[derive(Debug)]
@@ -31,6 +32,37 @@ pub struct Round {
     pub winner: Option<PlayerId>,
     pub submissions: HashMap<PlayerId, Submission>,
 }
+
+
+#[derive(Debug, Default)]
+pub struct Timer(Option<TimerFields>); 
+
+#[derive(Debug)]
+struct TimerFields {
+    started_at: Instant,
+    cancellation: oneshot::Sender<()>,
+}
+
+impl Timer {
+    pub fn new() -> Self {
+        Timer(None)
+    }
+
+    pub fn set(&mut self, started_at: Instant, cancellation: oneshot::Sender<()>) {
+        self.0 = Some(TimerFields { started_at, cancellation })
+    }
+
+    pub fn elapsed(&self) -> Option<Duration> {
+        self.0.as_ref().map(|f| f.started_at.elapsed())
+    }
+
+    pub fn cancel(&mut self) {
+        if let Some(fields) = self.0.take() {
+            _ = fields.cancellation.send(());
+        }
+    }
+}
+
 
 impl GameState {
     pub fn current_judge(&self) -> Option<JudgeId> {
@@ -47,10 +79,7 @@ impl GameState {
     }
 
     pub fn cancel_timer(&mut self) {
-        self.timer_started_at = None;
-        if let Some(cancel) = self.timer_cancellation.take() {
-            _ = cancel.send(());
-        }
+        self.timer.cancel();
     }
 
     pub fn shuffle_current_round_submissions(&mut self) {
@@ -76,9 +105,7 @@ impl GameState {
             .and_then(|j| self.rotation.get(j))
             .cloned();
 
-        let timer = self.timer_started_at.and_then(|instant| {
-            let elapsed = instant.elapsed();
-
+        let timer = self.timer.elapsed().and_then(|elapsed| {
             if elapsed < ROUND_TIMER_DURATION {
                 let diff = ROUND_TIMER_DURATION - elapsed;
                 let rounded_sec = if diff.subsec_nanos() >= 500_000_000 {
@@ -195,8 +222,7 @@ fn demo_init(players: Vec<&str>) -> GameState {
             submissions,
         }],
         step: GameStep::Setup,
-        timer_started_at: None,
-        timer_cancellation: None,
+        timer: Timer::new(),
         shuffled_submissions: Vec::new(),
     }
 }
