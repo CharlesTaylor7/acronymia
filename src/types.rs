@@ -115,6 +115,7 @@ impl GameState {
     }
 
     pub fn cancel_timer(&mut self) {
+        self.timer_started_at = None;
         if let Some(cancel) = self.timer_cancellation.take() {
             _ = cancel.send(());
         }
