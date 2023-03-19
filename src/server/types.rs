@@ -173,6 +173,7 @@ impl GameState {
             scores,
             round_winner: None,
             step: self.step.clone(),
+            round_counter: format!("Round {}/{}", self.rounds.len(), 2 * self.rotation.len()),
             submission_count: self.rounds.last().map(|r| r.submissions.len()).unwrap_or(0),
             acronym: self
                 .rounds

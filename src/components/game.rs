@@ -30,11 +30,20 @@ pub fn Game(cx: Scope) -> impl IntoView {
     let game_step = create_memo(cx, move |_| game_state(cx).with(|g| g.step.clone()));
     let debug_region_expanded = create_rw_signal(cx, false);
 
+    let show_round_counter = MaybeSignal::derive(cx, move || {
+        let step = game_step();
+        step == GameStep::Submission || step == GameStep::Judging
+    });
     view! {
         cx,
         <div class="flex flex-col items-start mx-20 my-4 gap-4">
-           <h1 class="text-xl font-bold">"Acronymia"</h1>
-            { move || match game_step() {
+            <h1 class="text-xl font-bold">"Acronymia"</h1>
+            <When predicate=show_round_counter>
+                <h2 class="text-l font-bold">
+                    {move|| game_state(cx).get().round_counter}
+                </h2>
+            </When>
+            {move|| match game_step() {
                 GameStep::Setup => view! { cx, <><GameSetup /></> },
                 GameStep::Submission => view! { cx, <><GameSubmission /></> },
                 GameStep::Judging => view! { cx, <><GameJudging /></> },
