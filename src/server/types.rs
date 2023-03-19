@@ -79,9 +79,9 @@ impl GameState {
 
     pub fn next_judge(&self) -> JudgeId {
         let n = self.rotation.len();
-        if let Some(mut j) = self.current_judge() && n > 0 {
-            // scan for next non-quit player 
-            for offset in 0..n {
+        if let Some(j) = self.current_judge() && n > 0 {
+            // scan for next un-quited player
+            for offset in 1..n {
                 let index = (j + offset) % n;
                 if !self.players[&self.rotation[index]].quit {
                     return index;
