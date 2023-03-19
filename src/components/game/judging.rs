@@ -83,7 +83,17 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
                     .with(|g| g
                           .submissions
                           .iter()
-                          .map(|(_, s)| view! {cx, <li>{s.join(" ")}</li>})
+                          .map(|(id, s)| {
+                              let id = id.clone();
+                              view! {cx,
+                              <li class="inline">
+                                <span class="pr-3">{s.join(" ")}</span>
+                                {move|| lookup(cx, &id).map(|p| view! {cx,
+
+                                    <span class="font-bold pr-3">{p.name}{p.is_winner.then_some(" (winner)")}</span>
+                                })}
+                              </li>
+                          }})
                           .collect::<Vec<_>>()
                     )
             }

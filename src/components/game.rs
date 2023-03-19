@@ -52,7 +52,7 @@ pub fn Game(cx: Scope) -> impl IntoView {
 
             <When predicate=MaybeSignal::derive(cx, move|| is_host() || DEBUG_MODE) >
                 <button
-                    class=button_class("bg-slate-200 mt-80")
+                    class=button_class("bg-slate-200 mt-4")
                     on:click=move |_| debug_region_expanded.update(|b| *b = !*b)
                 >
                     "Toggle Debug View"
