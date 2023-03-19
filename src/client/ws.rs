@@ -13,7 +13,6 @@ define_context!(
 
 pub fn connect_to_server(cx: Scope) {
     let loc = window().location();
-    let port = loc.port().unwrap();
     let host = loc.host().unwrap();
     let protocol = loc.protocol().unwrap();
     let protocol = if protocol == "https:" { "wss:" } else { "ws:" };

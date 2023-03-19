@@ -81,7 +81,7 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
                                         submit.dispatch(args);
                                     }
                                 } else {
-                                   get_ref(i+1).get().unwrap().focus();
+                                   _ = get_ref(i+1).get().unwrap().focus();
                                 }
                             }
                         }
@@ -170,7 +170,7 @@ fn validate_word<'a>(_lead: &'a char, word: String) -> Result<String, String> {
 fn validate_word<'a>(lead: &'a char, word: String) -> Result<String, String> {
     use js_sys::RegExp;
     let pattern = RegExp::new(&format!("^{}", lead), "i");
-    if let Some(array) = pattern.exec(&word) {
+    if let Some(_) = pattern.exec(&word) {
         Ok(word)
     } else {
         Err(format!(
