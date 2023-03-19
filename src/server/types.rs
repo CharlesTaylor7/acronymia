@@ -156,7 +156,8 @@ impl GameState {
             timer,
             judge,
             submissions,
-            scores: scores,
+            scores,
+            round_winner: None,
             step: self.step.clone(),
             submission_count: self.rounds.last().map(|r| r.submissions.len()).unwrap_or(0),
             acronym: self

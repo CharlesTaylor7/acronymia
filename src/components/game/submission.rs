@@ -1,7 +1,7 @@
 use super::{acronym::*, context::*, timer::*};
 use crate::components::game::utils::state::*;
 use crate::components::styles::*;
-use crate::types::{PlayerId, Submission, ClientMessage::*};
+use crate::types::{ClientMessage::*, PlayerId, Submission};
 use ::leptos::*;
 
 #[component]
@@ -157,7 +157,6 @@ async fn send_and_save(cx: Scope, id: PlayerId, s: Submission) -> Submission {
     send(cx, SubmitAcronym(id, s.clone())).await;
     s
 }
-
 
 #[cfg(feature = "ssr")]
 fn validate_word<'a>(_lead: &'a char, word: String) -> Result<String, String> {

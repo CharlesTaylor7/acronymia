@@ -1,10 +1,12 @@
 use super::{acronym::*, context::*, timer::*};
 use crate::components::game::utils::state::*;
 use crate::components::styles::*;
+use crate::typed_context::*;
 use crate::types::ClientMessage::*;
 use crate::types::*;
 use futures::future::OptionFuture;
 use leptos::*;
+use std::collections::HashMap;
 
 #[component]
 pub fn GameJudging(cx: Scope) -> impl IntoView {
@@ -87,4 +89,39 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
             }
         </ul>
     }
+}
+
+define_context!(LookupPlayer, Memo<HashMap<PlayerId, PlayerInfo>>);
+fn provide_player_lookup(cx: Scope) {
+    let hashmap = create_memo(cx, move |_| {
+        game_state(cx).with(|g| {
+            g.round_winner
+                .as_ref()
+                .map_or(HashMap::with_capacity(0), |w| {
+                    let mut hashmap = HashMap::new();
+                    for p in &g.players {
+                        hashmap.insert(
+                            p.id.clone(),
+                            PlayerInfo {
+                                name: p.name.clone(),
+                                is_winner: p.id == *w,
+                            },
+                        );
+                    }
+                    hashmap
+                })
+        })
+    });
+
+    provide_typed_context::<LookupPlayer>(cx, hashmap);
+}
+
+fn lookup(cx: Scope, id: &PlayerId) -> Option<PlayerInfo> {
+    use_typed_context::<LookupPlayer>(cx).with(|h| h.get(id).cloned())
+}
+
+#[derive(Clone, PartialEq)]
+pub struct PlayerInfo {
+    is_winner: bool,
+    name: PlayerName,
 }

@@ -41,6 +41,7 @@ pub struct ClientGameState {
     pub submissions: Vec<(PlayerId, Submission)>,
     /// Empty until the results step.
     pub scores: Vec<(PlayerName, i64)>,
+    pub round_winner: Option<PlayerId>,
 }
 
 /// message from a client to the server
@@ -69,4 +70,5 @@ pub enum ServerMessage {
     /// its possible.
     GameState(ClientGameState),
     PlayerJoined(Player),
+    ShowRoundWinner(PlayerId),
 }

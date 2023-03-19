@@ -78,5 +78,9 @@ fn apply_server_message(state: &mut ClientGameState, message: ServerMessage) {
                 state.players.push(new);
             }
         }
+
+        ShowRoundWinner(player_id) => {
+            state.round_winner = Some(player_id);
+        }
     }
 }
