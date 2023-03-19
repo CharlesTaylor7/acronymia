@@ -7,7 +7,7 @@ use ::tokio::{
     select,
     sync::{broadcast::Sender, oneshot},
     task::spawn,
-    time::{sleep_until, Instant},
+    time::{sleep_until, Duration, Instant},
 };
 
 // TODO: client actions need to be both restricted by game step & player role
@@ -23,19 +23,21 @@ pub async fn handle_message(
         // register your name for the current game
         // allows you to update your name if you already joined
         ClientMessage::JoinGame(player) => {
-            if state.step == GameStep::Setup {
-                let id = player.id.clone();
-                let server_player = ServerPlayer {
-                    id: id.clone(),
-                    name: player.name.clone(),
-                    quit: false,
-                };
-                if let None = state.players.insert(id.clone(), server_player) {
-                    state.rotation.push(id);
-                }
-
-                _ = messenger.send(ServerMessage::PlayerJoined(player))
+            if state.step != GameStep::Setup {
+                return;
             }
+
+            let id = player.id.clone();
+            let server_player = ServerPlayer {
+                id: id.clone(),
+                name: player.name.clone(),
+                quit: false,
+            };
+            if let None = state.players.insert(id.clone(), server_player) {
+                state.rotation.push(id);
+            }
+
+            _ = messenger.send(ServerMessage::PlayerJoined(player));
         }
         ClientMessage::KickPlayer(id) => {
             if let Some(player) = state.players.get_mut(&id) {
@@ -45,6 +47,9 @@ pub async fn handle_message(
         }
 
         ClientMessage::StartGame => {
+            if state.step != GameStep::Setup {
+                return;
+            }
             start_submission_step(state, messenger);
         }
 
@@ -70,10 +75,15 @@ pub async fn handle_message(
         }
 
         ClientMessage::JudgeRound(winner_id) => {
+            if state.step != GameStep::Judging {
+                return;
+            }
             state.rounds.last_mut().map(|r| {
-                r.winner = Some(winner_id);
+                r.winner = Some(winner_id.clone());
             });
-            end_judging_step(state, messenger);
+
+            _ = messenger.send(ServerMessage::ShowRoundWinner(winner_id));
+            set_timer(Duration::new(5, 0), state, messenger, end_judging_step);
         }
 
         ClientMessage::ResetState => {
@@ -93,7 +103,7 @@ fn start_submission_step(state: &mut GameState, messenger: &Sender<ServerMessage
     });
 
     state.step = GameStep::Submission;
-    set_timer(state, messenger, start_judging_step);
+    set_timer(timer_duration(), state, messenger, start_judging_step);
     _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
 }
 
@@ -102,12 +112,7 @@ fn start_judging_step(state: &mut GameState, messenger: &Sender<ServerMessage>) 
     state.step = GameStep::Judging;
     state.shuffle_current_round_submissions();
 
-    // TODO:
-    // I want to show the round winner to everyone on the judging step,
-    // and then redirect after a few seconds
-    // back to a new submission step
-    //
-    set_timer(state, messenger, end_judging_step);
+    set_timer(timer_duration(), state, messenger, end_judging_step);
     _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
 }
 
@@ -119,20 +124,23 @@ fn end_judging_step(state: &mut GameState, messenger: &Sender<ServerMessage>) {
         2 * state.rotation.len()
     };
 
+    // game end
     if state.rounds.len() == game_length {
-        state.cancel_timer();
         state.step = GameStep::Results;
         _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
+    // next round
     } else {
         start_submission_step(state, messenger);
     }
 }
 
 fn set_timer(
+    duration: Duration,
     state: &mut GameState,
     messenger: &Sender<ServerMessage>,
     on_timeout: impl FnOnce(&mut GameState, &Sender<ServerMessage>) + 'static + Send,
 ) {
+    state.timer.cancel();
     let (cancel, cancelled) = oneshot::channel();
     let now = Instant::now();
     state.timer = Timer::new(now, cancel);
@@ -140,7 +148,7 @@ fn set_timer(
     let messenger = messenger.clone();
     spawn(async move {
         let sleep_then_lock_state = async move {
-            sleep_until(now + timer_duration()).await;
+            sleep_until(now + duration).await;
             GLOBAL.state.lock().await
         };
 
