@@ -44,7 +44,7 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
     view! {
         cx,
         <div class="flex flex-col items-start gap-4">
-            <header>"What is "<Acronym /></header>
+            <header>"What is "<Acronym />"?"</header>
             <For
                 each=submissions
                 key=|(id, _)| id.clone()
