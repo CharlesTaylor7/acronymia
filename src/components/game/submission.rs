@@ -71,18 +71,23 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
                     <div>
                         <input
                             type="text"
-                            class=text_input_class("inline")
+                            class=text_input_class("invalid:border-red-300")
                             autofocus={i == 0}
                             on:input=move |e| {
                                 submission.update(move |s| {
-                                    let text = event_target_value(&e);
-                                    s[i] = validate_word(&c, text);
+                                    let input: web_sys::HtmlInputElement = event_target(&e);
+                                    let text = input.value();
+                                    let result = validate_word(&c, text);
+                                    match &result {
+                                        Err(s) => input.set_custom_validity(&s),
+                                        Ok(_) => input.set_custom_validity(""),
+
+                                    }
+                                    input.report_validity();
+                                    s[i] = result;
                                 });
                             }
                         />
-                        <span class="inline px-3">
-                            {move|| submission.with(|s| s[i].clone().err())}
-                        </span>
                     </div>
                 }
             }
@@ -152,7 +157,7 @@ fn validate_word<'a>(lead: &'a char, word: String) -> Result<String, String> {
         Ok(word)
     } else {
         Err(format!(
-            "should start with {}",
+            "Should start with {}",
             lead.to_uppercase().collect::<String>(),
         ))
     }

@@ -30,7 +30,7 @@ pub fn provide_game_context(cx: Scope) {
     provide_typed_context::<Signal_PlayerId>(cx, player_id);
 
     if cfg!(debug_assertions) {
-        create_effect(cx, move|_|{
+        create_effect(cx, move |_| {
             player_id.set(Some(player_name()));
         })
     }
