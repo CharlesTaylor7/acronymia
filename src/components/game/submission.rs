@@ -1,8 +1,7 @@
 use super::{acronym::*, context::*, timer::*};
 use crate::components::game::utils::state::*;
 use crate::components::styles::*;
-use crate::types::ClientMessage::*;
-use ::futures::future::OptionFuture;
+use crate::types::{PlayerId, Submission, ClientMessage::*};
 use ::leptos::*;
 
 #[component]
@@ -52,12 +51,8 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
 
     let submit_args =
         move || player_id().and_then(|id| submission.with(|s| all_ok(s).map(|s| (id, s))));
-    let last_submission = store_value(cx, None);
-    let submit = create_action(cx, move |_: &()| {
-        OptionFuture::from(submit_args().map(|(id, s)| {
-            last_submission.set_value(Some(s.clone()));
-            send(cx, SubmitAcronym(id, s))
-        }))
+    let submit = create_action(cx, move |(id, s): &(PlayerId, Submission)| {
+        send_and_save(cx, id.clone(), s.clone())
     });
 
     view! { cx,
@@ -82,8 +77,8 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
                         on:keydown=move |e| {
                             if e.key() == "Enter" {
                                 if i == num_of_words - 1 {
-                                    if submit_args().is_some() {
-                                        submit.dispatch(());
+                                    if let Some(args) = submit_args() {
+                                        submit.dispatch(args);
                                     }
                                 } else {
                                    get_ref(i+1).get().unwrap().focus();
@@ -112,13 +107,13 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
             <button
                 class=button_class("bg-green-300")
                 disabled=move|| submit_args().is_none()
-                on:click=move|_| submit.dispatch(())
+                on:click=move|_| if let Some(args) = submit_args() { submit.dispatch(args) }
             >
                 "Submit!"
             </button>
             <span class="px-2">
                 {move|| if submit.version()() > 0 {
-                    last_submission.get_value().map(|s|
+                    submit.value().get().map(|s|
                         Some(view! {cx,
                             <span>
                                 "submitted: "
@@ -157,6 +152,12 @@ fn all_ok<T: Clone, E>(v: &[Result<T, E>]) -> Option<Vec<T>> {
 
     Some(ok_vec)
 }
+
+async fn send_and_save(cx: Scope, id: PlayerId, s: Submission) -> Submission {
+    send(cx, SubmitAcronym(id, s.clone())).await;
+    s
+}
+
 
 #[cfg(feature = "ssr")]
 fn validate_word<'a>(_lead: &'a char, word: String) -> Result<String, String> {
