@@ -10,6 +10,7 @@ use std::collections::HashMap;
 
 #[component]
 pub fn GameJudging(cx: Scope) -> impl IntoView {
+    provide_player_lookup(cx);
     let judge = use_typed_context::<Memo_Judge>(cx);
     view! { cx,
         <Timer />
