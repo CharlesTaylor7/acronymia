@@ -2,6 +2,7 @@ use ::leptos::*;
 
 use crate::components::reset_button::*;
 use crate::components::{styles::*, utils::*};
+use crate::constants::*;
 use crate::typed_context::*;
 use crate::types::*;
 
@@ -25,6 +26,7 @@ use self::utils::state::*;
 #[component]
 pub fn Game(cx: Scope) -> impl IntoView {
     provide_game_context(cx);
+    let is_host = use_typed_context::<Memo_IsHost>(cx);
     let game_step = create_memo(cx, move |_| game_state(cx).with(|g| g.step.clone()));
     let debug_region_expanded = create_rw_signal(cx, false);
 
@@ -38,7 +40,8 @@ pub fn Game(cx: Scope) -> impl IntoView {
                 GameStep::Judging => view! { cx, <><GameJudging /></> },
                 GameStep::Results => view! { cx, <><GameResults /></> },
             }}
-            {debug_view(cx, view! {cx,
+
+            <When predicate=MaybeSignal::derive(cx, move|| is_host() || DEBUG_MODE) >
                 <button
                     class=button_class("bg-slate-200 mt-80")
                     on:click=move |_| debug_region_expanded.update(|b| *b = !*b)
@@ -57,7 +60,7 @@ pub fn Game(cx: Scope) -> impl IntoView {
                         <h1 class="font-bold font-xl">"End Debug"</h1>
                     </div>
                 </When>
-            })}
+            </When>
         </div>
     }
 }

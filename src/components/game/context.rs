@@ -10,7 +10,7 @@ define_context!(Signal_PlayerId, RwSignal<Option<PlayerId>>);
 define_context!(Signal_PlayerName, RwSignal<String>);
 define_context!(Memo_Players, Memo<Vec<Player>>);
 define_context!(Memo_Judge, Memo<Option<Judge>>);
-define_context!(Action_JoinGame, Action<(), Result<(), ServerFnError>>);
+define_context!(Memo_IsHost, Memo<bool>);
 define_context!(TimerHandle, StoredValue<Option<IntervalHandle>>);
 
 #[derive(PartialEq, Eq, Clone)]
@@ -41,6 +41,9 @@ pub fn provide_game_context(cx: Scope) {
     let judge = judge_memo(cx);
     provide_typed_context::<Memo_Judge>(cx, judge);
 
+    let is_host = memo_is_host(cx);
+    provide_typed_context::<Memo_IsHost>(cx, is_host);
+
     let timer_handle = store_value(cx, None);
     provide_typed_context::<TimerHandle>(cx, timer_handle);
 }
@@ -66,6 +69,22 @@ fn judge_memo(cx: Scope) -> Memo<Option<Judge>> {
                 })
                 .flatten()
         })
+    })
+}
+
+fn memo_is_host(cx: Scope) -> Memo<bool> {
+    let player_id = use_typed_context::<Signal_PlayerId>(cx);
+    create_memo(cx, move |_| {
+        player_id()
+            .and_then(|me| {
+                game_state(cx)
+                    .get()
+                    .players
+                    .first()
+                    .as_ref()
+                    .map(|p| p.id == me)
+            })
+            .unwrap_or(false)
     })
 }
 

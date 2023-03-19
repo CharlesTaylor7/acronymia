@@ -8,6 +8,7 @@ use futures::future::OptionFuture;
 
 #[component]
 pub fn GameSetup(cx: Scope) -> impl IntoView {
+    let is_host = use_typed_context::<Memo_IsHost>(cx);
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     let player_name = use_typed_context::<Signal_PlayerName>(cx);
     let player = create_memo(cx, move |_| {
@@ -23,19 +24,6 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
     });
 
     let start_game = create_action(cx, move |_: &()| send(cx, StartGame));
-    let is_creator: Memo<bool> = create_memo(cx, move |_| {
-        player_id()
-            .and_then(|me| {
-                game_state(cx)
-                    .get()
-                    .players
-                    .first()
-                    .as_ref()
-                    .map(|p| p.id == me)
-            })
-            .unwrap_or(false)
-    });
-
     view! {
         cx,
        <div class="flex flex-col items-start gap-4">
@@ -55,7 +43,7 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
                     "Join!"
                 </button>
 
-                <When predicate=MaybeSignal::derive(cx, move|| is_creator() )>
+                <When predicate=is_host >
                     <button
                         class=button_class("bg-green-300")
                         disabled=move|| players.with(|ps| ps.len() < 3)
