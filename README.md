@@ -60,7 +60,7 @@ https://github.com/leptos-rs/leptos/blob/586f524015a543c9599205a91eac59bd7fca3c4
   - [x] a synchronized 30 second timer.
   - [x] acronym input
   - [x] of submissions received
-  - [ ] validate submission input
+  - [x] validate submission input
   - [ ] submit partially provided inputs in case of timeout?
 - [x] Judging step
   - [x] player view

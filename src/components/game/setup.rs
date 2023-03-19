@@ -56,7 +56,7 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
                     "Join!"
                 </button>
 
-                <When predicate=MaybeSignal::derive(cx, move|| is_creator() || DEBUG_MODE)>
+                <When predicate=MaybeSignal::derive(cx, move|| is_creator() )>
                     <button
                         class=button_class("bg-green-300")
                         disabled=move|| players.with(|ps| ps.len() < 3)
@@ -67,7 +67,13 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
                 </When>
             </div>
             <p>{move || players.with(|ps| ps.len())}" players joined"</p>
-            <PlayerRoster />
+            <ul class="list-inside list-disc flex flex-col items-start">
+                {move|| players.with(|ps| ps
+                    .iter()
+                    .map(|p| view! { cx, <li>{p.name.clone()}</li>})
+                    .collect::<Vec<_>>()
+                )}
+            </ul>
         </div>
     }
 }

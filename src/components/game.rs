@@ -40,7 +40,7 @@ pub fn Game(cx: Scope) -> impl IntoView {
             }}
             {debug_view(cx, view! {cx,
                 <button
-                    class=button_class("bg-slate-200")
+                    class=button_class("bg-slate-200 mt-80")
                     on:click=move |_| debug_region_expanded.update(|b| *b = !*b)
                 >
                     "Toggle Debug View"

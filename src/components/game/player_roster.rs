@@ -46,20 +46,18 @@ fn PlayerView(
         cx,
         <li>
             {player.name}
-            {debug_view(cx, view! {cx,
-                <button
-                    class="bg-blue-300 border rounded mx-2 px-2 border-slate-200"
-                    on:click=move |_| impersonate(Some(id1.clone()))
-                >
-                    "Impersonate"
-                </button>
-                <button
-                    class="bg-red-200 border rounded mx-2 px-2 border-slate-200"
-                    on:click=move |_| kick_player.dispatch(id2.clone())
-                >
-                    "Kick"
-                </button>
-            })}
+            <button
+                class="bg-blue-300 border rounded mx-2 px-2 border-slate-200"
+                on:click=move |_| impersonate(Some(id1.clone()))
+            >
+                "Impersonate"
+            </button>
+            <button
+                class="bg-red-200 border rounded mx-2 px-2 border-slate-200"
+                on:click=move |_| kick_player.dispatch(id2.clone())
+            >
+                "Kick"
+            </button>
         </li>
     }
 }
