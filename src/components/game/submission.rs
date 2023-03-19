@@ -147,7 +147,7 @@ fn validate_word<'a>(_lead: &'a char, word: String) -> Result<String, String> {
 #[cfg(feature = "hydrate")]
 fn validate_word<'a>(lead: &'a char, word: String) -> Result<String, String> {
     use js_sys::RegExp;
-    let pattern = RegExp::new(&format!("^{}$", lead), "i");
+    let pattern = RegExp::new(&format!("^{}", lead), "i");
     if let Some(array) = pattern.exec(&word) {
         Ok(word)
     } else {
