@@ -186,7 +186,8 @@ where
 
 pub fn default_game_state() -> GameState {
     if cfg!(debug_assertions) {
-        demo_init(vec!["alice", "bob", "carl"])
+        //demo_init(vec!["alice", "bob", "carl"])
+        Default::default()
     } else {
         Default::default()
     }

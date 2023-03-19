@@ -5,7 +5,8 @@ pub const DEBUG_MODE: bool = cfg!(debug_assertions);
 /// Show a component only in debug mode
 pub fn debug_view(cx: Scope, view: impl IntoView) -> impl IntoView {
     if DEBUG_MODE {
-        view! {cx, <>{view}</>}
+        //view! {cx, <>{view}</>}
+        view! {cx, <></>}
     } else {
         view! {cx, <></>}
     }

@@ -23,11 +23,17 @@ pub fn provide_game_context(cx: Scope) {
     #[cfg(feature = "hydrate")]
     crate::client::ws::connect_to_server(cx);
 
+    let player_name = signal_player_name(cx);
+    provide_typed_context::<Signal_PlayerName>(cx, player_name);
+
     let player_id = signal_player_id(cx);
     provide_typed_context::<Signal_PlayerId>(cx, player_id);
 
-    let player_name = signal_player_name(cx);
-    provide_typed_context::<Signal_PlayerName>(cx, player_name);
+    if cfg!(debug_assertions) {
+        create_effect(cx, move|_|{
+            player_id.set(Some(player_name()));
+        })
+    }
 
     let players = create_memo(cx, move |_| game_state(cx).with(|g| g.players.clone()));
     provide_typed_context::<Memo_Players>(cx, players);
