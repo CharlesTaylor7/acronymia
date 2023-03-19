@@ -186,8 +186,7 @@ where
 
 pub fn default_game_state() -> GameState {
     if cfg!(debug_assertions) {
-        //demo_init(vec!["alice", "bob", "carl"])
-        Default::default()
+        demo_init(vec!["alice", "bob", "carl"])
     } else {
         Default::default()
     }
@@ -196,9 +195,8 @@ pub fn default_game_state() -> GameState {
 fn demo_init(players: Vec<&str>) -> GameState {
     let players = players
         .into_iter()
-        .enumerate()
-        .map(|(id, name)| Player {
-            id: id.to_string(),
+        .map(|name| Player {
+            id: name.to_owned(),
             name: name.to_owned(),
         })
         .collect::<Vec<_>>();
