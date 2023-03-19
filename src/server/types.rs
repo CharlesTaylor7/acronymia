@@ -19,7 +19,7 @@ type JudgeId = usize;
 pub struct GameState {
     pub step: GameStep,
     /// Player information
-    pub players: HashMap<PlayerId, Player>,
+    pub players: HashMap<PlayerId, ServerPlayer>,
     /// Player ids in order they will be judge
     pub rotation: Vec<PlayerId>,
     pub rounds: Vec<Round>,
@@ -33,6 +33,15 @@ pub struct Round {
     pub acronym: String,
     pub winner: Option<PlayerId>,
     pub submissions: HashMap<PlayerId, Submission>,
+}
+
+#[derive(Debug)]
+pub struct ServerPlayer {
+    /// If a player needs to leave midgame, we leave them in place to not break the judge rotation
+    /// and allow showing their end of game score.
+    pub quit: bool,
+    pub id: PlayerId,
+    pub name: String,
 }
 
 #[derive(Debug, Default)]
@@ -70,11 +79,16 @@ impl GameState {
 
     pub fn next_judge(&self) -> JudgeId {
         let n = self.rotation.len();
-        if let Some(j) = self.current_judge() && n > 0 {
-            (j + 1) % self.rotation.len()
-        } else {
-            0
+        if let Some(mut j) = self.current_judge() && n > 0 {
+            // scan for next non-quit player 
+            for offset in 0..n {
+                let index = (j + offset) % n;
+                if !self.players[&self.rotation[index]].quit {
+                    return index;
+                }
+            }
         }
+        0
     }
 
     pub fn cancel_timer(&mut self) {
@@ -168,9 +182,18 @@ impl GameState {
             players: self
                 .rotation
                 .iter()
-                .map(|id| self.players.get(id))
-                .flatten()
-                .cloned()
+                .filter_map(|id| {
+                    self.players.get(id).and_then(|p| {
+                        if p.quit {
+                            None
+                        } else {
+                            Some(Player {
+                                id: p.id.clone(),
+                                name: p.name.clone(),
+                            })
+                        }
+                    })
+                })
                 .collect(),
         }
     }
@@ -196,9 +219,10 @@ pub fn default_game_state() -> GameState {
 fn demo_init(players: Vec<&str>) -> GameState {
     let players = players
         .into_iter()
-        .map(|name| Player {
+        .map(|name| ServerPlayer {
             id: name.to_owned(),
             name: name.to_owned(),
+            quit: false,
         })
         .collect::<Vec<_>>();
 

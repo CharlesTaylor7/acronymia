@@ -23,17 +23,25 @@ pub async fn handle_message(
         // register your name for the current game
         // allows you to update your name if you already joined
         ClientMessage::JoinGame(player) => {
-            let id = player.id.clone();
-            if let None = state.players.insert(player.id.clone(), player.clone()) {
-                state.rotation.push(id);
-            }
+            if state.step == GameStep::Setup {
+                let id = player.id.clone();
+                let server_player = ServerPlayer {
+                    id: id.clone(),
+                    name: player.name.clone(),
+                    quit: false,
+                };
+                if let None = state.players.insert(id.clone(), server_player) {
+                    state.rotation.push(id);
+                }
 
-            _ = messenger.send(ServerMessage::PlayerJoined(player))
+                _ = messenger.send(ServerMessage::PlayerJoined(player))
+            }
         }
         ClientMessage::KickPlayer(id) => {
-            state.rotation.retain(|p| *p != id);
-            state.players.remove(&id);
-            _ = messenger.send(ServerMessage::GameState(state.to_client_state()))
+            if let Some(player) = state.players.get_mut(&id) {
+                player.quit = true;
+                _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
+            }
         }
 
         ClientMessage::StartGame => {
