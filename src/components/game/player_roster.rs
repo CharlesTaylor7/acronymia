@@ -37,10 +37,12 @@ fn PlayerView(
     kick_player: Action<PlayerId, ()>,
     impersonate: SignalSetter<Option<PlayerId>>,
 ) -> impl IntoView {
+    let player_id = use_typed_context::<Signal_PlayerId>(cx);
     // TODO: why do I have to clone this variable so many times?
     // If I try to only once in each callback, I get weird ownership errors.
     let id1 = player.id.clone();
     let id2 = player.id.clone();
+    let id3 = player.id.clone();
     view! {
         cx,
         <li>
@@ -52,7 +54,8 @@ fn PlayerView(
                 "Impersonate"
             </button>
             <button
-                class="bg-red-200 border rounded mx-2 px-2 border-slate-200"
+                class="bg-red-200 border rounded mx-2 px-2 border-slate-200 disabled:bg-slate-200"
+                disabled=move|| Some(id3.clone()) == player_id() // can't kick self
                 on:click=move |_| kick_player.dispatch(id2.clone())
             >
                 "Kick"
