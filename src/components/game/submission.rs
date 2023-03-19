@@ -43,6 +43,11 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     let num_of_words = game_state(cx).with(|g| g.acronym.len());
 
+    let input_refs = store_value(
+        cx,
+        init_vec(num_of_words, move || create_node_ref::<html::Input>(cx)),
+    );
+    let get_ref = move |i| input_refs.with_value(|r| r[i]);
     let submission = create_rw_signal(cx, vec![Err("".to_owned()); num_of_words]);
 
     let submit_args =
@@ -67,28 +72,39 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
             }
             key=|(i, _)| i.clone()
             view=move |cx, (i, c)| {
+                let node_ref = get_ref(i);
                 view! {cx,
-                    <div>
-                        <input
-                            type="text"
-                            class=text_input_class("invalid:border-red-300")
-                            autofocus={i == 0}
-                            on:input=move |e| {
-                                submission.update(move |s| {
-                                    let input: web_sys::HtmlInputElement = event_target(&e);
-                                    let text = input.value();
-                                    let result = validate_word(&c, text);
-                                    match &result {
-                                        Err(s) => input.set_custom_validity(&s),
-                                        Ok(_) => input.set_custom_validity(""),
-
+                    <input
+                        type="text"
+                        class=text_input_class("invalid:border-red-300")
+                        node_ref=node_ref
+                        autofocus={i == 0}
+                        on:keydown=move |e| {
+                            if e.key() == "Enter" {
+                                if i == num_of_words - 1 {
+                                    if submit_args().is_some() {
+                                        submit.dispatch(());
                                     }
-                                    input.report_validity();
-                                    s[i] = result;
-                                });
+                                } else {
+                                   get_ref(i+1).get().unwrap().focus();
+                                }
                             }
-                        />
-                    </div>
+                        }
+                        on:input=move |e| {
+                            submission.update(move |s| {
+                                let input: web_sys::HtmlInputElement = event_target(&e);
+                                let text = input.value();
+                                let result = validate_word(&c, text);
+                                match &result {
+                                    Err(s) => input.set_custom_validity(&s),
+                                    Ok(_) => input.set_custom_validity(""),
+
+                                }
+                                input.report_validity();
+                                s[i] = result;
+                            });
+                        }
+                    />
                 }
             }
         />
