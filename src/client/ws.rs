@@ -12,8 +12,13 @@ define_context!(
 );
 
 pub fn connect_to_server(cx: Scope) {
-    // TODO: put websocket url & port into ENV
-    let (writer, mut reader) = WebSocket::open("ws://localhost:3000/ws").unwrap().split();
+    let loc = window().location();
+    let port = loc.port().unwrap();
+    let host = loc.host().unwrap();
+    let protocol = loc.protocol().unwrap();
+    let protocol = if protocol == "https:" { "wss:" } else { "ws:" };
+    let uri = format!("{protocol}//{host}/ws");
+    let (writer, mut reader) = WebSocket::open(&uri).unwrap().split();
     log!("connected");
 
     let signal = create_rw_signal(cx, Default::default());
