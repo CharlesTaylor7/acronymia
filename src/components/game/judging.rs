@@ -32,9 +32,9 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
         let id = id.clone();
         move || {
             button_class(if selected.with(|s| s.as_ref() == Some(&id)) {
-                "bg-blue-200"
+                "bg-blue-300"
             } else {
-                "bg-slate-200 hover:bg-blue-300"
+                "bg-slate-200 hover:bg-blue-200"
             })
         }
     };
@@ -60,7 +60,7 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
             />
 
             <button
-                class=button_class("bg-green-300")
+                class=button_class("bg-green-300 mt-12")
                 disabled=move|| selected().is_none()
                 on:click=move|_| submit_winner.dispatch(())
             >

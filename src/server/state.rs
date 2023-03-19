@@ -65,8 +65,7 @@ pub async fn handle_message(
             state.rounds.last_mut().map(|r| {
                 r.winner = Some(winner_id);
             });
-
-            _ = messenger.send(ServerMessage::GameState(state.to_client_state()))
+            end_judging_step(state, messenger);
         }
 
         ClientMessage::ResetState => {
