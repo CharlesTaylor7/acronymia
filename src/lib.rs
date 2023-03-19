@@ -1,8 +1,4 @@
-#![feature(type_alias_impl_trait)]
-#![feature(unboxed_closures)]
 #![feature(let_chains)]
-#![feature(stmt_expr_attributes)]
-#![feature(local_key_cell_methods)]
 #![feature(map_try_insert)]
 // enable all clippy lints
 #![warn(clippy::all)]
