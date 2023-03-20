@@ -17,22 +17,28 @@ pub fn connect_to_server(cx: Scope) {
     let protocol = loc.protocol().unwrap();
     let protocol = if protocol == "https:" { "wss:" } else { "ws:" };
     let uri = format!("{protocol}//{host}/ws");
-    let (writer, mut reader) = WebSocket::open(&uri).unwrap().split();
-    log!("connected");
+
+    let stored_writer = store_value(cx, None);
+    provide_typed_context::<WS_Writer>(cx, stored_writer);
 
     let signal = create_rw_signal(cx, Default::default());
     provide_typed_context::<WS_GameState>(cx, signal);
-    provide_typed_context::<WS_Writer>(cx, store_value(cx, Some(writer)));
 
     spawn_local(async move {
-        while let Some(msg) = reader.next().await {
-            if let Some(Message::Text(m)) = msg.ok_or_log() {
-                if let Some(m) = serde_json::from_str(&m).ok_or_log() {
-                    signal.update(|g| apply_server_message(g, m));
+        loop {
+            let (writer, mut reader) = WebSocket::open(&uri).unwrap().split();
+            stored_writer.set_value(Some(writer));
+            log!("connected");
+
+            while let Some(msg) = reader.next().await {
+                if let Some(Message::Text(m)) = msg.ok_or_log() {
+                    if let Some(m) = serde_json::from_str(&m).ok_or_log() {
+                        signal.update(|g| apply_server_message(g, m));
+                    }
                 }
             }
+            log!("disconnected");
         }
-        log!("disconnected");
     });
 }
 
