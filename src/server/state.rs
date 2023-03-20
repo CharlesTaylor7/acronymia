@@ -95,7 +95,9 @@ pub async fn handle_message(
         }
 
         ClientMessage::GetRemainingTime => {
-            _ = messenger.send(ServerMessage::UpdateRemainingTime(state.timer.remaining_secs()));
+            _ = messenger.send(ServerMessage::UpdateRemainingTime(
+                state.timer.remaining_secs(),
+            ));
         }
 
         // BEGIN DEBUG MESSAGES
@@ -106,8 +108,7 @@ pub async fn handle_message(
 
         ClientMessage::StopTimer => {
             state.timer.cancel();
-        }
-        // END DEBUG MESSAGES
+        } // END DEBUG MESSAGES
     }
 }
 

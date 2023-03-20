@@ -24,6 +24,9 @@ pub fn provide_game_context(cx: Scope) {
     #[cfg(feature = "hydrate")]
     crate::client::ws::connect_to_server(cx);
 
+    #[cfg(feature = "hydrate")]
+    crate::client::timer::auto_sync_with_server(cx);
+
     let player_name = signal_player_name(cx);
     provide_typed_context::<Signal_PlayerName>(cx, player_name);
 

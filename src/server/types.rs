@@ -178,7 +178,6 @@ impl GameState {
             .and_then(|j| self.rotation.get(j))
             .cloned();
 
-
         let empty_vec = Vec::new();
         let submissions = {
             if self.step == GameStep::Judging {

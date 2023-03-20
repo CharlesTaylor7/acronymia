@@ -1,9 +1,9 @@
-use ::leptos::*;
 use crate::components::reset_button::*;
 use crate::components::{styles::*, utils::*};
 use crate::constants::*;
 use crate::typed_context::*;
 use crate::types::*;
+use ::leptos::*;
 
 mod acronym;
 mod context;
@@ -34,7 +34,7 @@ pub fn Game(cx: Scope) -> impl IntoView {
         step == GameStep::Submission || step == GameStep::Judging
     });
 
-    let stop_timer = create_action(cx, move|_| send(cx, StopTimer) );
+    let stop_timer = create_action(cx, move |_| send(cx, StopTimer));
     view! {
         cx,
         <div class="flex flex-col items-start mx-20 my-4 gap-4">
