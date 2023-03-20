@@ -51,18 +51,55 @@ pub struct Timer(Option<TimerFields>);
 struct TimerFields {
     started_at: Instant,
     cancellation: oneshot::Sender<()>,
+    tag: TimerTag,
+}
+
+#[derive(Debug, Clone)]
+pub enum TimerTag {
+    Submission,
+    Judging,
+    ShowRoundWinner,
+}
+
+impl TimerTag {
+    pub fn duration(&self) -> Duration {
+        match self {
+            TimerTag::Submission => Duration::new(60, 0),
+            TimerTag::Judging => Duration::new(30, 0),
+            TimerTag::ShowRoundWinner => Duration::new(5, 0),
+        }
+    }
 }
 
 impl Timer {
-    pub fn new(started_at: Instant, cancellation: oneshot::Sender<()>) -> Self {
+    pub fn new(started_at: Instant, cancellation: oneshot::Sender<()>, tag: TimerTag) -> Self {
         Self(Some(TimerFields {
             started_at,
             cancellation,
+            tag,
         }))
     }
 
     pub fn elapsed(&self) -> Option<Duration> {
         self.0.as_ref().map(|f| f.started_at.elapsed())
+    }
+
+    pub fn remaining_secs(&self) -> Option<u64> {
+        self.0.as_ref().and_then(|t| {
+            let elapsed = t.started_at.elapsed();
+            let duration = t.tag.duration();
+            if elapsed < duration {
+                let diff = duration - elapsed;
+                let rounded_sec = if diff.subsec_nanos() >= 500_000_000 {
+                    1
+                } else {
+                    0
+                };
+                Some(diff.as_secs() + rounded_sec)
+            } else {
+                None
+            }
+        })
     }
 
     pub fn cancel(&mut self) {
@@ -117,19 +154,7 @@ impl GameState {
             .and_then(|j| self.rotation.get(j))
             .cloned();
 
-        let timer = self.timer.elapsed().and_then(|elapsed| {
-            if elapsed < timer_duration() {
-                let diff = timer_duration() - elapsed;
-                let rounded_sec = if diff.subsec_nanos() >= 500_000_000 {
-                    1
-                } else {
-                    0
-                };
-                Some(diff.as_secs() + rounded_sec)
-            } else {
-                None
-            }
-        });
+        let timer = self.timer.remaining_secs();
 
         let empty_vec = Vec::new();
         let submissions = {

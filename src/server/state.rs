@@ -7,7 +7,7 @@ use ::tokio::{
     select,
     sync::{broadcast::Sender, oneshot},
     task::spawn,
-    time::{sleep_until, Duration, Instant},
+    time::{sleep_until, Instant},
 };
 
 // TODO: client actions need to be both restricted by game step & player role
@@ -83,7 +83,12 @@ pub async fn handle_message(
             });
 
             _ = messenger.send(ServerMessage::ShowRoundWinner(winner_id));
-            set_timer(Duration::new(5, 0), state, messenger, end_judging_step);
+            set_timer(
+                TimerTag::ShowRoundWinner,
+                state,
+                messenger,
+                end_judging_step,
+            );
         }
 
         ClientMessage::ResetState => {
@@ -103,7 +108,7 @@ fn start_submission_step(state: &mut GameState, messenger: &Sender<ServerMessage
     });
 
     state.step = GameStep::Submission;
-    set_timer(timer_duration(), state, messenger, start_judging_step);
+    set_timer(TimerTag::Submission, state, messenger, start_judging_step);
     _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
 }
 
@@ -112,7 +117,7 @@ fn start_judging_step(state: &mut GameState, messenger: &Sender<ServerMessage>) 
     state.step = GameStep::Judging;
     state.shuffle_current_round_submissions();
 
-    set_timer(timer_duration(), state, messenger, end_judging_step);
+    set_timer(TimerTag::Judging, state, messenger, end_judging_step);
     _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
 }
 
@@ -135,7 +140,7 @@ fn end_judging_step(state: &mut GameState, messenger: &Sender<ServerMessage>) {
 }
 
 fn set_timer(
-    duration: Duration,
+    tag: TimerTag,
     state: &mut GameState,
     messenger: &Sender<ServerMessage>,
     on_timeout: impl FnOnce(&mut GameState, &Sender<ServerMessage>) + 'static + Send,
@@ -143,12 +148,13 @@ fn set_timer(
     state.timer.cancel();
     let (cancel, cancelled) = oneshot::channel();
     let now = Instant::now();
-    state.timer = Timer::new(now, cancel);
+    state.timer = Timer::new(now, cancel, tag.clone());
 
+    let tag = tag.clone();
     let messenger = messenger.clone();
     spawn(async move {
         let sleep_then_lock_state = async move {
-            sleep_until(now + duration).await;
+            sleep_until(now + tag.duration()).await;
             GLOBAL.state.lock().await
         };
 
