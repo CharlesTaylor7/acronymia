@@ -26,6 +26,17 @@ Future Ideas:
 - [ ] The number of letters in the acronym is itself random, between 3 to 8. 
 - [ ] Make the random selection enforce pronounceability. (For now the game could be called initialismia).
 
+## TODO
+- [ ] Auto reconnect clientside Websockets
+- [ ] Attempt to diagnose timer desyncs
+- [ ] Reimplement show round winner feature
+  - Names go under submission
+  - Judge sees names too
+  - Crown emoji next to round winner
+
+- [ ] Test on mobile safari
+
+
 ## Initial Feedback - Mar 19th
 
 ###  Dark Mode
@@ -61,8 +72,6 @@ Future Ideas:
 - Penalties for using multiple words for a single letter of the acronym
 - Double points per the second round of play
 - Players can pick colors / icons to represent themselves.
-- Design for Mobile
-- Dark Mode
 
 
 ## Implementation Notes
