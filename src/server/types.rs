@@ -27,7 +27,7 @@ pub struct GameState {
     pub timer: Timer,
 }
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct Round {
     pub judge: JudgeId,
     pub acronym: String,
@@ -148,6 +148,30 @@ impl GameState {
         }
     }
 
+    pub fn scores(&self) -> Vec<(PlayerName, i64)> {
+        let mut score_map = HashMap::new();
+        for round in self.rounds.iter() {
+            if let Some(winner) = &round.winner {
+                insert_or_add(&mut score_map, winner, 1);
+            } else {
+                // The judge is penalized for a timeout.
+                // This is because any round where you don't select a winner
+                // you've denied any of your peers a point.
+                // Penalizing the judge fixes this issue from a "game theory" perspective
+                insert_or_add(&mut score_map, &self.rotation[round.judge], -1);
+            }
+        }
+        let mut scores = Vec::with_capacity(self.rotation.len());
+        for id in self.rotation.iter() {
+            let score = score_map.get(id).map_or(0, |s| *s);
+            scores.push((self.players[id].name.clone(), score));
+        }
+        // sort descending
+        scores.sort_by(|(_, a_score), (_, b_score)| b_score.cmp(&a_score));
+
+        scores
+    }
+
     pub fn to_client_state(&self) -> ClientGameState {
         let judge = self
             .current_judge()
@@ -166,27 +190,7 @@ impl GameState {
         };
 
         let scores = if self.step == GameStep::Results {
-            let mut score_map = HashMap::new();
-            for round in self.rounds.iter() {
-                if let Some(winner) = &round.winner {
-                    insert_or_add(&mut score_map, winner, 1);
-                } else {
-                    // The judge is penalized for a timeout.
-                    // This is because any round where you don't select a winner
-                    // you've denied any of your peers a point.
-                    // Penalizing the judge fixes this issue from a "game theory" perspective
-                    insert_or_add(&mut score_map, &self.rotation[round.judge], -1);
-                }
-            }
-            let mut scores = Vec::with_capacity(self.rotation.len());
-            for id in self.rotation.iter() {
-                let score = score_map.get(id).map_or(0, |s| *s);
-                scores.push((self.players[id].name.clone(), score));
-            }
-            // sort descending
-            scores.sort_by(|(_, a_score), (_, b_score)| b_score.cmp(&a_score));
-
-            scores
+            self.scores()
         } else {
             Vec::new()
         };
@@ -230,7 +234,7 @@ where
     K: std::hash::Hash + Eq,
 {
     if let Err(mut occupied) = map.try_insert(key, amount) {
-        occupied.value += amount;
+        *occupied.entry.get_mut() += amount;
     }
 }
 
@@ -242,7 +246,7 @@ pub fn default_game_state() -> GameState {
     }
 }
 
-fn demo_init(players: Vec<&str>) -> GameState {
+pub fn demo_init(players: Vec<&str>) -> GameState {
     let players = players
         .into_iter()
         .map(|name| ServerPlayer {
@@ -264,5 +268,45 @@ fn demo_init(players: Vec<&str>) -> GameState {
         step: GameStep::Setup,
         timer: Timer::default(),
         shuffled_submissions: Vec::new(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::server::types::*;
+    #[test]
+    fn scores() {
+        let state = GameState::default();
+        let state = GameState {
+            rounds: vec![
+                Round {
+                    winner: Some("a".to_owned()),
+                    ..Round::default()
+                },
+                Round {
+                    winner: Some("a".to_owned()),
+                    ..Round::default()
+                },
+                Round {
+                    winner: Some("b".to_owned()),
+                    ..Round::default()
+                },
+                Round {
+                    winner: None,
+                    judge: 2,
+                    ..Round::default()
+                },
+            ],
+            ..demo_init(vec!["a", "b", "c"])
+        };
+        let scores = state.scores();
+        assert_eq!(
+            state.scores(),
+            vec![
+                ("a".to_owned(), 2),
+                ("b".to_owned(), 1),
+                ("c".to_owned(), -1)
+            ]
+        );
     }
 }

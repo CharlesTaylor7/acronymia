@@ -39,11 +39,11 @@ Future Ideas:
 - Websocket disconnects if you're away for more than 10 seconds. e.g. If you switch to another app on your phone. But I can try to make it automatically reconnect when the browser regains focus.
 - Timer desyncs. This means the browser interval got cleared and not reset.
 - On mobile ios Safari, Judge wasn't recognized for round.
-- Scoreboard results at the end were way undercounted.
+- [x] Scoreboard results at the end were way undercounted.
 
 ### Tweaks
-- Increase time to show winners before starting a new round, 10 seconds instead of 5.
-- Decrease time for judge to select winner.
+- [x] Increase time to show winners before starting a new round, 10 seconds instead of 5.
+- [x] Decrease time for judge to select winner.
 - Have a separate Change name button. It's not obvious that you can click Join to rename yourself.
 - Able to see your point total during game play
 
