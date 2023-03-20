@@ -54,6 +54,7 @@ pub enum ClientMessage {
     StartGame,
     SubmitAcronym(PlayerId, Submission),
     JudgeRound(PlayerId),
+    GetRemainingTime,
     /// for debugging only
     ResetState,
     /// for debugging only
@@ -75,4 +76,6 @@ pub enum ServerMessage {
     PlayerJoined(Player),
     ShowRoundWinner(PlayerId),
     IncrementSubmissionCount,
+    /// Seconds remaining on the clock
+    UpdateRemainingTime(Option<u64>),
 }

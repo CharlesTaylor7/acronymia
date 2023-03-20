@@ -94,6 +94,11 @@ pub async fn handle_message(
             );
         }
 
+        ClientMessage::GetRemainingTime => {
+            _ = messenger.send(ServerMessage::UpdateRemainingTime(state.timer.remaining_secs()));
+        }
+
+        // BEGIN DEBUG MESSAGES
         ClientMessage::ResetState => {
             *state = default_game_state();
             _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
@@ -102,6 +107,7 @@ pub async fn handle_message(
         ClientMessage::StopTimer => {
             state.timer.cancel();
         }
+        // END DEBUG MESSAGES
     }
 }
 

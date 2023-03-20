@@ -92,5 +92,9 @@ fn apply_server_message(state: &mut ClientGameState, message: ServerMessage) {
         IncrementSubmissionCount => {
             state.submission_count += 1;
         }
+
+        UpdateRemainingTime(time) => {
+            state.timer = time;
+        }
     }
 }

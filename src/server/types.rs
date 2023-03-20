@@ -178,7 +178,6 @@ impl GameState {
             .and_then(|j| self.rotation.get(j))
             .cloned();
 
-        let timer = self.timer.remaining_secs();
 
         let empty_vec = Vec::new();
         let submissions = {
@@ -196,10 +195,10 @@ impl GameState {
         };
 
         ClientGameState {
-            timer,
             judge,
             submissions,
             scores,
+            timer: self.timer.remaining_secs(),
             round_winner: self.rounds.last().and_then(|r| r.winner.clone()),
             step: self.step.clone(),
             round_counter: format!("Round {}/{}", self.rounds.len(), 2 * self.rotation.len()),
