@@ -26,15 +26,22 @@ Future Ideas:
 - [ ] The number of letters in the acronym is itself random, between 3 to 8. 
 - [ ] Make the random selection enforce pronounceability. (For now the game could be called initialismia).
 
-## TODO
-- [x] Auto reconnect clientside Websockets
-  - You can register event handlers for Window onblur, and onfocus
-- [ ] Handle timer desyncs
+
+### Timers
+
+60 seconds for acronym submission.
+45 seconds for judging.
+10 seconds for showing round winner before advancing to the next round.
+
+### Scoring
+
+TODO
+
+## Todo Tasks
 - [ ] Reimplement show round winner feature
   - Names go under submission
   - Judge sees names too
   - Crown emoji next to round winner
-- [ ] Test on mobile safari
 
 
 ## Initial Feedback - Mar 19th
@@ -45,20 +52,7 @@ Future Ideas:
 ### Positive Feedback
 - People found it easy to use
 
-### Bugs
-- [x] Submission counter would often not update in realtime.
-- [x] On mobile ios Safari, Judge wasn't recognized for round.
-  - The issue is the player registered while inside of Discord's site preview window, and then tried to play the game from within Safari.
-  - These are separate browsers and therefore the player id is not consistent.
-  - Resolution: You have to play the game with the same browser throughout.
-  - The potential code fixes to this are worse than the workaround. "Solutions" would involve passwords, or fingerprinting, etc.
-- [x] Scoreboard results at the end were way undercounted.
-- [x] Websocket disconnects if you're away for more than 10 seconds. e.g. If you switch to another app on your phone. But I can try to make it automatically reconnect when the browser regains focus.
-- [ ] Timer desyncs. This means the browser interval got cleared and not reset.
-
 ### Tweaks
-- [x] Increase time to show winners before starting a new round, 10 seconds instead of 5.
-- [x] Decrease time for judge to select winner.
 - Have a separate Change name button. It's not obvious that you can click Join to rename yourself.
 - Able to see your point total during game play
 - Revealed names go under the acronym submissions
