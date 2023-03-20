@@ -86,13 +86,14 @@ https://github.com/leptos-rs/leptos/blob/586f524015a543c9599205a91eac59bd7fca3c4
 
 This project was bootstrapped with the [Leptos](https://github.com/leptos-rs/leptos) web framework and the [cargo-leptos](https://github.com/akesson/cargo-leptos) tool.
 
-## Running your project
+## Running the project
 
 Install `cargo`, `cargo-leptos`, & `npm`.
 
 - Run the web server: `cargo leptos watch`
 - Run tailwind to bundle the css: `npm run watch-css`
 - Lint rust code: `cargo clippy`
+- Run server unit tests: `cargo test --features=ssr`
 
 ## Installing Additional Tools
 
