@@ -6,7 +6,7 @@ In each round, players will be given a prompt and corresponding acronym. Players
 
 The game will either run until one player reaches a score threshold or until the designated number of rounds passes. In the latter case, the highest score wins.
 
-In order to play, a host will need to install and run the game. Once the game is up and running, players can join through their web browser (whether or not room codes or passwords will be used is to be determined.)
+In order to play, a host will need to install and run the game. Once the game is up and running, players can join through their web browser.
 
 Potential features include choosing themes for the game, which could change prompts given and icons players can choose to represent themselves while playing, as well as acronym length and round limit modifiers.
 
@@ -36,10 +36,14 @@ Future Ideas:
 
 ### Bugs
 - [x] Submission counter would often not update in realtime.
+- [x] On mobile ios Safari, Judge wasn't recognized for round.
+  - The issue is the player registered while inside of Discord's site preview window, and then tried to play the game from within Safari.
+  - These are separate browsers and therefore the player id is not consistent.
+  - Resolution: You have to play the game with the same browser throughout.
+  - The potential code fixes to this are worse than the workaround. "Solutions" would involve passwords, or fingerprinting, etc.
+- [x] Scoreboard results at the end were way undercounted.
 - Websocket disconnects if you're away for more than 10 seconds. e.g. If you switch to another app on your phone. But I can try to make it automatically reconnect when the browser regains focus.
 - Timer desyncs. This means the browser interval got cleared and not reset.
-- On mobile ios Safari, Judge wasn't recognized for round.
-- [x] Scoreboard results at the end were way undercounted.
 
 ### Tweaks
 - [x] Increase time to show winners before starting a new round, 10 seconds instead of 5.
@@ -55,6 +59,9 @@ Future Ideas:
 - Audience Vote mechanic for additional scoring
 - Penalties for using multiple words for a single letter of the acronym
 - Double points per the second round of play
+- Players can pick colors / icons to represent themselves.
+- Design for Mobile
+- Dark Mode
 
 
 ## Implementation Notes
