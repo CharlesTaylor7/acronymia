@@ -239,7 +239,7 @@ where
 }
 
 pub fn default_game_state() -> GameState {
-    if cfg!(debug_assertions) {
+    if DEBUG_MODE {
         demo_init(vec!["alice", "bob", "carl"])
     } else {
         Default::default()

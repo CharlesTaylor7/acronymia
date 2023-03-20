@@ -1,4 +1,5 @@
 use crate::components::game::utils::state::game_state;
+use crate::constants::*;
 use crate::*;
 use ::leptos::*;
 use leptos_dom::helpers::IntervalHandle;
@@ -29,7 +30,8 @@ pub fn provide_game_context(cx: Scope) {
     let player_id = signal_player_id(cx);
     provide_typed_context::<Signal_PlayerId>(cx, player_id);
 
-    if cfg!(debug_assertions) {
+    if DEBUG_MODE {
+        // synchronize player id with player name
         create_effect(cx, move |_| {
             player_id.set(Some(player_name()));
         })
