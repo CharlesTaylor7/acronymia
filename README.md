@@ -27,7 +27,7 @@ Future Ideas:
 - [ ] Make the random selection enforce pronounceability. (For now the game could be called initialismia).
 
 ## TODO
-- [ ] Auto reconnect clientside Websockets
+- [x] Auto reconnect clientside Websockets
   - You can register event handlers for Window onblur, and onfocus
 - [ ] Handle timer desyncs
 - [ ] Reimplement show round winner feature
@@ -53,8 +53,8 @@ Future Ideas:
   - Resolution: You have to play the game with the same browser throughout.
   - The potential code fixes to this are worse than the workaround. "Solutions" would involve passwords, or fingerprinting, etc.
 - [x] Scoreboard results at the end were way undercounted.
-- Websocket disconnects if you're away for more than 10 seconds. e.g. If you switch to another app on your phone. But I can try to make it automatically reconnect when the browser regains focus.
-- Timer desyncs. This means the browser interval got cleared and not reset.
+- [x] Websocket disconnects if you're away for more than 10 seconds. e.g. If you switch to another app on your phone. But I can try to make it automatically reconnect when the browser regains focus.
+- [ ] Timer desyncs. This means the browser interval got cleared and not reset.
 
 ### Tweaks
 - [x] Increase time to show winners before starting a new round, 10 seconds instead of 5.
