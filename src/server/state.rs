@@ -65,11 +65,13 @@ pub async fn handle_message(
             }
 
             if let Some(round) = state.rounds.last_mut() {
-                round.submissions.insert(player_id, submission);
+                let prev = round.submissions.insert(player_id, submission);
 
                 // if all submissions are in, go to judging step
                 if round.submissions.len() + 1 == state.rotation.len() {
                     start_judging_step(state, &messenger);
+                } else if prev.is_none() {
+                    _ = messenger.send(ServerMessage::IncrementSubmissionCount);
                 }
             }
         }

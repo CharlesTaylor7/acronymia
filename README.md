@@ -35,7 +35,7 @@ Future Ideas:
 - People found it easy to use
 
 ### Bugs
-- Submission counter would often not update in realtime.
+- [x] Submission counter would often not update in realtime.
 - Websocket disconnects if you're away for more than 10 seconds. e.g. If you switch to another app on your phone. But I can try to make it automatically reconnect when the browser regains focus.
 - Timer desyncs. This means the browser interval got cleared and not reset.
 - On mobile ios Safari, Judge wasn't recognized for round.

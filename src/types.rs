@@ -72,4 +72,5 @@ pub enum ServerMessage {
     GameState(ClientGameState),
     PlayerJoined(Player),
     ShowRoundWinner(PlayerId),
+    IncrementSubmissionCount,
 }

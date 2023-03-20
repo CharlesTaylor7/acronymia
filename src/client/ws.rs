@@ -82,5 +82,9 @@ fn apply_server_message(state: &mut ClientGameState, message: ServerMessage) {
         ShowRoundWinner(player_id) => {
             state.round_winner = Some(player_id);
         }
+
+        IncrementSubmissionCount => {
+            state.submission_count += 1;
+        }
     }
 }
