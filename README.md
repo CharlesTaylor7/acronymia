@@ -26,14 +26,13 @@ Future Ideas:
 - [ ] The number of letters in the acronym is itself random, between 3 to 8. 
 - [ ] Make the random selection enforce pronounceability. (For now the game could be called initialismia).
 
-## Initial Feedback
+## Initial Feedback - Mar 19th
 
 ###  Dark Mode
-- 7/8 of playtesters  requested Dark mode.
+- 6/7 of playtesters requested Dark mode.
 
 ### Positive Feedback
 - People found it easy to use
-
 
 ### Bugs
 - Submission counter would often not update in realtime.
