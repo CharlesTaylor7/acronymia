@@ -12,6 +12,11 @@ Potential features include choosing themes for the game, which could change prom
 
 ## Features
 
+### Host
+The first person to join the game is granted host privileges which include a debug view and the ability to impersonate or kick any player.
+
+There is no multi-game support. It only supports one active game running at a time.
+
 ### Letter Bag
 The ratio of letters matches the ratio of first letters in the english language.
 Table pulled from [Wikipedia](https://en.wikipedia.org/wiki/Letter_frequency#Relative_frequencies_of_the_first_letters_of_a_word_in_English_language).
@@ -70,14 +75,11 @@ TODO
 
 ## Implementation Notes
 
-Uses Web sockets. Polling & SSE were both leading to poor user experience.
+- Web sockets for all server <-> client communication. Polling & SSE were both leading to poor user experience.
 
-Central server thread with in memory state & message passing.
+- Central server thread with in memory state & synchronized with client handler threads via message passing.
 
-Pages:
-- Lobby: "/"
-- Active Game (SPA): `/game/<id>/`
-- Game configaration `/game/<id>/config`
+- SPA (Single Page Application)
 
 
 ### Known Leptos bugs
