@@ -1,5 +1,6 @@
 use crate::types::{ClientGameState, ClientMessage};
 use leptos::{RwSignal, Scope};
+pub use crate::types::ClientMessage::*;
 
 #[cfg(feature = "hydrate")]
 pub async fn send(cx: Scope, message: ClientMessage) {

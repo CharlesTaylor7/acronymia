@@ -1,5 +1,4 @@
 use ::leptos::*;
-
 use crate::components::reset_button::*;
 use crate::components::{styles::*, utils::*};
 use crate::constants::*;
@@ -34,6 +33,8 @@ pub fn Game(cx: Scope) -> impl IntoView {
         let step = game_step();
         step == GameStep::Submission || step == GameStep::Judging
     });
+
+    let stop_timer = create_action(cx, move|_| send(cx, StopTimer) );
     view! {
         cx,
         <div class="flex flex-col items-start mx-20 my-4 gap-4">
@@ -65,7 +66,14 @@ pub fn Game(cx: Scope) -> impl IntoView {
                         </p>
                         <PlayerRoster />
                         <div>{move || format!("WS game_state = {:#?}", game_state(cx).get())}</div>
+                        <button
+                            class=button_class("bg-red-200")
+                            on:click=move|_| stop_timer.dispatch(())
+                        >
+                            "Stop timer"
+                        </button>
                         <ResetButton />
+
                         <h1 class="font-bold font-xl">"End Debug"</h1>
                     </div>
                 </When>

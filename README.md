@@ -50,6 +50,7 @@ Future Ideas:
 - [x] Decrease time for judge to select winner.
 - Have a separate Change name button. It's not obvious that you can click Join to rename yourself.
 - Able to see your point total during game play
+- Revealed names go under the acronym submissions
 
 ### Feature requests
 - Configurable Letter Distribution

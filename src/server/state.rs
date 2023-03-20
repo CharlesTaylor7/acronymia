@@ -39,6 +39,7 @@ pub async fn handle_message(
 
             _ = messenger.send(ServerMessage::PlayerJoined(player));
         }
+
         ClientMessage::KickPlayer(id) => {
             if let Some(player) = state.players.get_mut(&id) {
                 player.quit = true;
@@ -96,6 +97,10 @@ pub async fn handle_message(
         ClientMessage::ResetState => {
             *state = default_game_state();
             _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
+        }
+
+        ClientMessage::StopTimer => {
+            state.timer.cancel();
         }
     }
 }

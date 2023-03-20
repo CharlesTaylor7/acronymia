@@ -56,6 +56,8 @@ pub enum ClientMessage {
     JudgeRound(PlayerId),
     /// for debugging only
     ResetState,
+    /// for debugging only
+    StopTimer,
 }
 
 /// message from the server broadcast to each client
