@@ -69,7 +69,7 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
 
             <button
                 class=button_class("bg-green-300 mt-12")
-                disabled=move|| selected().is_none()
+                disabled=move|| {selected().is_none() || submit_winner.version()() > 0}
                 on:click=move|_| submit_winner.dispatch(())
             >
             "Submit"
