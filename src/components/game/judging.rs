@@ -1,6 +1,7 @@
 use super::{acronym::*, context::*, timer::*};
 use crate::components::game::utils::state::*;
 use crate::components::styles::*;
+use crate::components::utils::*;
 use crate::typed_context::*;
 use crate::types::ClientMessage::*;
 use crate::types::*;
@@ -12,8 +13,12 @@ use std::collections::HashMap;
 pub fn GameJudging(cx: Scope) -> impl IntoView {
     provide_player_lookup(cx);
     let judge = use_typed_context::<Memo_Judge>(cx);
+    let show_timer = create_memo(cx, move|_| game_state(cx).with(|g| g.round_winner.is_none()));
+    let show_timer = MaybeSignal::derive(cx, move|| show_timer());
     view! { cx,
-        <Timer />
+        <When predicate=show_timer>
+            <Timer />
+        </When>
         {
             move || match judge() {
                 None => view! {cx, <><span>"Error: No judge"</span></>},
