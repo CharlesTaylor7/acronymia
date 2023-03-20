@@ -57,10 +57,11 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
                 each=submissions
                 key=|(id, _)| id.clone()
                 view=move |cx, (id, words)| {
+                    let class = option_class(&id);
                     view! {
                         cx,
                         <button
-                            class=option_class(&id)
+                            class=class
                             on:click=move|_| selected.set(Some(id.clone()))
                         >
                             {words.join(" ")}

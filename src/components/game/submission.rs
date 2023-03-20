@@ -67,6 +67,8 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
             }
             key=|(i, _)| i.clone()
             view=move |cx, (i, c)| {
+                // the macro gets confused and doesn't notice this variable is used
+                #[allow(unused_variables)]
                 let node_ref = get_ref(i);
                 view! {cx,
                     <input
