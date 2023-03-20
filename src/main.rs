@@ -5,8 +5,8 @@ cfg_if! {
         use acronymia::components::app::{App, AppProps};
         use acronymia::server::{sync, ws};
         use actix_files::Files;
-        use actix_web::*;
-        use leptos::*;
+        use actix_web::{App, web, middleware, HttpServer};
+        use leptos::{view, get_configuration};
         use leptos_actix::{generate_route_list, LeptosRoutes};
 
         #[actix_web::main]
@@ -35,7 +35,7 @@ cfg_if! {
                         |cx| view! { cx, <App/> } ,
                     )
                     .service(Files::new("/", site_root))
-                    //.wrap(middleware::Compress::default())
+                    .wrap(middleware::Compress::default())
             })
             .bind(&addr)?
             .run()

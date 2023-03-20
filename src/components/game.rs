@@ -39,6 +39,7 @@ pub fn Game(cx: Scope) -> impl IntoView {
         cx,
         <div class="flex flex-col items-start mx-20 my-4 gap-4">
             <h1 class="text-xl font-bold">"Acronymia"</h1>
+            <img src="./crown.png" />
             <When predicate=show_round_counter>
                 <h2 class="text-l font-bold">
                     {move|| game_state(cx).get().round_counter}
