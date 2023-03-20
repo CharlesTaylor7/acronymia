@@ -65,8 +65,8 @@ impl TimerTag {
     pub fn duration(&self) -> Duration {
         match self {
             TimerTag::Submission => Duration::new(60, 0),
-            TimerTag::Judging => Duration::new(30, 0),
-            TimerTag::ShowRoundWinner => Duration::new(5, 0),
+            TimerTag::Judging => Duration::new(45, 0),
+            TimerTag::ShowRoundWinner => Duration::new(10, 0),
         }
     }
 }
