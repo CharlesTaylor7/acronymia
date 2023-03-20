@@ -28,12 +28,12 @@ Future Ideas:
 
 ## TODO
 - [ ] Auto reconnect clientside Websockets
-- [ ] Attempt to diagnose timer desyncs
+  - You can register event handlers for Window onblur, and onfocus
+- [ ] Handle timer desyncs
 - [ ] Reimplement show round winner feature
   - Names go under submission
   - Judge sees names too
   - Crown emoji next to round winner
-
 - [ ] Test on mobile safari
 
 
