@@ -26,6 +26,37 @@ Future Ideas:
 - [ ] The number of letters in the acronym is itself random, between 3 to 8. 
 - [ ] Make the random selection enforce pronounceability. (For now the game could be called initialismia).
 
+## Initial Feedback
+
+###  Dark Mode
+- 7/8 of playtesters  requested Dark mode.
+
+### Positive Feedback
+- People found it easy to use
+
+
+### Bugs
+- Submission counter would often not update in realtime.
+- Websocket disconnects if you're away for more than 10 seconds. e.g. If you switch to another app on your phone. But I can try to make it automatically reconnect when the browser regains focus.
+- Timer desyncs. This means the browser interval got cleared and not reset.
+- On mobile ios Safari, Judge wasn't recognized for round.
+- Scoreboard results at the end were way undercounted.
+
+### Tweaks
+- Increase time to show winners before starting a new round, 10 seconds instead of 5.
+- Decrease time for judge to select winner.
+- Have a separate Change name button. It's not obvious that you can click Join to rename yourself.
+- Able to see your point total during game play
+
+### Feature requests
+- Configurable Letter Distribution
+- Audio cues when you need to make a decision.
+- Differing acronym lengths. Between 2-6 letters.
+- Prompts / themes per round.
+- Audience Vote mechanic for additional scoring
+- Penalties for using multiple words for a single letter of the acronym
+- Double points per the second round of play
+
 
 ## Implementation Notes
 
@@ -51,28 +82,6 @@ https://github.com/leptos-rs/leptos/blob/586f524015a543c9599205a91eac59bd7fca3c4
 
 - Server api functions can silently fail. If you use composite types in the function arguments the code compiles but fails completely silently at runtime. There's no panic, no console warning, no nothing. Strings & numbers work fine, vectors & structs don't. I believe it's actually supposed to work with any type that's serializable with Serde. 
   Workaround: apply the "Cbor" argument to the server macro. It uses a different serialization format then the default and actually works. The default deserialization format is Form data. 
-
-### TODO for MVP
-- [x] Setup step
-  - [x] Players can set their nickname
-  - [x] Allow game creator to start game (for MVP creator is the first registered player)
-- [x] Submission step
-  - [x] a synchronized 30 second timer.
-  - [x] acronym input
-  - [x] of submissions received
-  - [x] validate submission input
-  - [ ] submit partially provided inputs in case of timeout?
-- [x] Judging step
-  - [x] player view
-      - [x] readonly list of submissions
-  - [x] judge view 
-      - [x] list of submissions each of which is a button for selecting winner
-      - [ ] after a winner for the round is selected the next round starts with a small delay. Say 5 seconds for everyone to see the result
-- [x] Results step
-  - [x] Show a scoreboard of player points
-
-- [x] Refactor SSE & server functions into using websockets for a more realtime experience
-
 
 # Development
 
