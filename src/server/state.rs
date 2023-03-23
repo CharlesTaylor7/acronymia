@@ -81,9 +81,14 @@ pub async fn handle_message(
             if state.step != GameStep::Judging {
                 return;
             }
-            state.rounds.last_mut().map(|r| {
-                r.winner = Some(winner_id.clone());
-            });
+
+            if let Some(round) = state.rounds.last_mut() {
+                round.winner = Some(winner_id.clone());
+            }
+            else {
+                // prevent double submission
+                return;
+            }
 
             _ = messenger.send(ServerMessage::ShowRoundWinner(winner_id));
             set_timer(
