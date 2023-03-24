@@ -33,6 +33,11 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
                 class=text_input_class("")
                 default=player_name()
                 on:input=move |e| player_name.set(event_target_value(&e))
+                on:keydown=move |e| {
+                    if e.key() == "Enter" {
+                        join_game.dispatch(());
+                    }
+                }
             />
             <div class="flex flex-row gap-4">
                 <button
