@@ -28,20 +28,22 @@ pub fn Game(cx: Scope) -> impl IntoView {
 
     view! {
         cx,
-        <div class="flex flex-col items-start mx-20 my-4 gap-4">
-            <h1 class="text-xl font-bold">"Acronymia"</h1>
-            {move|| round_counter.with(|c| c.as_ref().map(|c| view! {cx,
-                <h2 class="text-l font-bold">
-                    {c}
-                </h2>
-            }))}
-            {move|| match game_step() {
-                GameStep::Setup => view! { cx, <><GameSetup /></> },
-                GameStep::Submission => view! { cx, <><GameSubmission /></> },
-                GameStep::Judging => view! { cx, <><GameJudging /></> },
-                GameStep::Results => view! { cx, <><GameResults /></> },
-            }}
-            <DebugView />
+        <div class="flex flex-row justify-center mt-4">
+            <div class="flex flex-col items-start gap-4">
+                <h1 class="text-xl font-bold">"Acronymia"</h1>
+                {move|| round_counter.with(|c| c.as_ref().map(|c| view! {cx,
+                    <h2 class="text-l font-bold">
+                        {c}
+                    </h2>
+                }))}
+                {move|| match game_step() {
+                    GameStep::Setup => view! { cx, <><GameSetup /></> },
+                    GameStep::Submission => view! { cx, <><GameSubmission /></> },
+                    GameStep::Judging => view! { cx, <><GameJudging /></> },
+                    GameStep::Results => view! { cx, <><GameResults /></> },
+                }}
+                <DebugView />
+            </div>
         </div>
     }
 }
