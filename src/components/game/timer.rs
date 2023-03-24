@@ -44,7 +44,7 @@ fn apply_timer(cx: Scope) {
         });
     };
 
-    let handle = set_interval(
+    let handle = set_interval_with_handle(
         move || {
             game_state(cx).update(|g| match g.timer {
                 Some(s) if s > 0 => {
