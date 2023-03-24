@@ -33,6 +33,7 @@ pub fn Game(cx: Scope) -> impl IntoView {
                     GameStep::Judging => view! { cx, <><GameJudging /></> },
                     GameStep::Results => view! { cx, <><GameResults /></> },
                 }}
+
                 <DebugView />
             </div>
         </div>
