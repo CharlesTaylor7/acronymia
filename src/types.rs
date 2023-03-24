@@ -23,6 +23,9 @@ pub struct Player {
     pub name: String,
 }
 
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
+pub struct ClientConfig {}
+
 /// game state for a single client
 /// some of the server game state should be hidden, and some should be transformed for easier consumption
 #[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq)]
@@ -43,6 +46,7 @@ pub struct ClientGameState {
     pub scores: Vec<(PlayerName, i64)>,
     pub round_winner: Option<PlayerId>,
     pub round_counter: Option<String>,
+    pub config: ClientConfig,
 }
 
 /// message from a client to the server

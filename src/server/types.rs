@@ -25,7 +25,11 @@ pub struct GameState {
     pub rounds: Vec<Round>,
     pub shuffled_submissions: Vec<(PlayerId, Submission)>,
     pub timer: Timer,
+    pub config: Config,
 }
+
+#[derive(Clone, Debug, PartialEq, Default)]
+pub struct Config {}
 
 #[derive(Default, Debug)]
 pub struct Round {
@@ -106,6 +110,12 @@ impl Timer {
         if let Some(fields) = self.0.take() {
             _ = fields.cancellation.send(());
         }
+    }
+}
+
+impl Config {
+    pub fn serialize(&self) -> ClientConfig {
+        ClientConfig {}
     }
 }
 
@@ -193,13 +203,17 @@ impl GameState {
             Vec::new()
         };
 
-        let round_counter = (self.step == GameStep::Submission || self.step == GameStep::Judging).then_some(format!("Round {}/{}", self.rounds.len(), 2 * self.rotation.len()));
+        let round_counter =
+            (self.step == GameStep::Submission || self.step == GameStep::Judging).then_some(
+                format!("Round {}/{}", self.rounds.len(), 2 * self.rotation.len()),
+            );
 
         ClientGameState {
             judge,
             submissions,
             scores,
             round_counter,
+            config: self.config.serialize(),
             timer: self.timer.remaining_secs(),
             round_winner: self.rounds.last().and_then(|r| r.winner.clone()),
             step: self.step.clone(),
@@ -268,6 +282,7 @@ pub fn demo_init(players: Vec<&str>) -> GameState {
         step: GameStep::Setup,
         timer: Timer::default(),
         shuffled_submissions: Vec::new(),
+        config: Config::default(),
     }
 }
 
