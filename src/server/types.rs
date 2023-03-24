@@ -203,10 +203,7 @@ impl GameState {
             Vec::new()
         };
 
-        let round_counter =
-            (self.step == GameStep::Submission || self.step == GameStep::Judging).then_some(
-                format!("Round {}/{}", self.rounds.len(), 2 * self.rotation.len()),
-            );
+        let round_counter = format!("Round {}/{}", self.rounds.len(), 2 * self.rotation.len());
 
         ClientGameState {
             judge,

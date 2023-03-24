@@ -7,11 +7,15 @@ use ::leptos::*;
 #[component]
 pub fn GameSubmission(cx: Scope) -> impl IntoView {
     let judge = use_typed_context::<Memo_Judge>(cx);
+    let round_counter = use_typed_context::<Memo_RoundCounter>(cx);
     let submissions = create_memo(cx, move |_| game_state(cx).with(|g| g.submission_count));
     let player_count = game_state(cx).with(|g| g.players.len());
 
     view! {
         cx,
+        <h2 class="text-l font-bold">
+            {round_counter}
+        </h2>
         <p>
             "Submissions received: "{submissions}"/"{player_count - 1} // judge doesn't submit
         </p>

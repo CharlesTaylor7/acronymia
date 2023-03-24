@@ -13,11 +13,15 @@ use std::collections::HashMap;
 pub fn GameJudging(cx: Scope) -> impl IntoView {
     provide_player_lookup(cx);
     let judge = use_typed_context::<Memo_Judge>(cx);
+    let round_counter = use_typed_context::<Memo_RoundCounter>(cx);
     let show_timer = create_memo(cx, move |_| {
         game_state(cx).with(|g| g.round_winner.is_none())
     });
     let show_timer = MaybeSignal::derive(cx, move || show_timer());
     view! { cx,
+        <h2 class="text-l font-bold">
+            {round_counter}
+        </h2>
         <When predicate=show_timer>
             <Timer />
         </When>

@@ -12,6 +12,7 @@ define_context!(Signal_PlayerName, RwSignal<String>);
 define_context!(Memo_Players, Memo<Vec<Player>>);
 define_context!(Memo_Judge, Memo<Option<Judge>>);
 define_context!(Memo_IsHost, Memo<bool>);
+define_context!(Memo_RoundCounter, Memo<String>);
 define_context!(TimerHandle, StoredValue<Option<IntervalHandle>>);
 
 #[derive(PartialEq, Eq, Clone)]
@@ -51,6 +52,11 @@ pub fn provide_game_context(cx: Scope) {
 
     let timer_handle = store_value(cx, None);
     provide_typed_context::<TimerHandle>(cx, timer_handle);
+
+    let round_counter = create_memo(cx, move |_| {
+        game_state(cx).with(|g| g.round_counter.clone())
+    });
+    provide_typed_context::<Memo_RoundCounter>(cx, round_counter);
 }
 
 fn judge_memo(cx: Scope) -> Memo<Option<Judge>> {

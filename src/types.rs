@@ -45,7 +45,7 @@ pub struct ClientGameState {
     /// Empty until the results step.
     pub scores: Vec<(PlayerName, i64)>,
     pub round_winner: Option<PlayerId>,
-    pub round_counter: Option<String>,
+    pub round_counter: String,
     pub config: ClientConfig,
 }
 
