@@ -89,8 +89,6 @@ where
     F1: 'static + Fn(&PlayerId) -> MaybeSignal<String>,
     F2: 'static + Copy + Fn(String),
 {
-    //let submissions = move || game_state(cx).with(|g| g.submissions.clone());
-
     view! { cx,
         <For
             each=move|| game_state(cx).with(|g| g.submissions.clone())
@@ -107,10 +105,11 @@ where
                     >
                         {words.join(" ")}
                     </button>
+
                     {move|| lookup(cx, &id2).map(|p|
                         view! {cx,
                             <span class="font-bold pr-3">
-                                {p.name}{p.is_winner.then_some(" (winner)")}
+                                {p.is_winner.then_some("👑 ")}{p.name}
                             </span>
                         }
                     )}
