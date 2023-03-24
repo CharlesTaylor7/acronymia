@@ -40,7 +40,7 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
                     prop:disabled=Signal::derive(cx, move|| player_id().is_none())
                     on:click=move |_| join_game.dispatch(())
                 >
-                    "Join!"
+                {move|| if join_game.version()() > 0 { "Update name" } else { "Join" }}
                 </button>
 
                 <When predicate=is_host >

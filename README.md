@@ -58,9 +58,9 @@ TODO
 - People found it easy to use
 
 ### Tweaks
-- Have a separate Change name button. It's not obvious that you can click Join to rename yourself.
+- [x] Have a separate Change name button. It's not obvious that you can click Join to rename yourself.
+- [x] Revealed names go under the acronym submissions
 - Able to see your point total during game play
-- Revealed names go under the acronym submissions
 
 ### Feature requests
 - Configurable Letter Distribution
