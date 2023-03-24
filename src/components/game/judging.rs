@@ -83,40 +83,33 @@ fn Submissions<F1, F2>(
     disabled: bool,
     option_class: F1,
     on_select: F2,
-    //impl 'static + Copy + Fn(String),
 ) -> impl IntoView
 where
     F1: 'static + Fn(&PlayerId) -> MaybeSignal<String>,
     F2: 'static + Copy + Fn(String),
 {
-    view! { cx,
-        <For
-            each=move|| game_state(cx).with(|g| g.submissions.clone())
-            key=|(id, _)| id.clone()
-            view=move |cx, (id, words)| {
-                let class = option_class(&id);
-                let id2 = id.clone();
-                view! {
-                    cx,
-                    <button
-                        class=move|| class.with(|s| button_class(s))
-                        disabled=disabled
-                        on:click=move|_| on_select(id.clone())
-                    >
-                        {words.join(" ")}
-                    </button>
+    game_state(cx).with(|g| g.submissions.clone()).into_iter().map(|(id, words)| {
+        let class = option_class(&id);
+        let id2 = id.clone();
+        view! {
+            cx,
+            <button
+                class=move|| class.with(|s| button_class(s))
+                disabled=disabled
+                on:click=move|_| on_select(id.clone())
+            >
+                {words.join(" ")}
+            </button>
 
-                    {move|| lookup(cx, &id2).map(|p|
-                        view! {cx,
-                            <span class="font-bold pr-3">
-                                {p.is_winner.then_some("👑 ")}{p.name}
-                            </span>
-                        }
-                    )}
+            {move|| lookup(cx, &id2).map(|p|
+                view! {cx,
+                    <span class="font-bold pr-3">
+                        {p.is_winner.then_some("👑 ")}{p.name}
+                    </span>
                 }
-            }
-        />
-    }
+            )}
+        }
+    }).collect::<Vec<_>>()
 }
 
 define_context!(LookupPlayer, Memo<HashMap<PlayerId, PlayerInfo>>);
