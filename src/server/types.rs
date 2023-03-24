@@ -193,14 +193,16 @@ impl GameState {
             Vec::new()
         };
 
+        let round_counter = (self.step == GameStep::Submission || self.step == GameStep::Judging).then_some(format!("Round {}/{}", self.rounds.len(), 2 * self.rotation.len()));
+
         ClientGameState {
             judge,
             submissions,
             scores,
+            round_counter,
             timer: self.timer.remaining_secs(),
             round_winner: self.rounds.last().and_then(|r| r.winner.clone()),
             step: self.step.clone(),
-            round_counter: format!("Round {}/{}", self.rounds.len(), 2 * self.rotation.len()),
             submission_count: self.rounds.last().map(|r| r.submissions.len()).unwrap_or(0),
             acronym: self
                 .rounds
