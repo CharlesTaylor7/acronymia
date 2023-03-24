@@ -28,7 +28,6 @@ pub fn DebugView(cx: Scope) -> impl IntoView {
                             "You are "<PlayerName />
                         </p>
                         <PlayerRoster />
-                        <div>{move || format!("WS game_state = {:#?}", game_state(cx).get())}</div>
                         <button
                             class=button_class("bg-red-200")
                             on:click=move|_| stop_timer.dispatch(())
