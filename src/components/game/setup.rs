@@ -58,14 +58,16 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
                     </button>
                 </When>
             </div>
-            <p>{move || players.with(|ps| ps.len())}" players joined"</p>
-            <ul class="list-inside list-disc flex flex-col items-start">
-                {move|| players.with(|ps| ps
-                    .iter()
-                    .map(|p| view! { cx, <li>{p.name.clone()}</li>})
-                    .collect::<Vec<_>>()
-                )}
-            </ul>
+            <div>
+                <p>{move || players.with(|ps| ps.len())}" players joined"</p>
+                <ul class="list-inside list-disc flex flex-col items-start">
+                    {move|| players.with(|ps| ps
+                        .iter()
+                        .map(|p| view! { cx, <li>{p.name.clone()}</li>})
+                        .collect::<Vec<_>>()
+                    )}
+                </ul>
+            </div>
         </div>
     }
 }
