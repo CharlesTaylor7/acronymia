@@ -34,50 +34,33 @@ pub fn GameJudging(cx: Scope) -> impl IntoView {
 #[component]
 fn JudgePerspective(cx: Scope) -> impl IntoView {
     let selected = create_rw_signal(cx, None);
-    let submissions = move || game_state(cx).with(|g| g.submissions.clone());
     let submit_winner = create_action(cx, move |_: &()| {
         OptionFuture::from(selected().map(|winner| send(cx, JudgeRound(winner))))
     });
+
     let option_class = move |id: &PlayerId| {
         let id = id.clone();
-        move || {
+        MaybeSignal::derive(cx, move || {
             button_class(if selected.with(|s| s.as_ref() == Some(&id)) {
                 "bg-blue-300"
             } else {
                 "bg-slate-200 hover:bg-blue-200"
             })
-        }
+        })
     };
 
     view! {
         cx,
-        <div class="flex flex-col items-start gap-4">
-            <header>"What is "<Acronym />"?"</header>
-            <For
-                each=submissions
-                key=|(id, _)| id.clone()
-                view=move |cx, (id, words)| {
-                    let class = option_class(&id);
-                    view! {
-                        cx,
-                        <button
-                            class=class
-                            on:click=move|_| selected.set(Some(id.clone()))
-                        >
-                            {words.join(" ")}
-                        </button>
-                    }
-                }
-            />
+        <header>"What is "<Acronym />"?"</header>
+        <Submissions disabled=false on_select=move|t| selected.set(Some(t)) option_class=option_class />
 
-            <button
-                class=button_class("bg-green-300 mt-12")
-                disabled=move|| {selected().is_none() || submit_winner.version()() > 0}
-                on:click=move|_| submit_winner.dispatch(())
-            >
-            "Submit"
-            </button>
-        </div>
+        <button
+            class=button_class("bg-green-300 mt-12")
+            disabled=move|| {selected().is_none() || submit_winner.version()() > 0}
+            on:click=move|_| submit_winner.dispatch(())
+        >
+        "Submit"
+        </button>
     }
 }
 
@@ -86,6 +69,50 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
     view! { cx,
         <p><span class="inline font-bold">{judge_name}</span>" is deliberating."</p>
         <p>"Submissions for "<Acronym />": "</p>
+        <Submissions
+            option_class=move|_| "".into()
+            disabled=true
+            on_select=move|_| { }
+        />
+    }
+}
+
+#[component]
+fn Submissions<F1, F2>(
+    cx: Scope,
+    disabled: bool,
+    option_class: F1,
+    on_select: F2,
+    //impl 'static + Copy + Fn(String),
+) -> impl IntoView
+where
+    F1: 'static + Fn(&PlayerId) -> MaybeSignal<String>,
+    F2: 'static + Copy + Fn(String),
+{
+    let submissions = move || game_state(cx).with(|g| g.submissions.clone());
+
+    view! { cx,
+        <For
+            each=submissions
+            key=|(id, _)| id.clone()
+            view=move |cx, (id, words)| {
+                let class = option_class(&id);
+                view! {
+                    cx,
+                    <button
+                        class=class
+                        disabled=disabled
+                        on:click=move|_| on_select(id.clone())
+                    >
+                        {words.join(" ")}
+                    </button>
+                }
+            }
+        />
+    }
+}
+
+/* Player perspective
         <ul class="list-inside list-disc flex flex-col items-start" >
             {
                 game_state(cx)
@@ -107,8 +134,7 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
                     )
             }
         </ul>
-    }
-}
+*/
 
 define_context!(LookupPlayer, Memo<HashMap<PlayerId, PlayerInfo>>);
 fn provide_player_lookup(cx: Scope) {

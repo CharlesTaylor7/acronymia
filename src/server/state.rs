@@ -84,8 +84,7 @@ pub async fn handle_message(
 
             if let Some(round) = state.rounds.last_mut() {
                 round.winner = Some(winner_id.clone());
-            }
-            else {
+            } else {
                 // prevent double submission
                 return;
             }
