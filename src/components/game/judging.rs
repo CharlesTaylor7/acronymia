@@ -41,11 +41,11 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
     let option_class = move |id: &PlayerId| {
         let id = id.clone();
         MaybeSignal::derive(cx, move || {
-            button_class(if selected.with(|s| s.as_ref() == Some(&id)) {
-                "bg-blue-300"
+            if selected.with(|s| s.as_ref() == Some(&id)) {
+                "bg-blue-300".to_owned()
             } else {
-                "bg-slate-200 hover:bg-blue-200"
-            })
+                "bg-slate-200 hover:bg-blue-200".to_owned()
+            }
         })
     };
 
@@ -89,52 +89,36 @@ where
     F1: 'static + Fn(&PlayerId) -> MaybeSignal<String>,
     F2: 'static + Copy + Fn(String),
 {
-    let submissions = move || game_state(cx).with(|g| g.submissions.clone());
+    //let submissions = move || game_state(cx).with(|g| g.submissions.clone());
 
     view! { cx,
         <For
-            each=submissions
+            each=move|| game_state(cx).with(|g| g.submissions.clone())
             key=|(id, _)| id.clone()
             view=move |cx, (id, words)| {
                 let class = option_class(&id);
+                let id2 = id.clone();
                 view! {
                     cx,
                     <button
-                        class=class
+                        class=move|| class.with(|s| button_class(s))
                         disabled=disabled
                         on:click=move|_| on_select(id.clone())
                     >
                         {words.join(" ")}
                     </button>
+                    {move|| lookup(cx, &id2).map(|p|
+                        view! {cx,
+                            <span class="font-bold pr-3">
+                                {p.name}{p.is_winner.then_some(" (winner)")}
+                            </span>
+                        }
+                    )}
                 }
             }
         />
     }
 }
-
-/* Player perspective
-        <ul class="list-inside list-disc flex flex-col items-start" >
-            {
-                game_state(cx)
-                    .with(|g| g
-                          .submissions
-                          .iter()
-                          .map(|(id, s)| {
-                              let id = id.clone();
-                              view! {cx,
-                              <li class="inline">
-                                <span class="pr-3">{s.join(" ")}</span>
-                                {move|| lookup(cx, &id).map(|p| view! {cx,
-
-                                    <span class="font-bold pr-3">{p.name}{p.is_winner.then_some(" (winner)")}</span>
-                                })}
-                              </li>
-                          }})
-                          .collect::<Vec<_>>()
-                    )
-            }
-        </ul>
-*/
 
 define_context!(LookupPlayer, Memo<HashMap<PlayerId, PlayerInfo>>);
 fn provide_player_lookup(cx: Scope) {
