@@ -78,8 +78,6 @@ pub fn Range(cx: Scope) -> impl IntoView {
     let lower_bound = create_rw_signal::<usize>(cx, MIN);
     let upper_bound = create_rw_signal::<usize>(cx, 6);
     view! { cx,
-        <div>{move|| lower_bound}</div>
-        <div>{move|| upper_bound}</div>
         <div class="flex flex-row gap-2">
             "From"
             <input

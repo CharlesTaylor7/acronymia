@@ -1,4 +1,5 @@
 pub mod letter_bag;
+pub mod slice_demo;
 pub mod state;
 pub mod sync;
 pub mod types;
