@@ -183,17 +183,21 @@ impl GameState {
     }
 
     pub fn to_client_state(&self) -> ClientGameState {
+        match self.step {
+            _ => todo!()
+        }
+    }
+        /*
         let judge = self
             .current_judge()
             .and_then(|j| self.rotation.get(j))
             .cloned();
 
-        let empty_vec = Vec::new();
         let submissions = {
             if self.step == GameStep::Judging {
                 self.shuffled_submissions.clone()
             } else {
-                empty_vec
+                Vec::new()
             }
         };
 
@@ -238,6 +242,7 @@ impl GameState {
                 .collect(),
         }
     }
+    */
 }
 
 fn insert_or_add<K>(map: &mut HashMap<K, i64>, key: K, amount: i64)
