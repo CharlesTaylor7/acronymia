@@ -28,25 +28,44 @@ pub struct ClientConfig {}
 
 /// game state for a single client
 /// some of the server game state should be hidden, and some should be transformed for easier consumption
-#[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq)]
-pub struct ClientGameState {
-    pub judge: Option<PlayerId>,
-    pub step: GameStep,
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum ClientGameState {
+    Setup(SetupState),
+    Submission(SubmissionState),
+    Judging(JudgingState),
+    Results(ResultsState),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct SetupState {
     pub players: Vec<Player>,
-    pub acronym: String,
-    pub timer: Option<u64>,
-    /// everyone can see the current submission count
-    pub submission_count: usize,
-    /// Empty vector when not at the judging step.
-    /// This technically enables cheating,
-    /// if a savvy player were to inspect the network tab &
-    /// cross reference with the players vector.
-    pub submissions: Vec<(PlayerId, Submission)>,
-    /// Empty until the results step.
-    pub scores: Vec<(PlayerName, i64)>,
-    pub round_winner: Option<PlayerId>,
-    pub round_counter: String,
     pub config: ClientConfig,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct SubmissionState {
+    pub timer: u64,
+    pub acronym: String,
+    pub judge: Player,
+    pub round_counter: String,
+    pub submission_count: usize,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct JudgingState {
+    pub timer: Option<u64>,
+    pub acronym: String,
+    pub judge: Player,
+    pub round_counter: String,
+    /// This technically enables cheating,
+    /// if a savvy player were to inspect the network tab.
+    pub submissions: Vec<(Player, Submission)>,
+    pub round_winner: Option<PlayerId>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct ResultsState {
+    pub scores: Vec<(PlayerName, i64)>,
 }
 
 /// message from a client to the server
