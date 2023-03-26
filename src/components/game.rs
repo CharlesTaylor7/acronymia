@@ -20,7 +20,7 @@ use ::leptos::*;
 #[component]
 pub fn Game(cx: Scope) -> impl IntoView {
     provide_game_context(cx);
-    let game_step = create_memo(cx, move |_| game_state(cx).with(|g| g.step.clone()));
+    let game_step = create_memo(cx, move |_| game_state(cx).with(std::mem::discriminant));
 
     view! {
         cx,
