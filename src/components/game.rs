@@ -16,18 +16,26 @@ use self::utils::state::*;
 use crate::components::debug_view::*;
 use crate::types::*;
 use ::leptos::*;
+use ::std::mem::{discriminant, Discriminant};
+
+type D<T> = Discriminant<T>;
 
 #[component]
 pub fn Game(cx: Scope) -> impl IntoView {
     provide_game_context(cx);
-    let game_step = create_memo(cx, move |_| game_state(cx).with(std::mem::discriminant));
+    let d = create_memo(cx, move |_| game_state(cx).with(|g| discriminant(&g.step)));
+
+    let step = move || {
+        let _ = d.with(|_| ());
+        game_state(cx).with_untracked(|g| g.step.clone())
+    };
 
     view! {
         cx,
         <div class="flex flex-row justify-center mt-4">
             <div class="flex flex-col items-start gap-4">
                 <h1 class="text-xl font-bold">"Acronymia"</h1>
-                {move|| match game_step() {
+                {move|| match step() {
                     GameStep::Setup => view! { cx, <><GameSetup /></> },
                     GameStep::Submission => view! { cx, <><GameSubmission /></> },
                     GameStep::Judging => view! { cx, <><GameJudging /></> },

@@ -35,9 +35,22 @@ pub struct ClientGameState_ {
 }
 
 
-/// Legacy game state definition
+/// Legacy game state definition.
+#[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq)]
 pub struct ClientGameState {
+    pub judge: Option<PlayerId>,
+    pub step: GameStep,
+    pub players: Vec<Player>,
+    pub acronym: String,
+    pub timer: Option<u64>,
+    pub submission_count: usize,
+    pub submissions: Vec<(PlayerId, Submission)>,
+    pub scores: Vec<(PlayerName, i64)>,
+    pub round_winner: Option<PlayerId>,
+    pub round_counter: String,
+    pub config: ClientConfig,
 }
+
 
 /// Each step of the game has distinct state.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
