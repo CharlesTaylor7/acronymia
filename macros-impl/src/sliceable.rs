@@ -1,6 +1,6 @@
-use ::proc_macro::TokenStream;
+use ::proc_macro2::TokenStream;
 use ::quote::{format_ident, quote};
-use ::syn::{punctuated::*, token::Comma, Data::*, Fields::*, Type, *};
+use ::syn::{punctuated::*, token::Comma, Fields::*, Type, *};
 
 pub fn derive(ast: DeriveInput) -> TokenStream {
     let vis = &ast.vis;
@@ -46,7 +46,6 @@ pub fn derive(ast: DeriveInput) -> TokenStream {
             }
         }
     }
-    .into()
 }
 
 fn fields(ast: &DeriveInput) -> &Punctuated<Field, Comma> {
