@@ -26,10 +26,22 @@ pub struct Player {
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
 pub struct ClientConfig {}
 
-/// game state for a single client
-/// some of the server game state should be hidden, and some should be transformed for easier consumption
+
+/// Step specific fields are nested under the `step` field. 
+/// Everything else is shared.
+pub struct ClientGameState_ {
+    pub players: Vec<Player>,
+    pub step: ClientGameStep,
+}
+
+
+/// Legacy game state definition
+pub struct ClientGameState {
+}
+
+/// Each step of the game has distinct state.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub enum ClientGameState {
+pub enum ClientGameStep {
     Setup(SetupState),
     Submission(SubmissionState),
     Judging(JudgingState),
