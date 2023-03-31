@@ -149,14 +149,15 @@ impl GameState {
     pub fn scores(&self) -> Vec<(PlayerName, i64)> {
         let mut score_map = HashMap::new();
         for round in &self.rounds {
+            let points = round.acronym.len() as i64;
             if let Some(winner) = &round.winner {
-                insert_or_add(&mut score_map, winner, 1);
+                insert_or_add(&mut score_map, winner, points);
             } else {
                 // The judge is penalized for a timeout.
                 // This is because any round where you don't select a winner
-                // you've denied any of your peers a point.
+                // you've denied all of your peers any points.
                 // Penalizing the judge fixes this issue from a "game theory" perspective
-                insert_or_add(&mut score_map, &self.rotation[round.judge], -1);
+                insert_or_add(&mut score_map, &self.rotation[round.judge], -points);
             }
         }
         let mut scores = Vec::with_capacity(self.rotation.len());
