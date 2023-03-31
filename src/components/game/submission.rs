@@ -44,11 +44,11 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
 #[component]
 fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
-    let num_of_words = game_state(cx).with(|g| g.acronym.len());
-
+    let acronym = create_memo(cx, move|_| game_state(cx).with(|g| g.acronym.clone()));
+    let num_of_words = acronym().len();
     let input_refs = store_value(
         cx,
-        init_vec(num_of_words, move || create_node_ref::<html::Input>(cx)),
+        init_vec(6, move || create_node_ref::<html::Input>(cx)),
     );
     let get_ref = move |i| input_refs.with_value(|r| r[i]);
     let submission = create_rw_signal(cx, vec![Err(String::new()); num_of_words]);
@@ -64,51 +64,44 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
         <p>
             "What is "{view! {cx, <Acronym />}}" ?"
         </p>
-        <For
-            each=move|| {
-                game_state(cx)
-                .with(|g| g.acronym.chars().enumerate().collect::<Vec<_>>())
-            }
-            key=|(i, _)| *i
-            view=move |cx, (i, c)| {
-                // the macro gets confused and doesn't notice this variable is used
-                #[allow(unused_variables)]
-                let node_ref = get_ref(i);
-                view! {cx,
-                    <input
-                        type="text"
-                        class=text_input_class("invalid:border-red-300")
-                        node_ref=node_ref
-                        autofocus={i == 0}
-                        on:keydown=move |e| {
-                            if e.key() == "Enter" {
-                                if i == num_of_words - 1 {
-                                    if let Some(args) = submit_args() {
-                                        submit.dispatch(args);
-                                    }
-                                } else {
-                                   _ = get_ref(i+1).get().unwrap().focus();
+        {move|| acronym().chars().enumerate().map(|(i, c)|{
+            // the macro gets confused and doesn't notice this variable is used
+            #[allow(unused_variables)]
+            let node_ref = get_ref(i);
+            view! {cx,
+                <input
+                    type="text"
+                    class=text_input_class("invalid:border-red-300")
+                    node_ref=node_ref
+                    autofocus={i == 0}
+                    on:keydown=move |e| {
+                        if e.key() == "Enter" {
+                            if i == num_of_words - 1 {
+                                if let Some(args) = submit_args() {
+                                    submit.dispatch(args);
                                 }
+                            } else {
+                               _ = get_ref(i+1).get().unwrap().focus();
                             }
                         }
-                        on:input=move |e| {
-                            submission.update(move |s| {
-                                let input: web_sys::HtmlInputElement = event_target(&e);
-                                let text = input.value();
-                                let result = validate_word(c, text);
-                                match &result {
-                                    Err(s) => input.set_custom_validity(s),
-                                    Ok(_) => input.set_custom_validity(""),
+                    }
+                    on:input=move |e| {
+                        submission.update(move |s| {
+                            let input: web_sys::HtmlInputElement = event_target(&e);
+                            let text = input.value();
+                            let result = validate_word(c, text);
+                            match &result {
+                                Err(s) => input.set_custom_validity(s),
+                                Ok(_) => input.set_custom_validity(""),
 
-                                }
-                                input.report_validity();
-                                s[i] = result;
-                            });
-                        }
-                    />
-                }
+                            }
+                            input.report_validity();
+                            s[i] = result;
+                        });
+                    }
+                />
             }
-        />
+        }).collect::<Vec<_>>()}
         <div>
             <button
                 class=button_class("bg-green-300")
