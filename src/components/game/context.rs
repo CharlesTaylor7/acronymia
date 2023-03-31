@@ -65,19 +65,17 @@ fn judge_memo(cx: Scope) -> Memo<Option<Judge>> {
 
     create_memo(cx, move |_| {
         game_state(cx).with(|g| {
-            g.judge
-                .as_ref()
-                .and_then(|judge_id| {
-                    if player_id.with(|id| id.as_ref() == Some(judge_id)) {
-                        Some(Judge::Me)
-                    } else {
-                        players.with(|ps| {
-                            ps.iter()
-                                .find(|p| p.id == *judge_id)
-                                .map(|p| Judge::Name(p.name.clone()))
-                        })
-                    }
-                })
+            g.judge.as_ref().and_then(|judge_id| {
+                if player_id.with(|id| id.as_ref() == Some(judge_id)) {
+                    Some(Judge::Me)
+                } else {
+                    players.with(|ps| {
+                        ps.iter()
+                            .find(|p| p.id == *judge_id)
+                            .map(|p| Judge::Name(p.name.clone()))
+                    })
+                }
+            })
         })
     })
 }

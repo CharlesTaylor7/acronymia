@@ -1,5 +1,5 @@
-use crate::constants::*;
 use super::random::shuffle;
+use crate::constants::*;
 pub use crate::types::*;
 use ::leptos::log;
 use ::std::collections::HashMap;
@@ -27,7 +27,6 @@ pub struct GameState {
     pub timer: Timer,
     pub config: Config,
 }
-
 
 #[derive(Default, Debug)]
 pub struct Round {

@@ -68,15 +68,27 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
             </ul>
         </div>
         <h1 class="text-xl font-bold">"Configuration"</h1>
-        <Range />
+        <ConfigureAcronymLength />
     }
 }
 
 #[component]
-pub fn Range(cx: Scope) -> impl IntoView {
+pub fn ConfigureAcronymLength(cx: Scope) -> impl IntoView {
+    let g = game_state(cx);
+    let (min, set_min) = create_slice(
+        cx,
+        g,
+        move |g| g.config.letters_per_acronym.min,
+        move |g, v| g.config.letters_per_acronym.min = v,
+    );
+    let (max, set_max) = create_slice(
+        cx,
+        g,
+        move |g| g.config.letters_per_acronym.max,
+        move |g, v| g.config.letters_per_acronym.max = v,
+    );
+
     const MIN: usize = 2;
-    let lower_bound = create_rw_signal::<usize>(cx, MIN);
-    let upper_bound = create_rw_signal::<usize>(cx, 6);
     view! { cx,
         <div class="flex flex-row gap-2">
             "From"
@@ -84,11 +96,11 @@ pub fn Range(cx: Scope) -> impl IntoView {
                 type="number"
                 class=number_input_class("w-[4rem]")
                 min=MIN
-                prop:max=upper_bound
-                prop:value=lower_bound
+                prop:max=max
+                prop:value=min
                 on:change=move|e| {
                     if let Ok(n) = event_target_value(&e).parse() {
-                        lower_bound.set(n);
+                        set_min(n);
                     }
                 }
             />
@@ -96,11 +108,11 @@ pub fn Range(cx: Scope) -> impl IntoView {
             <input
                 type="number"
                 class=number_input_class("w-[4rem]")
-                prop:min=lower_bound
-                prop:value=upper_bound
+                prop:min=min
+                prop:value=max
                 on:input=move|e| {
                     if let Ok(n) = event_target_value(&e).parse() {
-                        upper_bound.set(n);
+                        set_max(n);
                     }
                 }
             />
