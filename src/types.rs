@@ -25,7 +25,7 @@ pub struct Player {
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Config {
-    pub letters_per_acronym: Range<u64>,
+    pub letters_per_acronym: Range<usize>,
 }
 
 /// game state for a single client

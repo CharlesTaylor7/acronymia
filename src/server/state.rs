@@ -121,7 +121,7 @@ fn start_submission_step(state: &mut GameState, messenger: &Sender<ServerMessage
     state.cancel_timer();
     state.rounds.push(Round {
         judge: state.next_judge(),
-        acronym: random_initialism(3),
+        acronym: random_initialism(&state.config.letters_per_acronym),
         winner: None,
         submissions: HashMap::new(),
     });

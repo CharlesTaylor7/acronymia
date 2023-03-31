@@ -1,4 +1,5 @@
 use rand::prelude::*;
+use crate::types::Range;
 
 /// Based on a
 /// [Wikipedia](https://en.wikipedia.org/wiki/Letter_frequency#Relative_frequencies_of_the_first_letters_of_a_word_in_English_language).
@@ -46,7 +47,9 @@ const SUM_OF_WEIGHTS: usize = {
 
 /// Makes a random selection of n letters, using relative dictionary frequencies.
 /// Not necessarily pronounceable, so it's an initialism, not an acronym.
-pub fn random_initialism(length: usize) -> String {
+pub fn random_initialism(range: &Range<usize>) -> String {
+    let mut rng = rand::thread_rng();
+    let length = rng.gen_range(range.min ..= range.max);
     (0..length).map(|_| random_letter()).collect()
 }
 
