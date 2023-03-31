@@ -61,6 +61,7 @@ pub enum ClientMessage {
     SubmitAcronym(PlayerId, Submission),
     JudgeRound(PlayerId),
     GetRemainingTime,
+    SaveConfig(Config),
     /// for debugging only
     ResetState,
     /// for debugging only

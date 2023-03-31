@@ -104,6 +104,13 @@ pub async fn handle_message(
             ));
         }
 
+        ClientMessage::SaveConfig(config) => {
+            if state.step != GameStep::Setup {
+                return;
+            }
+            state.config = config;
+        }
+
         // BEGIN DEBUG MESSAGES
         ClientMessage::ResetState => {
             *state = default_game_state();
