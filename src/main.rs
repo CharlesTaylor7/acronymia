@@ -24,7 +24,6 @@ cfg_if! {
             HttpServer::new(move || {
                 let leptos_options = &conf.leptos_options;
                 let site_root = &leptos_options.site_root;
-                dbg!(site_root);
                 let routes = &routes;
 
                 App::new()

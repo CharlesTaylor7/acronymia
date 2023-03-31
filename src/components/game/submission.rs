@@ -51,10 +51,10 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
         init_vec(6, move || create_node_ref::<html::Input>(cx)),
     );
     let get_ref = move |i| input_refs.with_value(|r| r[i]);
-    let submission = create_rw_signal(cx, vec![Err(String::new()); num_of_words]);
+    let submission = create_rw_signal::<Vec<Option<String>>>(cx, vec![None; num_of_words]);
 
     let submit_args =
-        move || player_id().and_then(|id| submission.with(|s| all_ok(s).map(|s| (id, s))));
+        move || player_id().and_then(|id| submission.with(|s| all_some(s).map(|s| (id, s))));
     let submit = create_action(cx, move |(id, s): &(PlayerId, Submission)| {
         send_and_save(cx, id.clone(), s.clone())
     });
@@ -86,18 +86,20 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
                         }
                     }
                     on:input=move |e| {
-                        submission.update(move |s| {
-                            let input: web_sys::HtmlInputElement = event_target(&e);
-                            let text = input.value();
-                            let result = validate_word(c, text);
-                            match &result {
-                                Err(s) => input.set_custom_validity(s),
-                                Ok(_) => input.set_custom_validity(""),
-
+                        let input: web_sys::HtmlInputElement = event_target(&e);
+                        let text = input.value();
+                        let result = validate_word(c, &text);
+                        match &result {
+                            Ok(_) => {
+                                input.set_custom_validity("");
+                                submission.update(move |s| s[i] = Some(text));
                             }
-                            input.report_validity();
-                            s[i] = result;
-                        });
+                            Err(s) => {
+                                input.set_custom_validity(s);
+                                submission.update(move |s| s[i] = None);
+                            }
+                        }
+                        input.report_validity();
                     }
                 />
             }
@@ -136,20 +138,12 @@ fn init_vec<T>(count: usize, f: impl Fn() -> T) -> Vec<T> {
     vec
 }
 
-fn all_ok<T: Clone, E>(v: &[Result<T, E>]) -> Option<Vec<T>> {
-    let mut ok_vec = Vec::with_capacity(v.len());
-    for r in v {
-        match r {
-            Ok(item) => {
-                ok_vec.push(item.clone());
-            }
-            Err(_) => {
-                return None;
-            }
-        }
+fn all_some<T: Clone>(v: &[Option<T>]) -> Option<Vec<T>> {
+    if v.iter().any(|o| o.is_none()) {
+        return None;
     }
 
-    Some(ok_vec)
+    Some(v.iter().map(|o| o.as_ref().unwrap().clone()).collect::<Vec<_>>())
 }
 
 async fn send_and_save(cx: Scope, id: PlayerId, s: Submission) -> Submission {
@@ -158,22 +152,34 @@ async fn send_and_save(cx: Scope, id: PlayerId, s: Submission) -> Submission {
 }
 
 #[cfg(feature = "ssr")]
-fn validate_word(_lead: char, word: String) -> Result<String, String> {
-    Ok(word)
+fn validate_word(_lead: char, _word: &str) -> Result<(), String> {
+    Ok(())
 }
 
 /// Validates leading character.
 /// TODO: Should we enforce alphanumeric characters?
 #[cfg(feature = "hydrate")]
-fn validate_word(lead: char, word: String) -> Result<String, String> {
+fn validate_word(lead: char, word: &str) -> Result<(), String> {
     use js_sys::RegExp;
     let pattern = RegExp::new(&format!("^{}", lead), "i");
-    if let Some(_) = pattern.exec(&word) {
-        Ok(word)
-    } else {
+    if let Some(_) = pattern.exec(word) {
+        Ok(())
+   } else {
         Err(format!(
             "Should start with {}",
             lead.to_uppercase().collect::<String>(),
         ))
     }
+}
+
+fn penalty(word: &str) -> i64 {
+    let violations = word
+        .chars()
+        .filter(|c| {
+            let c = *c as u32;
+            c < 65 || (c > 91 && c < 97) || c > 122
+        })
+        .count();
+
+    -(violations as i64)
 }
