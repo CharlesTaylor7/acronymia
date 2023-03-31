@@ -37,26 +37,18 @@ Future Ideas:
 45 seconds for judging.
 10 seconds for showing round winner before advancing to the next round.
 
-### Scoring
-TODO
-
-## Todo Tasks
-- [ ] Penalize/disallow extraneous characters 
+## TODO
 - [ ] Prompts / Themed rounds
-
-
-### Tweaks
-- Able to see your point total during game play
+- [ ] Able to see your point total during game play
 
 ### Feature requests
 - Configurable Letter Distribution
 - Audio cues when you need to make a decision.
-- Prompts / themes per round.
-- Audience Vote mechanic for additional scoring
-- Penalties for using multiple words for a single letter of the acronym
-- Double points per the second round of play
 - Players can pick colors / icons to represent themselves.
 
+### Scoring Ideas
+- Audience Vote mechanic for additional scoring
+- Double points per the second round of play
 
 ## Implementation Notes
 
