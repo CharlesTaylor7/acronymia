@@ -33,39 +33,24 @@ Future Ideas:
 
 
 ### Timers
-
 60 seconds for acronym submission.
 45 seconds for judging.
 10 seconds for showing round winner before advancing to the next round.
 
 ### Scoring
-
 TODO
 
 ## Todo Tasks
-- [ ] Reimplement show round winner feature
-  - Names go under submission
-  - Judge sees names too
-  - Crown emoji next to round winner
+- [ ] Penalize/disallow extraneous characters 
+- [ ] Prompts / Themed rounds
 
-
-## Initial Feedback - Mar 19th
-
-###  Dark Mode
-- 6/7 of playtesters requested Dark mode.
-
-### Positive Feedback
-- People found it easy to use
 
 ### Tweaks
-- [x] Have a separate Change name button. It's not obvious that you can click Join to rename yourself.
-- [x] Revealed names go under the acronym submissions
 - Able to see your point total during game play
 
 ### Feature requests
 - Configurable Letter Distribution
 - Audio cues when you need to make a decision.
-- Differing acronym lengths. Between 2-6 letters.
 - Prompts / themes per round.
 - Audience Vote mechanic for additional scoring
 - Penalties for using multiple words for a single letter of the acronym
