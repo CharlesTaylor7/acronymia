@@ -47,10 +47,11 @@ pub async fn handle_message(
             }
         }
 
-        ClientMessage::StartGame => {
+        ClientMessage::StartGame(config) => {
             if state.step != GameStep::Setup {
                 return;
             }
+            state.config = config;
             start_submission_step(state, messenger);
         }
 
@@ -102,13 +103,6 @@ pub async fn handle_message(
             _ = messenger.send(ServerMessage::UpdateRemainingTime(
                 state.timer.remaining_secs(),
             ));
-        }
-
-        ClientMessage::SaveConfig(config) => {
-            if state.step != GameStep::Setup {
-                return;
-            }
-            state.config = config;
         }
 
         // BEGIN DEBUG MESSAGES

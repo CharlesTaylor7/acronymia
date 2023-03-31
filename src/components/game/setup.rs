@@ -23,7 +23,9 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
         OptionFuture::from(player().map(|p| send(cx, JoinGame(p))))
     });
 
-    let start_game = create_action(cx, move |_: &()| send(cx, StartGame));
+    let start_game = create_action(cx, move |_: &()| {
+        send(cx, StartGame(game_state(cx).with(|g| g.config.clone())))
+    });
     view! {
         cx,
         <label>"Pick a Nickname to join: "</label>

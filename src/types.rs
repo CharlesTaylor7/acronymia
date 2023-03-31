@@ -57,11 +57,10 @@ pub enum ClientMessage {
     Connected,
     JoinGame(Player),
     KickPlayer(PlayerId),
-    StartGame,
+    StartGame(Config),
     SubmitAcronym(PlayerId, Submission),
     JudgeRound(PlayerId),
     GetRemainingTime,
-    SaveConfig(Config),
     /// for debugging only
     ResetState,
     /// for debugging only
