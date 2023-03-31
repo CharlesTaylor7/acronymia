@@ -151,7 +151,8 @@ impl GameState {
         for round in &self.rounds {
             let points = round.acronym.len() as i64;
             if let Some(winner) = &round.winner {
-                insert_or_add(&mut score_map, winner, points);
+                let penalty = submission_penalty(&round.submissions[winner]);
+                insert_or_add(&mut score_map, winner, points + penalty);
             } else {
                 // The judge is penalized for a timeout.
                 // This is because any round where you don't select a winner
