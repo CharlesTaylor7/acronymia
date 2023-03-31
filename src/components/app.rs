@@ -9,15 +9,9 @@ pub fn App(cx: Scope) -> impl IntoView {
     provide_meta_context(cx);
     view! {
         cx,
-
-        // injects a stylesheet into the document <head>
-        // id=leptos means cargo-leptos will hot-reload this stylesheet
         <Stylesheet id="leptos" href="/pkg/acronymia.css"/>
-
-        // sets the document title
         <Title text="Acronymia"/>
-
-        // content for this welcome page
+        <Body class="bg-slate-700 text-blue-50"/>
         <Router>
             <main>
                 <Routes>

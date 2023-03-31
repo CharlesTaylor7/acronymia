@@ -28,7 +28,6 @@ Always 3 letters for now.
 
 Future Ideas:
 - [ ] Instead of random letters, let the judge pick an acronym for the round.
-- [ ] The number of letters in the acronym is itself random, between 3 to 8. 
 - [ ] Make the random selection enforce pronounceability. (For now the game could be called initialismia).
 
 
@@ -42,6 +41,8 @@ Future Ideas:
 - [ ] Able to see your point total during game play
 - [ ] Warn players about penalties before they submit
 - [ ] Reformat show winner view
+- [ ] Show countdown until next round
+
 
 ### Feature requests
 - Configurable Letter Distribution

@@ -16,7 +16,7 @@ pub fn DebugView(cx: Scope) -> impl IntoView {
     view! { cx,
             <When predicate=MaybeSignal::derive(cx, move|| is_host() || DEBUG_MODE) >
                 <button
-                    class=button_class("bg-slate-200 mt-4")
+                    class=button_class(ButtonStyle::Neutral, "mt-4")
                     on:click=move |_| debug_region_expanded.update(|b| *b = !*b)
                 >
                     "Toggle Debug View"
@@ -29,7 +29,7 @@ pub fn DebugView(cx: Scope) -> impl IntoView {
                         </p>
                         <PlayerRoster />
                         <button
-                            class=button_class("bg-red-200")
+                            class=button_class(ButtonStyle::Danger, "")
                             on:click=move|_| stop_timer.dispatch(())
                         >
                             "Stop timer"

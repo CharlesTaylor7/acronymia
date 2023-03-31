@@ -12,7 +12,7 @@ pub fn PlayerRoster(cx: Scope) -> impl IntoView {
 
     view! {
         cx,
-        <ul class="list-inside list-disc flex flex-col items-start" >
+        <ul class="gap-3 list-inside list-disc flex flex-col items-start" >
             {move||
                 players.with(|ps| ps
                     .iter()
@@ -48,13 +48,13 @@ fn PlayerView(
         <li>
             {player.name}
             <button
-                class="bg-blue-300 border rounded mx-2 px-2 border-slate-200"
+                class="bg-cyan-500 rounded mx-2 px-2 disabled:bg-slate-600"
                 on:click=move |_| impersonate(Some(id1.clone()))
             >
                 "Impersonate"
             </button>
             <button
-                class="bg-red-200 border rounded mx-2 px-2 border-slate-200 disabled:bg-slate-200"
+                class="bg-rose-400 rounded mx-2 px-2 disabled:bg-slate-600"
                 disabled=move|| Some(id3.clone()) == player_id() // can't kick self
                 on:click=move |_| kick_player.dispatch(id2.clone())
             >

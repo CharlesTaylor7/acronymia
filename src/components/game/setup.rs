@@ -42,16 +42,15 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
         />
         <div class="flex flex-row gap-4">
             <button
-                class=button_class("bg-blue-300")
+                class=button_class(ButtonStyle::Primary, "")
                 prop:disabled=Signal::derive(cx, move|| player_id().is_none())
                 on:click=move |_| join_game.dispatch(())
             >
             {move|| if join_game.version()() > 0 { "Update name" } else { "Join" }}
             </button>
-
-            <When predicate=is_host >
+            <When predicate=is_host>
                 <button
-                    class=button_class("bg-green-300")
+                    class=button_class(ButtonStyle::Secondary, "")
                     disabled=move|| players.with(|ps| ps.len() < 3)
                     on:click=move |_| start_game.dispatch(())
                 >

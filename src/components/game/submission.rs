@@ -73,7 +73,6 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
                     type="text"
                     class=text_input_class("invalid:border-red-300")
                     node_ref=node_ref
-                    autofocus={i == 0}
                     on:keydown=move |e| {
                         if e.key() == "Enter" {
                             if i == num_of_words - 1 {
@@ -106,7 +105,7 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
         }).collect::<Vec<_>>()}
         <div>
             <button
-                class=button_class("bg-green-300")
+                class=button_class(ButtonStyle::Primary, "")
                 disabled=move|| submit_args().is_none()
                 on:click=move|_| if let Some(args) = submit_args() { submit.dispatch(args) }
             >

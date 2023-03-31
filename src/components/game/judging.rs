@@ -46,9 +46,9 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
         let id = id.clone();
         MaybeSignal::derive(cx, move || {
             if selected.with(|s| s.as_ref() == Some(&id)) {
-                "bg-blue-300".to_owned()
+                "bg-cyan-600".to_owned()
             } else {
-                "bg-slate-200 hover:bg-blue-200".to_owned()
+                "bg-slate-600 hover:bg-cyan-500".to_owned()
             }
         })
     };
@@ -59,7 +59,7 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
         <Submissions disabled=false on_select=move|t| selected.set(Some(t)) option_class=option_class />
 
         <button
-            class=button_class("bg-green-300 mt-12")
+            class=button_class(ButtonStyle::Secondary, "mt-12")
             disabled=move|| {selected().is_none() || submit_winner.version()() > 0}
             on:click=move|_| submit_winner.dispatch(())
         >
@@ -97,7 +97,7 @@ where
                 cx,
                 <div class="flex flex-col justify-content">
                     <button
-                        class=move|| class.with(|s| button_class(s))
+                        class=move|| class.with(|s| button_class(ButtonStyle::Nothing, s))
                         disabled=disabled
                         on:click=move|_| on_select(id.clone())
                     >

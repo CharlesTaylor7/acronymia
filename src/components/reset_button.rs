@@ -9,7 +9,7 @@ pub fn ResetButton(cx: Scope) -> impl IntoView {
     view! {
         cx,
         <button
-            class=button_class("bg-blue-300")
+            class=button_class(ButtonStyle::Danger, "")
             on:click=move |_| reset.dispatch(())
         >
             "Reset state"
