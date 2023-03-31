@@ -12,6 +12,14 @@
 #![allow(clippy::uninlined_format_args)]
 #![allow(clippy::used_underscore_binding)]
 #![allow(clippy::redundant_closure_for_method_calls)]
+#![allow(clippy::single_match_else)]
+#![allow(clippy::range_minus_one)]
+#![allow(clippy::unused_async)]
+#![allow(clippy::missing_errors_doc)]
+#![allow(clippy::unnecessary_wraps)]
+#![allow(clippy::enum_glob_use)]
+#![allow(clippy::redundant_else)]
+#![allow(clippy::similar_names)]
 pub mod components;
 pub mod constants;
 pub mod extensions;

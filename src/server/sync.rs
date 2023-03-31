@@ -13,16 +13,24 @@ pub static GLOBAL: OnceLock<Global> = OnceLock::new();
 
 /// This is the read-side of a channel which receives messages from the state thread.
 /// i.e. it "subscribes" to server updates messages.
+///
+/// # Panics
+/// Panics if `spawn_state_thread` has not been run yet.  
 pub fn subscribe() -> broadcast::Receiver<ServerMessage> {
     GLOBAL.get().unwrap().broadcast_sender.subscribe()
 }
 
 /// This is the write-side of a channel which messages the state thread.
 /// i.e. it "mails" the server with messages.
+///
+/// # Panics
+/// Panics if `spawn_state_thread` has not been run yet.  
 pub fn mailer() -> mpsc::Sender<ClientMessage> {
     GLOBAL.get().unwrap().mailbox_sender.clone()
 }
 
+/// # Panics
+/// Panics if `spawn_state_thread` has not been run yet.  
 pub async fn lock_state() -> MutexGuard<'static, GameState> {
     GLOBAL.get().unwrap().state.lock().await
 }

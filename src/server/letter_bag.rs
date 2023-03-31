@@ -64,7 +64,7 @@ fn random_letter() -> char {
         if value < weight {
             return letter;
         } else {
-            value -= weight
+            value -= weight;
         }
     }
     panic!("impossible")

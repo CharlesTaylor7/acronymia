@@ -38,7 +38,7 @@ pub fn provide_game_context(cx: Scope) {
         // synchronize player id with player name
         create_effect(cx, move |_| {
             player_id.set(Some(player_name()));
-        })
+        });
     }
 
     let players = create_memo(cx, move |_| game_state(cx).with(|g| g.players.clone()));
@@ -67,7 +67,7 @@ fn judge_memo(cx: Scope) -> Memo<Option<Judge>> {
         game_state(cx).with(|g| {
             g.judge
                 .as_ref()
-                .map(|judge_id| {
+                .and_then(|judge_id| {
                     if player_id.with(|id| id.as_ref() == Some(judge_id)) {
                         Some(Judge::Me)
                     } else {
@@ -78,7 +78,6 @@ fn judge_memo(cx: Scope) -> Memo<Option<Judge>> {
                         })
                     }
                 })
-                .flatten()
         })
     })
 }

@@ -51,7 +51,7 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
         init_vec(num_of_words, move || create_node_ref::<html::Input>(cx)),
     );
     let get_ref = move |i| input_refs.with_value(|r| r[i]);
-    let submission = create_rw_signal(cx, vec![Err("".to_owned()); num_of_words]);
+    let submission = create_rw_signal(cx, vec![Err(String::new()); num_of_words]);
 
     let submit_args =
         move || player_id().and_then(|id| submission.with(|s| all_ok(s).map(|s| (id, s))));
@@ -69,7 +69,7 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
                 game_state(cx)
                 .with(|g| g.acronym.chars().enumerate().collect::<Vec<_>>())
             }
-            key=|(i, _)| i.clone()
+            key=|(i, _)| *i
             view=move |cx, (i, c)| {
                 // the macro gets confused and doesn't notice this variable is used
                 #[allow(unused_variables)]
@@ -95,9 +95,9 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
                             submission.update(move |s| {
                                 let input: web_sys::HtmlInputElement = event_target(&e);
                                 let text = input.value();
-                                let result = validate_word(&c, text);
+                                let result = validate_word(c, text);
                                 match &result {
-                                    Err(s) => input.set_custom_validity(&s),
+                                    Err(s) => input.set_custom_validity(s),
                                     Ok(_) => input.set_custom_validity(""),
 
                                 }
@@ -138,7 +138,7 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
 fn init_vec<T>(count: usize, f: impl Fn() -> T) -> Vec<T> {
     let mut vec = Vec::with_capacity(count);
     for _ in 0..count {
-        vec.push(f())
+        vec.push(f());
     }
     vec
 }
@@ -165,14 +165,14 @@ async fn send_and_save(cx: Scope, id: PlayerId, s: Submission) -> Submission {
 }
 
 #[cfg(feature = "ssr")]
-fn validate_word<'a>(_lead: &'a char, word: String) -> Result<String, String> {
+fn validate_word(_lead: char, word: String) -> Result<String, String> {
     Ok(word)
 }
 
 /// Validates leading character.
 /// TODO: Should we enforce alphanumeric characters?
 #[cfg(feature = "hydrate")]
-fn validate_word<'a>(lead: &'a char, word: String) -> Result<String, String> {
+fn validate_word(lead: char, word: String) -> Result<String, String> {
     use js_sys::RegExp;
     let pattern = RegExp::new(&format!("^{}", lead), "i");
     if let Some(_) = pattern.exec(&word) {

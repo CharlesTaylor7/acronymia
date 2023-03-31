@@ -19,7 +19,7 @@ const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
 /// How long before lack of client response causes a timeout.
 const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
 
-/// Handshake and start WebSocket handler with heartbeats.
+/// Handshake and start websocket handler with heartbeats.
 /// Adapted from [Actix example code](https://github.com/actix/examples/blob/25368e6b65120224f845137c9333850968456153/websockets/echo-actorless/src/handler.rs).
 pub async fn handle_ws_request(
     req: HttpRequest,
@@ -79,7 +79,7 @@ async fn handle_connection(
         }
     };
 
-    let _ = session.close(Some(reason)).await;
+    session.close(Some(reason)).await.ok_or_log();
 
     log!("disconnected");
 }
@@ -98,7 +98,7 @@ async fn handle_heartbeat(
     }
 
     // send heartbeat ping
-    let _ = session.ping(b"").await;
+    session.ping(b"").await.ok_or_log();
     None
 }
 

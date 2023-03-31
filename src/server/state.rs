@@ -33,7 +33,7 @@ pub async fn handle_message(
                 name: player.name.clone(),
                 quit: false,
             };
-            if let None = state.players.insert(id.clone(), server_player) {
+            if state.players.insert(id.clone(), server_player).is_none() {
                 state.rotation.push(id);
             }
 
@@ -70,7 +70,7 @@ pub async fn handle_message(
 
                 // if all submissions are in, go to judging step
                 if round.submissions.len() + 1 == state.rotation.len() {
-                    start_judging_step(state, &messenger);
+                    start_judging_step(state, messenger);
                 } else if prev.is_none() {
                     _ = messenger.send(ServerMessage::IncrementSubmissionCount);
                 }
@@ -168,7 +168,6 @@ fn set_timer(
     let now = Instant::now();
     state.timer = Timer::new(now, cancel, tag.clone());
 
-    let tag = tag.clone();
     let messenger = messenger.clone();
     spawn(async move {
         let sleep_then_lock_state = async move {

@@ -94,11 +94,8 @@ impl Timer {
             let duration = t.tag.duration();
             if elapsed < duration {
                 let diff = duration - elapsed;
-                let rounded_sec = if diff.subsec_nanos() >= 500_000_000 {
-                    1
-                } else {
-                    0
-                };
+                // clippy recommended the From instance for bool to u64
+                let rounded_sec = u64::from(diff.subsec_nanos() >= 500_000_000);
                 Some(diff.as_secs() + rounded_sec)
             } else {
                 None
@@ -160,7 +157,7 @@ impl GameState {
 
     pub fn scores(&self) -> Vec<(PlayerName, i64)> {
         let mut score_map = HashMap::new();
-        for round in self.rounds.iter() {
+        for round in &self.rounds {
             if let Some(winner) = &round.winner {
                 insert_or_add(&mut score_map, winner, 1);
             } else {
@@ -172,12 +169,12 @@ impl GameState {
             }
         }
         let mut scores = Vec::with_capacity(self.rotation.len());
-        for id in self.rotation.iter() {
+        for id in &self.rotation {
             let score = score_map.get(id).map_or(0, |s| *s);
             scores.push((self.players[id].name.clone(), score));
         }
         // sort descending
-        scores.sort_by(|(_, a_score), (_, b_score)| b_score.cmp(&a_score));
+        scores.sort_by(|(_, a_score), (_, b_score)| b_score.cmp(a_score));
 
         scores
     }
@@ -214,12 +211,11 @@ impl GameState {
             timer: self.timer.remaining_secs(),
             round_winner: self.rounds.last().and_then(|r| r.winner.clone()),
             step: self.step.clone(),
-            submission_count: self.rounds.last().map(|r| r.submissions.len()).unwrap_or(0),
+            submission_count: self.rounds.last().map_or(0, |r| r.submissions.len()),
             acronym: self
                 .rounds
                 .last()
-                .map(|r| r.acronym.clone())
-                .unwrap_or(String::new()),
+                .map_or(String::new(), |r| r.acronym.clone()),
             players: self
                 .rotation
                 .iter()

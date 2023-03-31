@@ -17,7 +17,7 @@ pub fn GameJudging(cx: Scope) -> impl IntoView {
     let show_timer = create_memo(cx, move |_| {
         game_state(cx).with(|g| g.round_winner.is_none())
     });
-    let show_timer = MaybeSignal::derive(cx, move || show_timer());
+    let show_timer = MaybeSignal::derive(cx, show_timer);
     view! { cx,
         <h2 class="text-l font-bold">
             {round_counter}
