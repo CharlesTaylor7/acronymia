@@ -23,8 +23,10 @@ pub struct Player {
     pub name: String,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
-pub struct ClientConfig {}
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub struct Config {
+    letters_per_acronym: Range<u64>,
+}
 
 /// game state for a single client
 /// some of the server game state should be hidden, and some should be transformed for easier consumption
@@ -46,7 +48,7 @@ pub struct ClientGameState {
     pub scores: Vec<(PlayerName, i64)>,
     pub round_winner: Option<PlayerId>,
     pub round_counter: String,
-    pub config: ClientConfig,
+    pub config: Config,
 }
 
 /// message from a client to the server
@@ -82,4 +84,18 @@ pub enum ServerMessage {
     IncrementSubmissionCount,
     /// Seconds remaining on the clock
     UpdateRemainingTime(Option<u64>),
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub struct Range<T> {
+    pub min: T,
+    pub max: T,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Config {
+            letters_per_acronym: Range { min: 2, max: 6 },
+        }
+    }
 }

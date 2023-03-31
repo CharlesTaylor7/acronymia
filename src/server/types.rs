@@ -28,8 +28,6 @@ pub struct GameState {
     pub config: Config,
 }
 
-#[derive(Clone, Debug, PartialEq, Default)]
-pub struct Config {}
 
 #[derive(Default, Debug)]
 pub struct Round {
@@ -107,12 +105,6 @@ impl Timer {
         if let Some(fields) = self.0.take() {
             _ = fields.cancellation.send(());
         }
-    }
-}
-
-impl Config {
-    pub fn serialize(&self) -> ClientConfig {
-        ClientConfig {}
     }
 }
 
@@ -207,7 +199,7 @@ impl GameState {
             submissions,
             scores,
             round_counter,
-            config: self.config.serialize(),
+            config: self.config.clone(),
             timer: self.timer.remaining_secs(),
             round_winner: self.rounds.last().and_then(|r| r.winner.clone()),
             step: self.step.clone(),
