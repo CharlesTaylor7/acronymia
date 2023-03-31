@@ -1,6 +1,5 @@
 use super::types::*;
 use ::leptos::*;
-use ::std::sync::Arc;
 use ::tokio::sync::{broadcast, mpsc, Mutex};
 
 pub struct Global {
@@ -12,7 +11,7 @@ pub struct Global {
     /// can implement timers.
     /// Websocket connection threads should NOT use this directly.
     /// The channels are `subscribe` and `mailer` methods are what you want.
-    pub state: Arc<Mutex<GameState>>,
+    pub state: Mutex<GameState>,
 }
 
 lazy_static::lazy_static! {
@@ -23,7 +22,7 @@ lazy_static::lazy_static! {
             mailbox_sender,
             mailbox_receiver: Mutex::new(mailbox_receiver),
             broadcast_sender,
-            state: Arc::new(Mutex::new(default_game_state())),
+            state: Mutex::new(default_game_state()),
         }
     };
 }
