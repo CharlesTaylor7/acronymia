@@ -1,7 +1,7 @@
 use super::letter_bag::*;
 use super::types::*;
 use crate::constants::*;
-use crate::server::sync::GLOBAL;
+use crate::server::sync::lock_state;
 use ::std::collections::*;
 use ::tokio::{
     select,
@@ -173,7 +173,7 @@ fn set_timer(
     spawn(async move {
         let sleep_then_lock_state = async move {
             sleep_until(now + tag.duration()).await;
-            GLOBAL.state.lock().await
+            lock_state().await
         };
 
         select! {

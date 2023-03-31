@@ -1,5 +1,6 @@
 #![feature(let_chains)]
 #![feature(map_try_insert)]
+#![feature(once_cell)]
 // enable all clippy lints
 #![warn(clippy::all)]
 #![warn(clippy::pedantic)]
