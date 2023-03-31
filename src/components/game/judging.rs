@@ -95,21 +95,23 @@ where
             let id2 = id.clone();
             view! {
                 cx,
-                <button
-                    class=move|| class.with(|s| button_class(s))
-                    disabled=disabled
-                    on:click=move|_| on_select(id.clone())
-                >
-                    {words.join(" ")}
-                </button>
+                <div class="flex flex-col justify-content">
+                    <button
+                        class=move|| class.with(|s| button_class(s))
+                        disabled=disabled
+                        on:click=move|_| on_select(id.clone())
+                    >
+                        {words.join(" ")}
+                    </button>
 
-                {move|| lookup(cx, &id2).map(|p|
-                    view! {cx,
-                        <span class="font-bold pr-3">
-                            {p.is_winner.then_some("👑 ")}{p.name}
-                        </span>
-                    }
-                )}
+                    {move|| lookup(cx, &id2).map(|p|
+                        view! {cx,
+                            <div class="font-bold">
+                                {p.is_winner.then_some("👑 ")}{p.name}
+                            </div>
+                        }
+                    )}
+                </div>
             }
         })
         .collect::<Vec<_>>()
