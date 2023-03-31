@@ -1,5 +1,5 @@
 use crate::constants::*;
-use crate::random::shuffle;
+use super::random::shuffle;
 pub use crate::types::*;
 use ::leptos::log;
 use ::std::collections::HashMap;

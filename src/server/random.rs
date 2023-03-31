@@ -1,4 +1,4 @@
-use rand::prelude::*;
+use ::rand::prelude::*;
 
 /// Apply a [Fisher-Yates shuffle](https://en.wikipedia.org/wiki/Fisher-Yates_shuffle) to a buffer
 pub fn shuffle<T>(slice: &mut [T]) {
