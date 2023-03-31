@@ -99,3 +99,20 @@ impl Default for Config {
         }
     }
 }
+
+
+pub fn submission_penalty(sub: &Submission) -> i64 {
+    sub.iter().map(|w| word_penalty(w)).sum()
+}
+
+fn word_penalty(word: &str) -> i64 {
+    let violations = word
+        .chars()
+        .filter(|c| {
+            let c = *c as u32;
+            c < 65 || (c > 91 && c < 97) || c > 122
+        })
+        .count();
+
+    -(violations as i64)
+}
