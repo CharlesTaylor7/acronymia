@@ -40,6 +40,8 @@ Future Ideas:
 ## TODO
 - [ ] Prompts / Themed rounds
 - [ ] Able to see your point total during game play
+- [ ] Warn players about penalties before they submit
+- [ ] Reformat show winner view
 
 ### Feature requests
 - Configurable Letter Distribution
