@@ -109,7 +109,7 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
                 disabled=move|| submit_args().is_none()
                 on:click=move|_| if let Some(args) = submit_args() { submit.dispatch(args) }
             >
-                "Submit!"
+                "Submit"
             </button>
             <span class="px-2">
                 {move|| if submit.version()() > 0 {

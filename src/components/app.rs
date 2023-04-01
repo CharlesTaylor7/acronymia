@@ -11,7 +11,7 @@ pub fn App(cx: Scope) -> impl IntoView {
         cx,
         <Stylesheet id="leptos" href="/pkg/acronymia.css"/>
         <Title text="Acronymia"/>
-        <Body class="bg-slate-700 text-blue-50"/>
+        <Body class="font-sans bg-slate-700 text-slate-400"/>
         <Router>
             <main>
                 <Routes>

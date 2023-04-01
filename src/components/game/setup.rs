@@ -54,7 +54,7 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
                     disabled=move|| players.with(|ps| ps.len() < 3)
                     on:click=move |_| start_game.dispatch(())
                 >
-                    "Start game!"
+                    "Start game"
                 </button>
             </When>
         </div>

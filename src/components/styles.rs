@@ -21,7 +21,7 @@ impl ButtonStyle {
 
 pub fn button_class(style: ButtonStyle, custom: &str) -> String {
     format!(
-        "{} {} block rounded p-2 disabled:cursor-not-allowed disabled:bg-slate-600",
+        "{} {} text-blue-50 block rounded p-2 disabled:cursor-not-allowed disabled:bg-slate-600",
         style.class(),
         custom,
     )

@@ -29,7 +29,7 @@ pub fn DebugView(cx: Scope) -> impl IntoView {
                         </p>
                         <PlayerRoster />
                         <button
-                            class=button_class(ButtonStyle::Danger, "")
+                            class=button_class(ButtonStyle::Secondary, "")
                             on:click=move|_| stop_timer.dispatch(())
                         >
                             "Stop timer"
