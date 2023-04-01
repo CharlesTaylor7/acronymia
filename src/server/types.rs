@@ -263,7 +263,9 @@ pub fn init_game_state() -> GameState {
         let s: String = std::fs::read_to_string("assets/prompts.txt").unwrap();
         // Keep prompts alive in one chunk for rest of program runtime
         let s = Box::leak(Box::new(s));
-        s.lines().collect()
+        let mut lines = s.lines().collect::<Vec<_>>();
+        shuffle(&mut lines);
+        lines
     };
 
     state
