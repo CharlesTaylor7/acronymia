@@ -26,14 +26,15 @@ pub fn Game(cx: Scope) -> impl IntoView {
         cx,
         <div class="flex flex-row justify-center mt-4">
             <div class="flex flex-col items-start gap-4">
-                <h1 class="text-xl font-bold">"Acronymia"</h1>
+                <h1 class="text-4xl font-bold tracking-wide">
+                    "Acronymia"
+                </h1>
                 {move|| match game_step() {
                     GameStep::Setup => view! { cx, <><GameSetup /></> },
                     GameStep::Submission => view! { cx, <><GameSubmission /></> },
                     GameStep::Judging => view! { cx, <><GameJudging /></> },
                     GameStep::Results => view! { cx, <><GameResults /></> },
                 }}
-
                 <DebugView />
             </div>
         </div>
