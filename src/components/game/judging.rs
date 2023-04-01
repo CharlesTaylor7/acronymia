@@ -72,7 +72,7 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
 fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
     view! { cx,
         <p><span class=judge_class()>{judge_name}</span>" is deliberating."</p>
-        <p>"Submissions for "<Acronym />": "</p>
+        <p><Acronym /></p>
         <Submissions
             option_class=move|_| "".into()
             disabled=true
