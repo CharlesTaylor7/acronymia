@@ -35,7 +35,7 @@ pub struct ClientGameState {
     pub judge: Option<PlayerId>,
     pub step: GameStep,
     pub players: Vec<Player>,
-    pub acronym: String,
+    pub prompt: Prompt,
     pub timer: Option<u64>,
     /// everyone can see the current submission count
     pub submission_count: usize,
@@ -49,6 +49,14 @@ pub struct ClientGameState {
     pub round_winner: Option<PlayerId>,
     pub round_counter: String,
     pub config: Config,
+}
+
+
+#[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq)]
+pub struct Prompt {
+    pub before: String,
+    pub acronym: String,
+    pub after: String,
 }
 
 /// message from a client to the server

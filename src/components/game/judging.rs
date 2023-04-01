@@ -55,7 +55,7 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
 
     view! {
         cx,
-        <header>"What is "<Acronym />"?"</header>
+        <header><Acronym /></header>
         <Submissions disabled=false on_select=move|t| selected.set(Some(t)) option_class=option_class />
 
         <button

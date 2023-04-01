@@ -26,12 +26,13 @@ pub struct GameState {
     pub shuffled_submissions: Vec<(PlayerId, Submission)>,
     pub timer: Timer,
     pub config: Config,
+    pub prompts: Vec<&'static str>,
 }
 
 #[derive(Default, Debug)]
 pub struct Round {
     pub judge: JudgeId,
-    pub acronym: String,
+    pub prompt: Prompt,
     pub winner: Option<PlayerId>,
     pub submissions: HashMap<PlayerId, Submission>,
 }
@@ -108,6 +109,19 @@ impl Timer {
 }
 
 impl GameState {
+    pub fn next_prompt(&self) -> Prompt {
+        use crate::server::letter_bag::random_initialism;
+        let acronym = random_initialism(&self.config.letters_per_acronym);
+        let n = self.rounds.len();
+        let p = self.prompts.get(n).map_or("What is ___ ?", |s| &*s);
+        let v = p.split("___").collect::<Vec<_>>();
+        Prompt {
+            acronym,
+            before: v[0].to_owned(),
+            after: v[1].to_owned(),
+        }
+    }
+
     pub fn current_judge(&self) -> Option<JudgeId> {
         self.rounds.last().as_ref().map(|r| r.judge)
     }
@@ -149,7 +163,7 @@ impl GameState {
     pub fn scores(&self) -> Vec<(PlayerName, i64)> {
         let mut score_map = HashMap::new();
         for round in &self.rounds {
-            let points = round.acronym.len() as i64;
+            let points = round.prompt.acronym.len() as i64;
             if let Some(winner) = &round.winner {
                 let penalty = submission_penalty(&round.submissions[winner]);
                 insert_or_add(&mut score_map, winner, points + penalty);
@@ -205,10 +219,10 @@ impl GameState {
             round_winner: self.rounds.last().and_then(|r| r.winner.clone()),
             step: self.step.clone(),
             submission_count: self.rounds.last().map_or(0, |r| r.submissions.len()),
-            acronym: self
+            prompt: self
                 .rounds
                 .last()
-                .map_or(String::new(), |r| r.acronym.clone()),
+                .map_or(Default::default(), |r| r.prompt.clone()),
             players: self
                 .rotation
                 .iter()
@@ -238,12 +252,21 @@ where
     }
 }
 
-pub fn default_game_state() -> GameState {
-    if DEBUG_MODE {
+pub fn init_game_state() -> GameState {
+    let mut state = if DEBUG_MODE {
         demo_init(vec!["alice", "bob", "carl"])
     } else {
         Default::default()
-    }
+    };
+
+    state.prompts = {
+        let s: String = std::fs::read_to_string("assets/prompts.txt").unwrap();
+        // Keep prompts alive in one chunk for rest of program runtime
+        let s = Box::leak(Box::new(s));
+        s.lines().collect()
+    };
+
+    state
 }
 
 pub fn demo_init(players: Vec<&str>) -> GameState {
@@ -269,6 +292,7 @@ pub fn demo_init(players: Vec<&str>) -> GameState {
         timer: Timer::default(),
         shuffled_submissions: Vec::new(),
         config: Config::default(),
+        prompts: Vec::new(),
     }
 }
 

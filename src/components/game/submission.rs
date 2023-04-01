@@ -38,7 +38,6 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
             <span class=judge_class()>"You"</span>" are the judge"
         </p>
         <p>
-            "Submissions incoming for "
             {view! {cx, <Acronym />}}
         </p>
     }
@@ -47,9 +46,9 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
 #[component]
 fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
-    let acronym = create_memo(cx, move |_| game_state(cx).with(|g| g.acronym.clone()));
+    let acronym = create_memo(cx, move |_| game_state(cx).with(|g| g.prompt.acronym.clone()));
     let num_of_words = acronym().len();
-    let input_refs = store_value(cx, init_vec(6, move || create_node_ref::<html::Input>(cx)));
+    let input_refs = store_value(cx, init_vec(10, move || create_node_ref::<html::Input>(cx)));
     let get_ref = move |i| input_refs.with_value(|r| r[i]);
     let submission = create_rw_signal::<Vec<Option<String>>>(cx, vec![None; num_of_words]);
 
@@ -61,9 +60,7 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
 
     view! { cx,
         <p><span class=judge_class()>{judge_name}</span>" will be judging."</p>
-        <p>
-            "What is "{view! {cx, <Acronym />}}" ?"
-        </p>
+        <p><Acronym /></p>
         {move|| acronym().chars().enumerate().map(|(i, c)|{
             // the macro gets confused and doesn't notice this variable is used
             #[allow(unused_variables)]

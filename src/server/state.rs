@@ -1,4 +1,3 @@
-use super::letter_bag::*;
 use super::types::*;
 use crate::constants::*;
 use crate::server::sync::lock_state;
@@ -107,7 +106,7 @@ pub async fn handle_message(
 
         // BEGIN DEBUG MESSAGES
         ClientMessage::ResetState => {
-            *state = default_game_state();
+            *state = init_game_state();
             _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
         }
 
@@ -121,9 +120,9 @@ fn start_submission_step(state: &mut GameState, messenger: &Sender<ServerMessage
     state.cancel_timer();
     state.rounds.push(Round {
         judge: state.next_judge(),
-        acronym: random_initialism(&state.config.letters_per_acronym),
         winner: None,
         submissions: HashMap::new(),
+        prompt: state.next_prompt(),
     });
 
     state.step = GameStep::Submission;
