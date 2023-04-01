@@ -17,7 +17,7 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
             {round_counter}
         </h2>
         <p>
-            "Submissions received: "{submissions}"/"{player_count - 1} // judge doesn't submit
+            {submissions}"/"{player_count - 1}" submissions received"
         </p>
         <Timer />
         {move|| match judge() {

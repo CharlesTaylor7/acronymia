@@ -7,18 +7,14 @@ pub fn Timer(cx: Scope) -> impl IntoView {
     {
         move || match game_state(cx).with(|g| g.timer) {
             Some(secs) => view! { cx,
-                <>
                 <p>
-                    "Seconds remaining: "{secs}
+                    {secs}" seconds remaining"
                 </p>
-                </>
             },
             None => view! { cx,
-                <>
                 <p>
                     "Times up!"
                 </p>
-                </>
             },
         }
     }
