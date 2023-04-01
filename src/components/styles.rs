@@ -36,5 +36,9 @@ pub fn number_input_class(custom: &str) -> String {
 }
 
 pub fn judge_class() -> &'static str {
-    "font-bold text-amber-500"
+    "font-bold text-amber-600"
+}
+
+pub fn counter_class() -> &'static str {
+    "text-cyan-700"
 }

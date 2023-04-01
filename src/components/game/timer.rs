@@ -1,4 +1,5 @@
 use crate::components::game::utils::state::game_state;
+use crate::components::styles::*;
 use leptos::*;
 
 #[component]
@@ -8,7 +9,7 @@ pub fn Timer(cx: Scope) -> impl IntoView {
         move || match game_state(cx).with(|g| g.timer) {
             Some(secs) => view! { cx,
                 <p>
-                    {secs}" seconds remaining"
+                    <span class=counter_class()>{secs}</span>" seconds remaining"
                 </p>
             },
             None => view! { cx,

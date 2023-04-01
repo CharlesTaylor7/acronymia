@@ -17,7 +17,10 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
             {round_counter}
         </h2>
         <p>
-            {submissions}"/"{player_count - 1}" submissions received"
+            <span class=counter_class()>
+                {submissions}"/"{player_count - 1}
+            </span>
+            " submissions received"
         </p>
         <Timer />
         {move|| match judge() {
@@ -32,7 +35,7 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
 fn JudgePerspective(cx: Scope) -> impl IntoView {
     view! { cx,
         <p>
-            "You are the judge. "
+            <span class=judge_class()>"You"</span>" are the judge"
         </p>
         <p>
             "Submissions incoming for "
