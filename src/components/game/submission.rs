@@ -60,7 +60,7 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
     });
 
     view! { cx,
-        <p><span class="inline font-bold">{judge_name}</span>" will be judging."</p>
+        <p><span class=judge_class()>{judge_name}</span>" will be judging."</p>
         <p>
             "What is "{view! {cx, <Acronym />}}" ?"
         </p>

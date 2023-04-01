@@ -34,3 +34,7 @@ pub fn text_input_class(custom: &str) -> String {
 pub fn number_input_class(custom: &str) -> String {
     format!("{} border rounded border-slate-400 bg-slate-600 px-2", custom)
 }
+
+pub fn judge_class() -> &'static str {
+    "font-bold text-amber-500"
+}
