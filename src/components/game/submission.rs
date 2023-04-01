@@ -47,12 +47,9 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
 #[component]
 fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
-    let acronym = create_memo(cx, move|_| game_state(cx).with(|g| g.acronym.clone()));
+    let acronym = create_memo(cx, move |_| game_state(cx).with(|g| g.acronym.clone()));
     let num_of_words = acronym().len();
-    let input_refs = store_value(
-        cx,
-        init_vec(6, move || create_node_ref::<html::Input>(cx)),
-    );
+    let input_refs = store_value(cx, init_vec(6, move || create_node_ref::<html::Input>(cx)));
     let get_ref = move |i| input_refs.with_value(|r| r[i]);
     let submission = create_rw_signal::<Vec<Option<String>>>(cx, vec![None; num_of_words]);
 
@@ -145,7 +142,11 @@ fn all_some<T: Clone>(v: &[Option<T>]) -> Option<Vec<T>> {
         return None;
     }
 
-    Some(v.iter().map(|o| o.as_ref().unwrap().clone()).collect::<Vec<_>>())
+    Some(
+        v.iter()
+            .map(|o| o.as_ref().unwrap().clone())
+            .collect::<Vec<_>>(),
+    )
 }
 
 async fn send_and_save(cx: Scope, id: PlayerId, s: Submission) -> Submission {
@@ -166,11 +167,10 @@ fn validate_word(lead: char, word: &str) -> Result<(), String> {
     let pattern = RegExp::new(&format!("^{}", lead), "i");
     if let Some(_) = pattern.exec(word) {
         Ok(())
-   } else {
+    } else {
         Err(format!(
             "Should start with {}",
             lead.to_uppercase().collect::<String>(),
         ))
     }
 }
-

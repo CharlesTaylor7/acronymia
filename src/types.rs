@@ -100,7 +100,6 @@ impl Default for Config {
     }
 }
 
-
 pub fn submission_penalty(sub: &Submission) -> i64 {
     sub.iter().map(|w| word_penalty(w)).sum()
 }
