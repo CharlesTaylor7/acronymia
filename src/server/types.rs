@@ -26,7 +26,7 @@ pub struct GameState {
     pub shuffled_submissions: Vec<(PlayerId, Submission)>,
     pub timer: Timer,
     pub config: Config,
-    pub prompts: Vec<&'static str>,
+    pub prompts: Vec<(String, String)>,
 }
 
 #[derive(Default, Debug)]
@@ -113,12 +113,15 @@ impl GameState {
         use crate::server::letter_bag::random_initialism;
         let acronym = random_initialism(&self.config.letters_per_acronym);
         let n = self.rounds.len();
-        let p = self.prompts.get(n).map_or("What is ___ ?", |s| &*s);
-        let v = p.split("___").collect::<Vec<_>>();
+        let (before, after) = if let Some(p) = self.prompts.get(n) {
+            (p.0.clone(), p.1.clone())
+        } else {
+            ("What is ".to_owned(), " ?".to_owned())
+        };
         Prompt {
             acronym,
-            before: v[0].to_owned(),
-            after: v[1].to_owned(),
+            before,
+            after,
         }
     }
 
@@ -262,9 +265,18 @@ pub fn init_game_state() -> GameState {
 
     state.prompts = {
         let s: String = std::fs::read_to_string("assets/prompts.txt").unwrap();
-        // Keep prompts alive in one chunk for rest of program runtime
-        let s = Box::leak(Box::new(s));
-        let mut lines = s.lines().collect::<Vec<_>>();
+        let mut lines = s
+            .lines()
+            .filter_map(|line| {
+                let fragments = line.split("___").collect::<Vec<_>>();
+                if fragments.len() == 2 {
+                    Some((fragments[0].to_owned(), fragments[1].to_owned()))
+                } else {
+                    log!("Discarding invalid prompt: {}", line);
+                    None
+                }
+            })
+            .collect::<Vec<_>>();
         shuffle(&mut lines);
         lines
     };
