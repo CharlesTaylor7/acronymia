@@ -166,7 +166,8 @@ impl GameState {
             let points = round.prompt.acronym.len() as i64;
             if let Some(winner) = &round.winner {
                 let penalty = submission_penalty(&round.submissions[winner]);
-                insert_or_add(&mut score_map, winner, points + penalty);
+                let points = std::cmp::max(points + penalty, 0);
+                insert_or_add(&mut score_map, winner, points);
             } else {
                 // The judge is penalized for a timeout.
                 // This is because any round where you don't select a winner
