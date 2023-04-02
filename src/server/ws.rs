@@ -151,7 +151,7 @@ async fn handle_client_message(
 }
 
 async fn handle_server_message(
-    msg: Result<ServerMessage, RecvError>,
+    msg: Result<ServerMessage<'_>, RecvError>,
     session: &mut actix_ws::Session,
 ) -> Option<CloseReason> {
     if let Some(msg) = msg.ok_or_log() {

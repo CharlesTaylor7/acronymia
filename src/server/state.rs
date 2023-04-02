@@ -13,7 +13,7 @@ use ::tokio::{
 pub async fn handle_message(
     message: ClientMessage,
     state: &mut GameState,
-    messenger: &Sender<ServerMessage>,
+    messenger: &Sender<ServerMessage<'static>>,
 ) {
     match message {
         ClientMessage::Connected => {
@@ -116,7 +116,7 @@ pub async fn handle_message(
     }
 }
 
-fn start_submission_step(state: &mut GameState, messenger: &Sender<ServerMessage>) {
+fn start_submission_step(state: &mut GameState, messenger: &Sender<ServerMessage<'static>>) {
     state.cancel_timer();
     state.rounds.push(Round {
         judge: state.next_judge(),
@@ -130,7 +130,7 @@ fn start_submission_step(state: &mut GameState, messenger: &Sender<ServerMessage
     _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
 }
 
-fn start_judging_step(state: &mut GameState, messenger: &Sender<ServerMessage>) {
+fn start_judging_step(state: &mut GameState, messenger: &Sender<ServerMessage<'static>>) {
     state.cancel_timer();
     state.step = GameStep::Judging;
     state.shuffle_current_round_submissions();
@@ -139,7 +139,7 @@ fn start_judging_step(state: &mut GameState, messenger: &Sender<ServerMessage>) 
     _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
 }
 
-fn end_judging_step(state: &mut GameState, messenger: &Sender<ServerMessage>) {
+fn end_judging_step(state: &mut GameState, messenger: &Sender<ServerMessage<'static>>) {
     let game_length = if DEBUG_MODE {
         3
     } else {
@@ -160,8 +160,8 @@ fn end_judging_step(state: &mut GameState, messenger: &Sender<ServerMessage>) {
 fn set_timer(
     tag: TimerTag,
     state: &mut GameState,
-    messenger: &Sender<ServerMessage>,
-    on_timeout: impl FnOnce(&mut GameState, &Sender<ServerMessage>) + 'static + Send,
+    messenger: &Sender<ServerMessage<'static>>,
+    on_timeout: impl FnOnce(&mut GameState, &Sender<ServerMessage<'static>>) + 'static + Send,
 ) {
     state.timer.cancel();
     let (cancel, cancelled) = oneshot::channel();
