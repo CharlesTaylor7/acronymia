@@ -51,7 +51,6 @@ pub struct ClientGameState {
     pub config: Config,
 }
 
-
 #[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq)]
 pub struct Prompt {
     pub before: String,

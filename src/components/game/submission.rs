@@ -46,7 +46,9 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
 #[component]
 fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
-    let acronym = create_memo(cx, move |_| game_state(cx).with(|g| g.prompt.acronym.clone()));
+    let acronym = create_memo(cx, move |_| {
+        game_state(cx).with(|g| g.prompt.acronym.clone())
+    });
     let num_of_words = acronym().len();
     let input_refs = store_value(cx, init_vec(10, move || create_node_ref::<html::Input>(cx)));
     let get_ref = move |i| input_refs.with_value(|r| r[i]);

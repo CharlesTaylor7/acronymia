@@ -1,6 +1,6 @@
 use super::types::*;
 use crate::constants::*;
-use crate::server::sync::lock_state;
+use crate::server::sync;
 use ::std::collections::*;
 use ::tokio::{
     select,
@@ -172,7 +172,7 @@ fn set_timer(
     spawn(async move {
         let sleep_then_lock_state = async move {
             sleep_until(now + tag.duration()).await;
-            lock_state().await
+            sync::state().lock().await
         };
 
         select! {
