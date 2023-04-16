@@ -23,7 +23,7 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
         <Timer/>
         <JudgeDescription/>
         <p>
-            <span class=counter_class()>
+            <span class="text-pink-100">
                 {submissions}"/"{player_count - 1}
             </span>
             " submissions received"

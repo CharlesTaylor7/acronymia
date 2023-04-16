@@ -46,5 +46,6 @@ pub fn judge_class() -> &'static str {
 }
 
 pub fn counter_class() -> &'static str {
-    "text-cyan-700"
+    //"text-cyan-700"
+    "text-lime-100"
 }
