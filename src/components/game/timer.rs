@@ -6,13 +6,18 @@ use leptos::*;
 pub fn Timer(cx: Scope) -> impl IntoView {
     apply_timer(cx);
     {
-        move || match game_state(cx).with(|g| g.timer) {
-            Some(secs) => view! { cx,
+        move || match game_state(cx).with(|g| (g.timer, g.round_winner.is_some())) {
+            (Some(secs), true) => view! { cx,
+                <p>
+                    <span class=counter_class()>{secs}</span>" seconds until next round"
+                </p>
+            },
+            (Some(secs), false) => view! { cx,
                 <p>
                     <span class=counter_class()>{secs}</span>" seconds remaining"
                 </p>
             },
-            None => view! { cx,
+            (None, _) => view! { cx,
                 <p>
                     "Times up!"
                 </p>

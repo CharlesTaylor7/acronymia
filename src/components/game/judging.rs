@@ -1,7 +1,6 @@
 use super::{context::*, prompt::*, timer::*};
 use crate::components::game::utils::state::*;
 use crate::components::styles::*;
-use crate::components::utils::*;
 use crate::typed_context::*;
 use crate::types::ClientMessage::*;
 use crate::types::*;
@@ -14,17 +13,10 @@ pub fn GameJudging(cx: Scope) -> impl IntoView {
     provide_player_lookup(cx);
     let judge = use_typed_context::<Memo_Judge>(cx);
     let round_counter = use_typed_context::<Memo_RoundCounter>(cx);
-    let show_timer = create_memo(cx, move |_| {
-        game_state(cx).with(|g| g.round_winner.is_none())
-    });
-    let show_timer = MaybeSignal::derive(cx, show_timer);
     view! { cx,
         <h2 class="text-l font-bold">
             {round_counter}
         </h2>
-        <When predicate=show_timer>
-            <Timer />
-        </When>
         {
             move || match judge() {
                 None => view! {cx, <><span>"Error: No judge"</span></>},
@@ -32,6 +24,7 @@ pub fn GameJudging(cx: Scope) -> impl IntoView {
                 Some(Judge::Name(name)) => view! { cx, <><PlayerPerspective judge_name=name /></>},
             }
         }
+        <Timer />
     }
 }
 
@@ -71,7 +64,9 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
 #[component]
 fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
     view! { cx,
-        <p><span class=judge_class()>{judge_name}</span>" is deliberating."</p>
+        <Show when=move|| game_state(cx).with(|g| g.round_winner.is_none()) fallback=move|_|()>
+            <p><span class=judge_class()>{&judge_name}</span>" is deliberating."</p>
+        </Show>
         <p><Prompt /></p>
         <Submissions
             option_class=move|_| "".into()
