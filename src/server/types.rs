@@ -56,24 +56,11 @@ struct TimerFields {
     tag: TimerTag,
 }
 
-#[derive(Debug, Clone)]
-pub enum TimerTag {
-    Submission,
-    Judging,
-    ShowRoundWinner,
-}
-
-impl TimerTag {
-    pub fn duration(&self) -> Duration {
-        match self {
-            TimerTag::Submission => Duration::new(60, 0),
-            TimerTag::Judging => Duration::new(45, 0),
-            TimerTag::ShowRoundWinner => Duration::new(10, 0),
-        }
-    }
-}
-
 impl Timer {
+    pub fn duration(tag: &TimerTag) -> Duration {
+        Duration::new(tag.secs(), 0)
+    }
+
     pub fn new(started_at: Instant, cancellation: oneshot::Sender<()>, tag: TimerTag) -> Self {
         Self(Some(TimerFields {
             started_at,
@@ -89,7 +76,7 @@ impl Timer {
     pub fn remaining_secs(&self) -> Option<u64> {
         self.0.as_ref().and_then(|t| {
             let elapsed = t.started_at.elapsed();
-            let duration = t.tag.duration();
+            let duration = Self::duration(&t.tag);
             if elapsed < duration {
                 let diff = duration - elapsed;
                 // clippy recommended the From instance for bool to u64

@@ -57,6 +57,24 @@ pub struct ClientGameState {
     pub config: Config,
 }
 
+#[derive(Debug, Clone)]
+pub enum TimerTag {
+    Submission,
+    Judging,
+    ShowRoundWinner,
+}
+
+impl TimerTag {
+    pub fn secs(&self) -> u64 {
+        match self {
+            TimerTag::Submission => 60,
+            TimerTag::Judging => 45,
+            TimerTag::ShowRoundWinner => 10,
+        }
+    }
+}
+
+
 #[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq)]
 pub struct Prompt {
     pub before: String,
