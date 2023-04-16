@@ -37,11 +37,10 @@ Future Ideas:
 10 seconds for showing round winner before advancing to the next round.
 
 ## TODO
-- [ ] Prompts / Themed rounds
+- [x] Prompts / Themed rounds
+- [ ] Show countdown until next round
 - [ ] Able to see your point total during game play
 - [ ] Warn players about penalties before they submit
-- [ ] Reformat show winner view
-- [ ] Show countdown until next round
 
 
 ### Feature requests
