@@ -1,4 +1,4 @@
-use super::{prompt::*, context::*, timer::*};
+use super::{context::*, prompt::*, timer::*};
 use crate::components::game::utils::state::*;
 use crate::components::styles::*;
 use crate::components::utils::*;

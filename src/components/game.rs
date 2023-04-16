@@ -1,7 +1,7 @@
-mod prompt;
 pub mod context;
 mod judging;
 pub mod player_roster;
+mod prompt;
 mod results;
 mod setup;
 mod submission;

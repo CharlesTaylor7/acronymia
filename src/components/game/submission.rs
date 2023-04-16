@@ -1,4 +1,4 @@
-use super::{prompt::*, context::*, timer::*};
+use super::{context::*, prompt::*, timer::*};
 use crate::components::game::utils::state::*;
 use crate::components::styles::*;
 use crate::types::{ClientMessage::*, PlayerId, Submission};
@@ -16,12 +16,12 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
         <h2 class="text-l font-bold">
             {round_counter}
         </h2>
-        {move|| match judge() {
-            None => view! {cx, <><span>"Error: No judge"</span></>},
-            Some(Judge::Me) => view! {cx, <><JudgePerspective/></>},
-            Some(Judge::Name(name)) => view! {cx, <><PlayerPerspective judge_name=name /></>},
-        }}
-        <Timer />
+        <Prompt/>
+        <Show when=move|| judge() != Some(Judge::Me) fallback=move|_|() >
+            <PlayerPerspective />
+        </Show>
+        <Timer/>
+        <JudgeDescription/>
         <p>
             <span class=counter_class()>
                 {submissions}"/"{player_count - 1}
@@ -32,19 +32,25 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
 }
 
 #[component]
-fn JudgePerspective(cx: Scope) -> impl IntoView {
-    view! { cx,
-        <p>
-            <Prompt/>
-        </p>
-        <p>
-            <span class=judge_class()>"You"</span>" are the judge"
-        </p>
+fn JudgeDescription(cx: Scope) -> impl IntoView {
+    let judge = use_typed_context::<Memo_Judge>(cx);
+    move || match judge() {
+        None => view! {cx, <p>"Error: No judge"</p>},
+        Some(Judge::Me) => view! { cx,
+            <p>
+                <span class=judge_class()>"You"</span>" are the judge."
+            </p>
+        },
+        Some(Judge::Name(name)) => view! {cx,
+            <p>
+                <span class=judge_class()>{name}</span>" is the judge."
+            </p>
+        },
     }
 }
 
 #[component]
-fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
+fn PlayerPerspective(cx: Scope) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     let acronym = create_memo(cx, move |_| {
         game_state(cx).with(|g| g.prompt.acronym.clone())
@@ -61,7 +67,6 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
     });
 
     view! { cx,
-        <p><Prompt/></p>
         {move|| acronym().chars().enumerate().map(|(i, c)|{
             // the macro gets confused and doesn't notice this variable is used
             #[allow(unused_variables)]
@@ -124,7 +129,6 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
                 }}
             </span>
         </div>
-        <p><span class=judge_class()>{judge_name}</span>" will be judging."</p>
     }
 }
 

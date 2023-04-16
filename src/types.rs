@@ -8,7 +8,6 @@ pub type PlayerId = String;
 
 pub type PlayerName = String;
 
-
 #[derive(Serialize, Deserialize, Clone, Default, Debug, PartialEq)]
 pub struct Demo<'a> {
     pub a: &'a str,
