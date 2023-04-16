@@ -16,6 +16,11 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
         <h2 class="text-l font-bold">
             {round_counter}
         </h2>
+        {move|| match judge() {
+            None => view! {cx, <><span>"Error: No judge"</span></>},
+            Some(Judge::Me) => view! {cx, <><JudgePerspective/></>},
+            Some(Judge::Name(name)) => view! {cx, <><PlayerPerspective judge_name=name /></>},
+        }}
         <p>
             <span class=counter_class()>
                 {submissions}"/"{player_count - 1}
@@ -23,11 +28,6 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
             " submissions received"
         </p>
         <Timer />
-        {move|| match judge() {
-            None => view! {cx, <><span>"Error: No judge"</span></>},
-            Some(Judge::Me) => view! {cx, <><JudgePerspective/></>},
-            Some(Judge::Name(name)) => view! {cx, <><PlayerPerspective judge_name=name /></>},
-        }}
     }
 }
 
@@ -61,7 +61,6 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
     });
 
     view! { cx,
-        <p><span class=judge_class()>{judge_name}</span>" will be judging."</p>
         <p><Acronym /></p>
         {move|| acronym().chars().enumerate().map(|(i, c)|{
             // the macro gets confused and doesn't notice this variable is used
@@ -125,6 +124,7 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
                 }}
             </span>
         </div>
+        <p><span class=judge_class()>{judge_name}</span>" will be judging."</p>
     }
 }
 
