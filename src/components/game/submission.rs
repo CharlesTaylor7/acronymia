@@ -21,13 +21,13 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
             Some(Judge::Me) => view! {cx, <><JudgePerspective/></>},
             Some(Judge::Name(name)) => view! {cx, <><PlayerPerspective judge_name=name /></>},
         }}
+        <Timer />
         <p>
             <span class=counter_class()>
                 {submissions}"/"{player_count - 1}
             </span>
             " submissions received"
         </p>
-        <Timer />
     }
 }
 
@@ -35,10 +35,10 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
 fn JudgePerspective(cx: Scope) -> impl IntoView {
     view! { cx,
         <p>
-            <span class=judge_class()>"You"</span>" are the judge"
+            <Acronym />
         </p>
         <p>
-            {view! {cx, <Acronym />}}
+            <span class=judge_class()>"You"</span>" are the judge"
         </p>
     }
 }
