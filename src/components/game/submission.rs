@@ -1,4 +1,4 @@
-use super::{acronym::*, context::*, timer::*};
+use super::{prompt::*, context::*, timer::*};
 use crate::components::game::utils::state::*;
 use crate::components::styles::*;
 use crate::types::{ClientMessage::*, PlayerId, Submission};
@@ -35,7 +35,7 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
 fn JudgePerspective(cx: Scope) -> impl IntoView {
     view! { cx,
         <p>
-            <Acronym />
+            <Prompt/>
         </p>
         <p>
             <span class=judge_class()>"You"</span>" are the judge"
@@ -61,7 +61,7 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
     });
 
     view! { cx,
-        <p><Acronym /></p>
+        <p><Prompt/></p>
         {move|| acronym().chars().enumerate().map(|(i, c)|{
             // the macro gets confused and doesn't notice this variable is used
             #[allow(unused_variables)]

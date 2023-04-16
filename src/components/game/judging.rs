@@ -1,4 +1,4 @@
-use super::{acronym::*, context::*, timer::*};
+use super::{prompt::*, context::*, timer::*};
 use crate::components::game::utils::state::*;
 use crate::components::styles::*;
 use crate::components::utils::*;
@@ -55,7 +55,7 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
 
     view! {
         cx,
-        <header><Acronym /></header>
+        <header><Prompt /></header>
         <Submissions disabled=false on_select=move|t| selected.set(Some(t)) option_class=option_class />
 
         <button
@@ -72,7 +72,7 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
 fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
     view! { cx,
         <p><span class=judge_class()>{judge_name}</span>" is deliberating."</p>
-        <p><Acronym /></p>
+        <p><Prompt /></p>
         <Submissions
             option_class=move|_| "".into()
             disabled=true

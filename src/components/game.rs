@@ -1,4 +1,4 @@
-mod acronym;
+mod prompt;
 pub mod context;
 mod judging;
 pub mod player_roster;
@@ -24,7 +24,7 @@ pub fn Game(cx: Scope) -> impl IntoView {
 
     view! {
         cx,
-        <div class="flex flex-row justify-center mt-4">
+        <div class="flex flex-row justify-center m-4">
             <div class="flex flex-col items-start gap-4">
                 <h1 class="text-4xl font-bold tracking-wide">
                     "Acronymia"
