@@ -38,7 +38,7 @@ Future Ideas:
 
 ## TODO
 - [x] Prompts / Themed rounds
-- [ ] Show countdown until next round
+- [x] Show countdown until next round
 - [ ] Able to see your point total during game play
 - [ ] Warn players about penalties before they submit
 
