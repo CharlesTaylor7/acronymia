@@ -60,4 +60,5 @@ jobs:
           npm install
           npx playwright install
           rustup target add wasm32-unknown-unknown
+          npm run tailwind
           cargo leptos end-to-end

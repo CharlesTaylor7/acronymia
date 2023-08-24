@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "watch-css": "npx tailwindcss -i ./input.css -o ./style/output.css --watch"
+    "tailwind": "npx tailwindcss -i ./input.css -o ./style/output.css"
   },
   "devDependencies": {
     "@playwright/test": "^1.37.1",

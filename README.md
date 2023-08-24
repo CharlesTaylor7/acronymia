@@ -83,9 +83,10 @@ This project was bootstrapped with the [Leptos](https://github.com/leptos-rs/lep
 Install `cargo`, `cargo-leptos`, & `npm`.
 
 - Run the web server: `cargo leptos watch`
-- Run tailwind to bundle the css: `npm run watch-css`
+- Run tailwind to bundle the css: `npm run tailwind -- --watch`
 - Lint rust code: `cargo clippy`
 - Run server unit tests: `cargo test --features=ssr`
+- Run Playwright tests: `cargo leptos end-to-end`
 
 ## Installing Additional Tools
 
