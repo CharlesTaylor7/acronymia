@@ -58,6 +58,7 @@ jobs:
           cargo test --features=ssr
 
       - name: Playwright Tests
+        run: |
           cargo install --features no_downloads --locked cargo-leptos || true
           npm install
           npx playwright install
