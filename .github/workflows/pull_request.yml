@@ -1,0 +1,22 @@
+name: Verify
+on:
+  pull_request:
+    types: [opened, reopened, edited]
+
+
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+      - name: Install Rust Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+      - run: 
+      - run: |
+          cargo install --features no_downloads --locked cargo-leptos
+          cargo test --features=ssr
