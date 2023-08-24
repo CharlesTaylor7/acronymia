@@ -1,8 +1,9 @@
 {
   "scripts": {
-    "watch-css": "npx tailwindcss -i ./input.css -o ./style/output.css --watch"
+    "tailwind": "npx tailwindcss -i ./input.css -o ./style/output.css"
   },
   "devDependencies": {
+    "@playwright/test": "^1.37.1",
     "tailwindcss": "^3.2.7"
   }
 }

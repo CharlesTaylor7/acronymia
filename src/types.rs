@@ -74,7 +74,6 @@ impl TimerTag {
     }
 }
 
-
 #[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq)]
 pub struct Prompt {
     pub before: String,

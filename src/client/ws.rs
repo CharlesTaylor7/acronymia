@@ -78,7 +78,7 @@ fn apply_server_message(state: &mut ClientGameState, message: ServerMessage) {
         }
 
         PlayerJoined(new) => {
-            if let Some(mut p) = state.players.iter_mut().find(|p| p.id == new.id) {
+            if let Some(p) = state.players.iter_mut().find(|p| p.id == new.id) {
                 p.name = new.name;
             } else {
                 state.players.push(new);

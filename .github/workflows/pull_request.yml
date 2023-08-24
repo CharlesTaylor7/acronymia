@@ -1,8 +1,10 @@
 name: Verify
 on:
-  pull_request:
-    types: [opened, reopened, edited]
+  - pull_request
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   Test:
@@ -12,11 +14,51 @@ jobs:
         uses: actions/checkout@v3
         with:
           persist-credentials: false
+
       - name: Install Rust Toolchain
         uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
-      - run: 
-      - run: |
-          cargo install --features no_downloads --locked cargo-leptos
+          override: true
+          components: rustfmt, clippy
+
+      - name: Cache Cargo
+        uses: actions/cache@v3
+        continue-on-error: false
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Cache Node Modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: node_modules-${{hashFiles('package-lock.json')}}
+          restore-keys: node_modules-
+
+      - name: Cargo Dependencies
+        run: |
+          cargo update
+
+      - name: Rust Format
+        run: |
+          cargo fmt --check
+
+      - name: Unit Tests
+        run: |
           cargo test --features=ssr
+
+      - name: Playwright Tests
+        run: |
+          cargo install --features no_downloads --locked cargo-leptos || true
+          npm install
+          npx playwright install --with-deps
+          rustup target add wasm32-unknown-unknown
+          npm run tailwind
+          cargo leptos end-to-end
