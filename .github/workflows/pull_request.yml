@@ -50,7 +50,10 @@ jobs:
       # TODO: use Clippy instead of Cargo check
       - name: Cargo Check
         run: |
+          cargo build --features=ssr --package=acronymia
           cargo check --features=ssr --package=acronymia
+
+          cargo build --features=hydrate --package=acronymia
           cargo check --features=hydrate --package=acronymia
 
       - name: Unit Tests
