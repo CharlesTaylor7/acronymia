@@ -312,12 +312,12 @@ mod tests {
                         acronym: "abc".to_owned(),
                         ..Prompt::default()
                     },
-                    submissions: 
-                        vec! [
-                            ("a".to_owned(), vec!["A".to_owned(), "B".to_owned(), "C".to_owned()])
-                        ]
-                        .into_iter()
-                        .collect::<HashMap<_, _>>(),
+                    submissions: vec![(
+                        "a".to_owned(),
+                        vec!["A".to_owned(), "B".to_owned(), "C".to_owned()],
+                    )]
+                    .into_iter()
+                    .collect::<HashMap<_, _>>(),
                     ..Round::default()
                 },
                 Round {
@@ -326,10 +326,7 @@ mod tests {
                         acronym: "ef".to_owned(),
                         ..Prompt::default()
                     },
-                    submissions: 
-                        vec! [
-                            ("a".to_owned(), vec!["E".to_owned(), "F".to_owned()])
-                        ]
+                    submissions: vec![("a".to_owned(), vec!["E".to_owned(), "F".to_owned()])]
                         .into_iter()
                         .collect::<HashMap<_, _>>(),
                     ..Round::default()
@@ -340,12 +337,17 @@ mod tests {
                         acronym: "four".to_owned(),
                         ..Prompt::default()
                     },
-                    submissions: 
-                        vec! [
-                            ("b".to_owned(), vec!["F".to_owned(), "O".to_owned(), "U".to_owned(), "R".to_owned()])
-                        ]
-                        .into_iter()
-                        .collect::<HashMap<_, _>>(),
+                    submissions: vec![(
+                        "b".to_owned(),
+                        vec![
+                            "F".to_owned(),
+                            "O".to_owned(),
+                            "U".to_owned(),
+                            "R".to_owned(),
+                        ],
+                    )]
+                    .into_iter()
+                    .collect::<HashMap<_, _>>(),
                     ..Round::default()
                 },
                 Round {
