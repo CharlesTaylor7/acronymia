@@ -58,7 +58,7 @@ jobs:
         run: |
           cargo install --features no_downloads --locked cargo-leptos || true
           npm install
-          npx playwright install
+          npx playwright install --with-deps
           rustup target add wasm32-unknown-unknown
           npm run tailwind
           cargo leptos end-to-end
