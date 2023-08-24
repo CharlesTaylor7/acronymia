@@ -308,19 +308,53 @@ mod tests {
             rounds: vec![
                 Round {
                     winner: Some("a".to_owned()),
+                    prompt: Prompt {
+                        acronym: "abc".to_owned(),
+                        ..Prompt::default()
+                    },
+                    submissions: 
+                        vec! [
+                            ("a".to_owned(), vec!["A".to_owned(), "B".to_owned(), "C".to_owned()])
+                        ]
+                        .into_iter()
+                        .collect::<HashMap<_, _>>(),
                     ..Round::default()
                 },
                 Round {
                     winner: Some("a".to_owned()),
+                    prompt: Prompt {
+                        acronym: "ef".to_owned(),
+                        ..Prompt::default()
+                    },
+                    submissions: 
+                        vec! [
+                            ("a".to_owned(), vec!["E".to_owned(), "F".to_owned()])
+                        ]
+                        .into_iter()
+                        .collect::<HashMap<_, _>>(),
                     ..Round::default()
                 },
                 Round {
                     winner: Some("b".to_owned()),
+                    prompt: Prompt {
+                        acronym: "four".to_owned(),
+                        ..Prompt::default()
+                    },
+                    submissions: 
+                        vec! [
+                            ("b".to_owned(), vec!["F".to_owned(), "O".to_owned(), "U".to_owned(), "R".to_owned()])
+                        ]
+                        .into_iter()
+                        .collect::<HashMap<_, _>>(),
                     ..Round::default()
                 },
                 Round {
                     winner: None,
                     judge: 2,
+                    prompt: Prompt {
+                        acronym: "a".to_owned(),
+                        ..Prompt::default()
+                    },
                     ..Round::default()
                 },
             ],
@@ -330,8 +364,8 @@ mod tests {
         assert_eq!(
             state.scores(),
             vec![
-                ("a".to_owned(), 2),
-                ("b".to_owned(), 1),
+                ("a".to_owned(), 5),
+                ("b".to_owned(), 4),
                 ("c".to_owned(), -1)
             ]
         );
