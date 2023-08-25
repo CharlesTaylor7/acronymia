@@ -1,6 +1,6 @@
 use super::context::*;
 use super::utils::state::*;
-use crate::components::{styles::*, utils::*};
+use crate::components::styles::*;
 use crate::types::ClientMessage::*;
 use crate::types::*;
 use ::futures::future::OptionFuture;
@@ -12,15 +12,15 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     let player_name = use_typed_context::<Signal_PlayerName>(cx);
     let player = create_memo(cx, move |_| {
-        player_id().map(|id| Player {
+        player_id.get().map(|id| Player {
             id,
-            name: player_name(),
+            name: player_name.get(),
         })
     });
 
     let players = use_typed_context::<Memo_Players>(cx);
     let join_game = create_action(cx, move |_: &()| {
-        OptionFuture::from(player().map(|p| send(cx, JoinGame(p))))
+        OptionFuture::from(player.get().map(|p| send(cx, JoinGame(p))))
     });
 
     let start_game = create_action(cx, move |_: &()| {
@@ -32,7 +32,7 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
         <input
             type="text"
             class=text_input_class("")
-            default=player_name()
+            default=player_name.get()
             on:input=move |e| player_name.set(event_target_value(&e))
             on:keydown=move |e| {
                 if e.key() == "Enter" {
@@ -43,12 +43,12 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
         <div class="flex flex-row gap-4">
             <button
                 class=button_class(ButtonStyle::Primary, "")
-                prop:disabled=Signal::derive(cx, move|| player_id().is_none())
+                prop:disabled=Signal::derive(cx, move|| player_id.with(|id| id.is_none()))
                 on:click=move |_| join_game.dispatch(())
             >
-            {move|| if join_game.version()() > 0 { "Update name" } else { "Join" }}
+            {move|| if join_game.version().get() > 0 { "Update name" } else { "Join" }}
             </button>
-            <When predicate=is_host>
+            <Show when=is_host fallback=|_| ()>
                 <button
                     class=button_class(ButtonStyle::Secondary, "")
                     disabled=move|| players.with(|ps| ps.len() < 3)
@@ -56,7 +56,7 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
                 >
                     "Start game"
                 </button>
-            </When>
+            </Show>
         </div>
         <div>
             <p>{move || players.with(|ps| ps.len())}" players joined"</p>
@@ -101,7 +101,7 @@ pub fn ConfigureAcronymLength(cx: Scope) -> impl IntoView {
                 prop:value=min
                 on:change=move|e| {
                     if let Ok(n) = event_target_value(&e).parse() {
-                        set_min(n);
+                        set_min.set(n);
                     }
                 }
             />
@@ -113,7 +113,7 @@ pub fn ConfigureAcronymLength(cx: Scope) -> impl IntoView {
                 prop:value=max
                 on:input=move|e| {
                     if let Ok(n) = event_target_value(&e).parse() {
-                        set_max(n);
+                        set_max.set(n);
                     }
                 }
             />
