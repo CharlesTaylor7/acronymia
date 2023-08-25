@@ -31,11 +31,10 @@ pub fn derive(ast: DeriveInput) -> TokenStream {
         }
         impl Sliceable for #struct_name {
             type Sliced = #sliced_struct_name;
-            fn slice(signal: RwSignal<Self>, cx: Scope) -> Self::Sliced {
+            fn slice(signal: RwSignal<Self>) -> Self::Sliced {
                 #sliced_struct_name {
                     #(
                         #field_names: ::macros::slice::__create_slice(
-                            cx,
                             signal,
                             move|state| state.#field_names.clone(),
                             move|state, value| state.#field_names = value,

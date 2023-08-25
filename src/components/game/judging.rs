@@ -9,19 +9,19 @@ use leptos::*;
 use std::collections::HashMap;
 
 #[component]
-pub fn GameJudging(cx: Scope) -> impl IntoView {
-    provide_player_lookup(cx);
-    let judge = use_typed_context::<Memo_Judge>(cx);
-    let round_counter = use_typed_context::<Memo_RoundCounter>(cx);
-    view! { cx,
+pub fn GameJudging() -> impl IntoView {
+    provide_player_lookup();
+    let judge = use_typed_context::<Memo_Judge>();
+    let round_counter = use_typed_context::<Memo_RoundCounter>();
+    view! {
         <h2 class="text-l font-bold">
             {round_counter}
         </h2>
         {
             move || match judge.get() {
-                None => view! {cx, <><span>"Error: No judge"</span></>},
-                Some(Judge::Me) => view! { cx, <><JudgePerspective /></>},
-                Some(Judge::Name(name)) => view! { cx, <><PlayerPerspective judge_name=name /></>},
+                None => view! { <><span>"Error: No judge"</span></>},
+                Some(Judge::Me) => view! {  <><JudgePerspective /></>},
+                Some(Judge::Name(name)) => view! {  <><PlayerPerspective judge_name=name /></>},
             }
         }
         <Timer />
@@ -29,15 +29,15 @@ pub fn GameJudging(cx: Scope) -> impl IntoView {
 }
 
 #[component]
-fn JudgePerspective(cx: Scope) -> impl IntoView {
-    let selected = create_rw_signal(cx, None);
-    let submit_winner = create_action(cx, move |_: &()| {
-        OptionFuture::from(selected.get().map(|winner| send(cx, JudgeRound(winner))))
+fn JudgePerspective() -> impl IntoView {
+    let selected = create_rw_signal(None);
+    let submit_winner = create_action(move |_: &()| {
+        OptionFuture::from(selected.get().map(|winner| send(JudgeRound(winner))))
     });
 
     let option_class = move |id: &PlayerId| {
         let id = id.clone();
-        MaybeSignal::derive(cx, move || {
+        MaybeSignal::derive(move || {
             if selected.with(|s| s.as_ref() == Some(&id)) {
                 "bg-cyan-600".to_owned()
             } else {
@@ -47,7 +47,7 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
     };
 
     view! {
-        cx,
+
         <header><Prompt /></header>
         <Submissions disabled=false on_select=move|t| selected.set(Some(t)) option_class=option_class />
 
@@ -62,9 +62,9 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
 }
 
 #[component]
-fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
-    view! { cx,
-        <Show when=move|| game_state(cx).with(|g| g.round_winner.is_none()) fallback=move|_|()>
+fn PlayerPerspective(judge_name: String) -> impl IntoView {
+    view! {
+        <Show when=move|| game_state().with(|g| g.round_winner.is_none()) fallback=|| ()>
             <p><span class=judge_class()>{&judge_name}</span>" is deliberating."</p>
         </Show>
         <p><Prompt /></p>
@@ -77,19 +77,19 @@ fn PlayerPerspective(cx: Scope, judge_name: String) -> impl IntoView {
 }
 
 #[component]
-fn Submissions<F1, F2>(cx: Scope, disabled: bool, option_class: F1, on_select: F2) -> impl IntoView
+fn Submissions<F1, F2>(disabled: bool, option_class: F1, on_select: F2) -> impl IntoView
 where
     F1: 'static + Fn(&PlayerId) -> MaybeSignal<String>,
     F2: 'static + Copy + Fn(String),
 {
-    game_state(cx)
+    game_state()
         .with(|g| g.submissions.clone())
         .into_iter()
         .map(|(id, words)| {
             let class = option_class(&id);
             let id2 = id.clone();
             view! {
-                cx,
+
                 <div class="flex flex-col justify-content">
                     <button
                         class=move|| class.with(|s| button_class(ButtonStyle::Nothing, s))
@@ -99,8 +99,8 @@ where
                         {words.join(" ")}
                     </button>
 
-                    {move|| lookup(cx, &id2).map(|p|
-                        view! {cx,
+                    {move|| lookup( &id2).map(|p|
+                        view! {
                             <div class="font-bold">
                                 {p.is_winner.then_some("👑 ")}{p.name}
                             </div>
@@ -113,9 +113,9 @@ where
 }
 
 define_context!(LookupPlayer, Memo<HashMap<PlayerId, PlayerInfo>>);
-fn provide_player_lookup(cx: Scope) {
-    let hashmap = create_memo(cx, move |_| {
-        game_state(cx).with(|g| {
+fn provide_player_lookup() {
+    let hashmap = create_memo(move |_| {
+        game_state().with(|g| {
             g.round_winner
                 .as_ref()
                 .map_or(HashMap::with_capacity(0), |w| {
@@ -134,11 +134,11 @@ fn provide_player_lookup(cx: Scope) {
         })
     });
 
-    provide_typed_context::<LookupPlayer>(cx, hashmap);
+    provide_typed_context::<LookupPlayer>(hashmap);
 }
 
-fn lookup(cx: Scope, id: &PlayerId) -> Option<PlayerInfo> {
-    use_typed_context::<LookupPlayer>(cx).with(|h| h.get(id).cloned())
+fn lookup(id: &PlayerId) -> Option<PlayerInfo> {
+    use_typed_context::<LookupPlayer>().with(|h| h.get(id).cloned())
 }
 
 #[derive(Clone, PartialEq)]
