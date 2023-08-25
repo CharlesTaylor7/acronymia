@@ -102,7 +102,7 @@ fn signal_player_id(cx: Scope) -> RwSignal<Option<PlayerId>> {
     let player_id: RwSignal<Option<String>> = create_rw_signal(cx, None);
 
     #[cfg(feature = "local-storage")]
-    if player_id.get().is_none() {
+    {
         use ::uuid::*;
         const STORAGE_KEY: &str = "acronymia-player-id";
 
