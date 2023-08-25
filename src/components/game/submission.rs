@@ -17,7 +17,7 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
             {round_counter}
         </h2>
         <Prompt/>
-        <Show when=move|| judge() != Some(Judge::Me) fallback=move|_|() >
+        <Show when=move|| judge.get() != Some(Judge::Me) fallback=move|_| () >
             <PlayerPerspective />
         </Show>
         <Timer/>
@@ -34,7 +34,7 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
 #[component]
 fn JudgeDescription(cx: Scope) -> impl IntoView {
     let judge = use_typed_context::<Memo_Judge>(cx);
-    move || match judge() {
+    move || match judge.get() {
         None => view! {cx, <p>"Error: No judge"</p>},
         Some(Judge::Me) => view! { cx,
             <p>
@@ -60,14 +60,17 @@ fn PlayerPerspective(cx: Scope) -> impl IntoView {
     let get_ref = move |i| input_refs.with_value(|r| r[i]);
     let submission = create_rw_signal::<Vec<Option<String>>>(cx, vec![None; num_of_words]);
 
-    let submit_args =
-        move || player_id().and_then(|id| submission.with(|s| all_some(s).map(|s| (id, s))));
+    let submit_args = move || {
+        player_id
+            .get()
+            .and_then(|id| submission.with(|s| all_some(s).map(|s| (id, s))))
+    };
     let submit = create_action(cx, move |(id, s): &(PlayerId, Submission)| {
         send_and_save(cx, id.clone(), s.clone())
     });
 
     view! { cx,
-        {move|| acronym().chars().enumerate().map(|(i, c)|{
+        {move|| acronym.get().chars().enumerate().map(|(i, c)|{
             // the macro gets confused and doesn't notice this variable is used
             #[allow(unused_variables)]
             let node_ref = get_ref(i);
@@ -115,7 +118,7 @@ fn PlayerPerspective(cx: Scope) -> impl IntoView {
                 "Submit"
             </button>
             <span class="px-2">
-                {move|| if submit.version()() > 0 {
+                {move|| if submit.version().get() > 0 {
                     submit.value().get().map(|s|
                         Some(view! {cx,
                             <span>

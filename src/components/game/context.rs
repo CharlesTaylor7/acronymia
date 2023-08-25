@@ -37,7 +37,7 @@ pub fn provide_game_context(cx: Scope) {
     if DEBUG_MODE {
         // synchronize player id with player name
         create_effect(cx, move |_| {
-            player_id.set(Some(player_name()));
+            player_id.set(Some(player_name.get()));
         });
     }
 
@@ -83,7 +83,8 @@ fn judge_memo(cx: Scope) -> Memo<Option<Judge>> {
 fn memo_is_host(cx: Scope) -> Memo<bool> {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     create_memo(cx, move |_| {
-        player_id()
+        player_id
+            .get()
             .and_then(|me| {
                 game_state(cx)
                     .get()
@@ -102,7 +103,7 @@ fn signal_player_id(cx: Scope) -> RwSignal<Option<PlayerId>> {
     let player_id: RwSignal<Option<String>> = create_rw_signal(cx, None);
 
     #[cfg(feature = "local-storage")]
-    if player_id().is_none() {
+    {
         use ::uuid::*;
         const STORAGE_KEY: &str = "acronymia-player-id";
 
