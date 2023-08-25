@@ -1,1 +1,1 @@
-pub const DEBUG_MODE: bool = cfg!(debug_assertions);
+pub const DEV_MODE: bool = cfg!(feature = "dev");

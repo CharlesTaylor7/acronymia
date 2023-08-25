@@ -35,6 +35,7 @@ macros = { path = "./macros" }
 [features]
 hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate", "dep:gloo-net", "local-storage", "uuid", "web-sys/Location", "dep:wasm-bindgen", "dep:console_log", "dep:console_error_panic_hook"]
 ssr = ["dep:actix-files", "dep:actix-web", "dep:leptos_actix", "leptos/ssr", "leptos_meta/ssr", "leptos_router/ssr", "dep:tokio", "dep:actix-ws", "dep:rand"]
+dev = []
 uuid = ["dep:uuid", "dep:getrandom"]
 local-storage = ["web-sys/Window", "web-sys/Storage"]
 

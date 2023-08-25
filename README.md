@@ -61,38 +61,24 @@ Future Ideas:
 - SPA (Single Page Application)
 
 
-### Known Leptos bugs
-These are bugs we've observed in Leptos.
-This list serves 2 purposes:
-  (1) a todo list of bug reports/PRs that I'd like to submit to the upstream repo.
-  (2) provide workarounds for each issue.
-
-- Putting a raw text element at the top level of component that lives inside a dynamic child can cause panics:
-https://github.com/leptos-rs/leptos/blob/586f524015a543c9599205a91eac59bd7fca3c47/leptos_dom/src/components/dyn_child.rs#L245
-  - Workaround: wrap text nodes in an html tag: span, div, etc.
-
-- Server api functions can silently fail. If you use composite types in the function arguments the code compiles but fails completely silently at runtime. There's no panic, no console warning, no nothing. Strings & numbers work fine, vectors & structs don't. I believe it's actually supposed to work with any type that's serializable with Serde. 
-  Workaround: apply the "Cbor" argument to the server macro. It uses a different serialization format then the default and actually works. The default deserialization format is Form data. 
-
 # Development
+This project is proudly built with the [Leptos](https://github.com/leptos-rs/leptos) web framework and bootstrapped from the [cargo-leptos](https://github.com/akesson/cargo-leptos) tool.
 
-This project was bootstrapped with the [Leptos](https://github.com/leptos-rs/leptos) web framework and the [cargo-leptos](https://github.com/akesson/cargo-leptos) tool.
+## Project Setup
 
-## Running the project
+- You will need `rustup` and `npm` to get started.
+- Run these configuration commands:
+```sh
+rustup toolchain install nightly --allow-downgrade  # ensure you have Rust nightly
+rustup target add wasm32-unknown-unknown            # ensure you can compile to Web Assembly
+```
+- `cargo install cargo-leptos`
 
-Install `cargo`, `cargo-leptos`, & `npm`.
 
-- Run the web server: `cargo leptos watch`
+## Development commands
+- Run the dev server: `cargo leptos watch --features=dev`
 - Run tailwind to bundle the css: `npm run tailwind -- --watch`
 - Lint rust code: `cargo clippy`
 - Run server unit tests: `cargo test --features=ssr`
 - Run Playwright tests: `cargo leptos end-to-end`
-
-## Installing Additional Tools
-
-By default, `cargo-leptos` uses `nightly` Rust, `cargo-generate`, and `sass`. If you run into any trouble, you may need to install one or more of these tools.
-
-1. `rustup toolchain install nightly --allow-downgrade` - make sure you have Rust nightly
-2. `rustup default nightly` - setup nightly as default, or you can use rust-toolchain file later on
-3. `rustup target add wasm32-unknown-unknown` - add the ability to compile Rust to WebAssembly
-4. `cargo install cargo-generate` - install `cargo-generate` binary (should be installed automatically in future)
+- Build the production server: `cargo leptos build --release`

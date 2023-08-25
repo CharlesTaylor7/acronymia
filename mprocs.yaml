@@ -1,9 +1,13 @@
 procs:
   Leptos:
-    shell: cargo leptos watch
+    shell: cargo leptos watch --features=dev
 
   Tailwind:
     shell: npm run tailwind -- --watch
 
   Unit Tests:
     shell: cargo watch --features=ssr -x test
+
+  Playwright Tests:
+    shell: cargo leptos end-to-end
+    autostart: false

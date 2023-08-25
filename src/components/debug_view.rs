@@ -14,7 +14,7 @@ pub fn DebugView(cx: Scope) -> impl IntoView {
     let stop_timer = create_action(cx, move |_| send(cx, StopTimer));
 
     view! { cx,
-            <Show when=MaybeSignal::derive(cx, move|| is_host() || DEBUG_MODE) fallback=|_| ()>
+            <Show when=MaybeSignal::derive(cx, move|| is_host() || DEV_MODE) fallback=|_| ()>
                 <button
                     class=button_class(ButtonStyle::Neutral, "mt-4")
                     on:click=move |_| debug_region_expanded.update(|b| *b = !*b)
