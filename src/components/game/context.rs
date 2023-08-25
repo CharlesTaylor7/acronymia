@@ -34,8 +34,9 @@ pub fn provide_game_context(cx: Scope) {
     let player_id = signal_player_id(cx);
     provide_typed_context::<Signal_PlayerId>(cx, player_id);
 
-    if DEBUG_MODE {
+    if DEV_MODE {
         // synchronize player id with player name
+        // this ensures impersonation works properly
         create_effect(cx, move |_| {
             player_id.set(Some(player_name.get()));
         });

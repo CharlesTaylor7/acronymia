@@ -140,7 +140,7 @@ fn start_judging_step(state: &mut GameState, messenger: &Sender<ServerMessage<'s
 }
 
 fn end_judging_step(state: &mut GameState, messenger: &Sender<ServerMessage<'static>>) {
-    let game_length = if DEBUG_MODE {
+    let game_length = if DEV_MODE {
         3
     } else {
         // everyone goes twice as judge

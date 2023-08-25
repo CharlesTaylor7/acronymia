@@ -244,7 +244,7 @@ where
 }
 
 pub fn init_game_state() -> GameState {
-    let mut state = if DEBUG_MODE {
+    let mut state = if DEV_MODE {
         demo_init(vec!["alice", "bob", "carl"])
     } else {
         Default::default()
