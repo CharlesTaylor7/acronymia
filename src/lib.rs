@@ -39,7 +39,7 @@ cfg_if! {
 
         use leptos::*;
         use wasm_bindgen::prelude::wasm_bindgen;
-        use crate::components::app::{App, AppProps};
+        use crate::components::app::App;
 
         #[wasm_bindgen]
         pub fn hydrate() {

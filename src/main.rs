@@ -2,7 +2,7 @@ use cfg_if::cfg_if;
 
 cfg_if! {
     if #[cfg(feature = "ssr")] {
-        use acronymia::components::app::{App, AppProps};
+        use acronymia::components::app::App;
         use acronymia::server::{sync, ws};
         use actix_files::Files;
         use actix_web::{App, web, middleware, HttpServer};
