@@ -55,12 +55,7 @@ jobs:
 
       - name: Unit Tests
         run: |
-          cargo test --features=ssr
-
-      # There are no client side tests, but we should ensure it builds
-      - name: Build Client
-        run: |
-          cargo build --features=hydrate
+          cargo leptos test
 
 #       TODO: debug playwright
 #       My working theory is that the websocket is failing to connect,

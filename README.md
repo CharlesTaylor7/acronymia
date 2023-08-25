@@ -78,6 +78,6 @@ npm install                                         # installs tailwind & playwr
 - Run the dev server: `cargo leptos watch --features=dev`
 - Run tailwind to bundle the css: `npm run tailwind -- --watch`
 - Lint rust code: `cargo clippy`
-- Run server unit tests: `cargo test --features=ssr`
+- Run unit tests: `cargo leptos test`
 - Run Playwright tests: `cargo leptos end-to-end`
 - Build the production server: `cargo leptos build --release`
