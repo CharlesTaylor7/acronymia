@@ -1,0 +1,9 @@
+procs:
+  Leptos:
+    shell: cargo leptos watch
+
+  Tailwind:
+    shell: npm run tailwind -- --watch
+
+  Unit Tests:
+    shell: cargo watch --features=ssr -x test
