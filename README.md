@@ -69,7 +69,7 @@ This project is proudly built with the [Leptos](https://github.com/leptos-rs/lep
 - You will need `rustup` and `npm` to get started.
 - Run these configuration commands:
 ```sh
-rustup toolchain install nightly --allow-downgrade` # ensure you have Rust nightly
+rustup toolchain install nightly --allow-downgrade  # ensure you have Rust nightly
 rustup target add wasm32-unknown-unknown            # ensure you can compile to Web Assembly
 ```
 - `cargo install cargo-leptos`
