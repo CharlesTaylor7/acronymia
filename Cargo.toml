@@ -30,7 +30,7 @@ rand = { version = "0.8.5", optional = true }
 tokio = { version = "1.26.0", features = ["macros", "rt", "sync", "time"], optional = true }
 js-sys = "0.3.61"
 # internal dependencies
-macros = { path = "./macros" }
+# macros = { path = "./macros" }
 
 [features]
 hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate", "dep:gloo-net", "local-storage", "uuid", "web-sys/Location", "dep:wasm-bindgen", "dep:console_log", "dep:console_error_panic_hook"]
