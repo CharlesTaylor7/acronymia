@@ -3,9 +3,9 @@ use ::leptos::*;
 use ::std::sync::OnceLock;
 use ::tokio::sync::{broadcast, mpsc, Mutex};
 
-pub struct Global<'a> {
+pub struct Global {
     mailbox_sender: mpsc::Sender<ClientMessage>,
-    broadcast_sender: broadcast::Sender<ServerMessage<'a>>,
+    broadcast_sender: broadcast::Sender<ServerMessage>,
     state: Mutex<GameState>,
 }
 
@@ -16,7 +16,7 @@ pub static GLOBAL: OnceLock<Global> = OnceLock::new();
 ///
 /// # Panics
 /// Panics if `spawn_state_thread` has not been run yet.  
-pub fn subscribe() -> broadcast::Receiver<ServerMessage<'static>> {
+pub fn subscribe() -> broadcast::Receiver<ServerMessage> {
     GLOBAL.get().unwrap().broadcast_sender.subscribe()
 }
 

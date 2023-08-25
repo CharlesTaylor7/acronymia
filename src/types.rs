@@ -9,12 +9,6 @@ pub type PlayerId = String;
 pub type PlayerName = String;
 
 #[derive(Serialize, Deserialize, Clone, Default, Debug, PartialEq)]
-pub struct Demo<'a> {
-    pub a: &'a str,
-    pub b: &'a str,
-}
-
-#[derive(Serialize, Deserialize, Clone, Default, Debug, PartialEq)]
 pub enum GameStep {
     #[default]
     Setup, // Player's joining and game config
@@ -99,7 +93,7 @@ pub enum ClientMessage {
 
 /// message from the server broadcast to each client
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum ServerMessage<'a> {
+pub enum ServerMessage {
     /// Sent when a client connects for the first time.
     /// Theoretically, a client connecting is the only time when we need to send this message.
     /// We could send smaller message payloads for other events and patch game state on the client
@@ -109,8 +103,6 @@ pub enum ServerMessage<'a> {
     /// I have implemented the more granular approach for the PlayerJoined payload to demonstrate
     /// its possible.
     GameState(ClientGameState),
-    #[serde(borrow)]
-    Demo(Demo<'a>),
     PlayerJoined(Player),
     ShowRoundWinner(PlayerId),
     IncrementSubmissionCount,

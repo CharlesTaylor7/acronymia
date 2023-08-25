@@ -97,8 +97,5 @@ fn apply_server_message(state: &mut ClientGameState, message: ServerMessage) {
         UpdateRemainingTime(time) => {
             state.timer = time;
         }
-        Demo(demo) => {
-            log!("{:#?}", demo);
-        }
     }
 }
