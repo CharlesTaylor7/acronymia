@@ -1,1 +1,1 @@
-pub const DEV_MODE: bool = cfg!(feature="dev");
+pub const DEV_MODE: bool = cfg!(feature = "dev");
