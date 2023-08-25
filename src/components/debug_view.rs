@@ -2,7 +2,7 @@ use crate::components::game::context::*;
 use crate::components::game::player_roster::*;
 use crate::components::reset_button::*;
 use crate::components::state::*;
-use crate::components::{styles::*, utils::*};
+use crate::components::styles::*;
 use crate::constants::*;
 use crate::typed_context::*;
 use ::leptos::*;
@@ -14,14 +14,14 @@ pub fn DebugView(cx: Scope) -> impl IntoView {
     let stop_timer = create_action(cx, move |_| send(cx, StopTimer));
 
     view! { cx,
-            <When predicate=MaybeSignal::derive(cx, move|| is_host() || DEBUG_MODE) >
+            <Show when=MaybeSignal::derive(cx, move|| is_host() || DEBUG_MODE) fallback=|_| ()>
                 <button
                     class=button_class(ButtonStyle::Neutral, "mt-4")
                     on:click=move |_| debug_region_expanded.update(|b| *b = !*b)
                 >
                     "Toggle Debug View"
                 </button>
-                <When predicate=debug_region_expanded >
+                <Show when=debug_region_expanded fallback=|_| () >
                     <div class="flex flex-col items-start gap-4">
                         <h1 class="font-bold font-xl">"Begin Debug"</h1>
                         <p>
@@ -38,8 +38,8 @@ pub fn DebugView(cx: Scope) -> impl IntoView {
 
                         <h1 class="font-bold font-xl">"End Debug"</h1>
                     </div>
-                </When>
-            </When>
+                </Show>
+            </Show>
     }
 }
 

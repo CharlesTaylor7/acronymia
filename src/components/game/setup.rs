@@ -1,6 +1,6 @@
 use super::context::*;
 use super::utils::state::*;
-use crate::components::{styles::*, utils::*};
+use crate::components::styles::*;
 use crate::types::ClientMessage::*;
 use crate::types::*;
 use ::futures::future::OptionFuture;
@@ -48,7 +48,7 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
             >
             {move|| if join_game.version()() > 0 { "Update name" } else { "Join" }}
             </button>
-            <When predicate=is_host>
+            <Show when=is_host fallback=|_| ()>
                 <button
                     class=button_class(ButtonStyle::Secondary, "")
                     disabled=move|| players.with(|ps| ps.len() < 3)
@@ -56,7 +56,7 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
                 >
                     "Start game"
                 </button>
-            </When>
+            </Show>
         </div>
         <div>
             <p>{move || players.with(|ps| ps.len())}" players joined"</p>
