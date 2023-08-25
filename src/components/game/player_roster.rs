@@ -49,13 +49,13 @@ fn PlayerView(
             {player.name}
             <button
                 class="bg-cyan-500 text-blue-50 rounded mx-2 px-2 disabled:bg-slate-600"
-                on:click=move |_| impersonate(Some(id1.clone()))
+                on:click=move |_| impersonate.set(Some(id1.clone()))
             >
                 "Impersonate"
             </button>
             <button
                 class="bg-rose-400 text-blue-50 rounded mx-2 px-2 disabled:bg-slate-600"
-                disabled=move|| Some(id3.clone()) == player_id() // can't kick self
+                disabled=move|| Some(id3.clone()) == player_id.get() // can't kick self
                 on:click=move |_| kick_player.dispatch(id2.clone())
             >
                 "Kick"

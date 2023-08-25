@@ -29,7 +29,7 @@ pub fn Game(cx: Scope) -> impl IntoView {
                 <h1 class="text-4xl font-bold tracking-wide">
                     "Acronymia"
                 </h1>
-                {move|| match game_step() {
+                {move|| match game_step.get() {
                     GameStep::Setup => view! { cx, <><GameSetup /></> },
                     GameStep::Submission => view! { cx, <><GameSubmission /></> },
                     GameStep::Judging => view! { cx, <><GameJudging /></> },

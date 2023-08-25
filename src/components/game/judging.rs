@@ -18,7 +18,7 @@ pub fn GameJudging(cx: Scope) -> impl IntoView {
             {round_counter}
         </h2>
         {
-            move || match judge() {
+            move || match judge.get() {
                 None => view! {cx, <><span>"Error: No judge"</span></>},
                 Some(Judge::Me) => view! { cx, <><JudgePerspective /></>},
                 Some(Judge::Name(name)) => view! { cx, <><PlayerPerspective judge_name=name /></>},
@@ -32,7 +32,7 @@ pub fn GameJudging(cx: Scope) -> impl IntoView {
 fn JudgePerspective(cx: Scope) -> impl IntoView {
     let selected = create_rw_signal(cx, None);
     let submit_winner = create_action(cx, move |_: &()| {
-        OptionFuture::from(selected().map(|winner| send(cx, JudgeRound(winner))))
+        OptionFuture::from(selected.get().map(|winner| send(cx, JudgeRound(winner))))
     });
 
     let option_class = move |id: &PlayerId| {
@@ -53,7 +53,7 @@ fn JudgePerspective(cx: Scope) -> impl IntoView {
 
         <button
             class=button_class(ButtonStyle::Secondary, "mt-12")
-            disabled=move|| {selected().is_none() || submit_winner.version()() > 0}
+            disabled=move|| {selected.get().is_none() || submit_winner.version().get() > 0}
             on:click=move|_| submit_winner.dispatch(())
         >
         "Submit"
