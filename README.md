@@ -81,5 +81,4 @@ rustup target add wasm32-unknown-unknown            # ensure you can compile to 
 - Lint rust code: `cargo clippy`
 - Run server unit tests: `cargo test --features=ssr`
 - Run Playwright tests: `cargo leptos end-to-end`
-
-- Build the production server: `cargo leptos watch --release`
+- Build the production server: `cargo leptos build --release`
