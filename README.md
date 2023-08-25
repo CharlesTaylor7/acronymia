@@ -66,14 +66,13 @@ This project is proudly built with the [Leptos](https://github.com/leptos-rs/lep
 
 ## Project Setup
 
-- You will need `rustup` and `npm` to get started.
-- Run these configuration commands:
+You will need `rustup` & `npm` for these steps: 
 ```sh
 rustup toolchain install nightly --allow-downgrade  # ensure you have Rust nightly
 rustup target add wasm32-unknown-unknown            # ensure you can compile to Web Assembly
+cargo install cargo-leptos                          # installs development scripts for a leptos project
+npm install                                         # installs tailwind & playwright 
 ```
-- `cargo install cargo-leptos`
-
 
 ## Development commands
 - Run the dev server: `cargo leptos watch --features=dev`

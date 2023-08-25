@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "postinstall": "npx playwright install --with-deps && npm run tailwind",
     "tailwind": "npx tailwindcss -i ./input.css -o ./style/output.css"
   },
   "devDependencies": {
