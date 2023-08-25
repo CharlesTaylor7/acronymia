@@ -83,7 +83,8 @@ fn judge_memo(cx: Scope) -> Memo<Option<Judge>> {
 fn memo_is_host(cx: Scope) -> Memo<bool> {
     let player_id = use_typed_context::<Signal_PlayerId>(cx);
     create_memo(cx, move |_| {
-        player_id.get()
+        player_id
+            .get()
             .and_then(|me| {
                 game_state(cx)
                     .get()

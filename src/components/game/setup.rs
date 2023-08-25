@@ -19,8 +19,9 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
     });
 
     let players = use_typed_context::<Memo_Players>(cx);
-    let join_game =
-        create_action(cx, move |_: &()| OptionFuture::from(player.get().map(|p| send(cx, JoinGame(p)))));
+    let join_game = create_action(cx, move |_: &()| {
+        OptionFuture::from(player.get().map(|p| send(cx, JoinGame(p))))
+    });
 
     let start_game = create_action(cx, move |_: &()| {
         send(cx, StartGame(game_state(cx).with(|g| g.config.clone())))

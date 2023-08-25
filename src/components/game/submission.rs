@@ -60,8 +60,11 @@ fn PlayerPerspective(cx: Scope) -> impl IntoView {
     let get_ref = move |i| input_refs.with_value(|r| r[i]);
     let submission = create_rw_signal::<Vec<Option<String>>>(cx, vec![None; num_of_words]);
 
-    let submit_args =
-        move || player_id.get().and_then(|id| submission.with(|s| all_some(s).map(|s| (id, s))));
+    let submit_args = move || {
+        player_id
+            .get()
+            .and_then(|id| submission.with(|s| all_some(s).map(|s| (id, s))))
+    };
     let submit = create_action(cx, move |(id, s): &(PlayerId, Submission)| {
         send_and_save(cx, id.clone(), s.clone())
     });
