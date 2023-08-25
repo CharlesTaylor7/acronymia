@@ -2,26 +2,26 @@ use crate::components::game::context::*;
 use crate::components::game::player_roster::*;
 use crate::components::reset_button::*;
 use crate::components::state::*;
-use crate::components::{styles::*, utils::*};
+use crate::components::styles::*;
 use crate::constants::*;
 use crate::typed_context::*;
 use ::leptos::*;
 
 #[component]
-pub fn DebugView(cx: Scope) -> impl IntoView {
-    let is_host = use_typed_context::<Memo_IsHost>(cx);
-    let debug_region_expanded = create_rw_signal(cx, false);
-    let stop_timer = create_action(cx, move |_| send(cx, StopTimer));
+pub fn DebugView() -> impl IntoView {
+    let is_host = use_typed_context::<Memo_IsHost>();
+    let debug_region_expanded = create_rw_signal(false);
+    let stop_timer = create_action(move |_| send(StopTimer));
 
-    view! { cx,
-            <When predicate=MaybeSignal::derive(cx, move|| is_host() || DEBUG_MODE) >
+    view! {
+            <Show when=MaybeSignal::derive(move|| is_host() || DEBUG_MODE) fallback=|| ()>
                 <button
                     class=button_class(ButtonStyle::Neutral, "mt-4")
                     on:click=move |_| debug_region_expanded.update(|b| *b = !*b)
                 >
                     "Toggle Debug View"
                 </button>
-                <When predicate=debug_region_expanded >
+                <Show when=debug_region_expanded fallback=|| ()>
                     <div class="flex flex-col items-start gap-4">
                         <h1 class="font-bold font-xl">"Begin Debug"</h1>
                         <p>
@@ -38,22 +38,22 @@ pub fn DebugView(cx: Scope) -> impl IntoView {
 
                         <h1 class="font-bold font-xl">"End Debug"</h1>
                     </div>
-                </When>
-            </When>
+                </Show>
+            </Show>
     }
 }
 
 #[component]
-fn PlayerName(cx: Scope) -> impl IntoView {
+fn PlayerName() -> impl IntoView {
     move || {
-        get_name(cx).map_or(
-            view! { cx,
+        get_name().map_or(
+            view! {
                 <span class="inline font-bold text-red-300">
                     "nobody"
                 </span>
             },
             |name| {
-                view! { cx,
+                view! {
                     <span class="inline font-bold text-green-300">
                         {name}
                     </span>
@@ -63,10 +63,10 @@ fn PlayerName(cx: Scope) -> impl IntoView {
     }
 }
 
-fn get_name(cx: Scope) -> Option<String> {
-    use_typed_context::<Signal_PlayerId>(cx).with(|id| {
+fn get_name() -> Option<String> {
+    use_typed_context::<Signal_PlayerId>().with(|id| {
         id.as_ref().and_then(|id| {
-            game_state(cx).with(|g| {
+            game_state().with(|g| {
                 g.players
                     .iter()
                     .find(|p| p.id == *id)

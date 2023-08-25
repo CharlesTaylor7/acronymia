@@ -39,7 +39,7 @@ cfg_if! {
 
         use leptos::*;
         use wasm_bindgen::prelude::wasm_bindgen;
-        use crate::components::app::{App, AppProps};
+        use crate::components::app::App;
 
         #[wasm_bindgen]
         pub fn hydrate() {
@@ -47,8 +47,8 @@ cfg_if! {
             _ = console_log::init_with_level(log::Level::Debug);
             console_error_panic_hook::set_once();
 
-            leptos::mount_to_body(move |cx| {
-                view! { cx, <App/> }
+            leptos::mount_to_body(move || {
+                view! { <App/> }
             });
         }
     }

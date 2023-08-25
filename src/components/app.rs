@@ -4,11 +4,10 @@ use leptos_meta::*;
 use leptos_router::*;
 
 #[component]
-pub fn App(cx: Scope) -> impl IntoView {
+pub fn App() -> impl IntoView {
     // Provides context that manages stylesheets, titles, meta tags, etc.
-    provide_meta_context(cx);
+    provide_meta_context();
     view! {
-        cx,
         <Stylesheet id="leptos" href="/pkg/acronymia.css"/>
         <Title text="Acronymia"/>
         <Body class="font-sans bg-slate-700 text-slate-400"/>
@@ -17,7 +16,7 @@ pub fn App(cx: Scope) -> impl IntoView {
                 <Routes>
                     <Route
                         path=""
-                        view=move |cx| view! { cx, <Game/> }
+                        view=move || view! { <Game/> }
                     />
                 </Routes>
             </main>

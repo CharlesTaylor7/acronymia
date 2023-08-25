@@ -1,38 +1,35 @@
 use super::context::*;
 use super::utils::state::*;
-use crate::components::{styles::*, utils::*};
+use crate::components::styles::*;
 use crate::types::ClientMessage::*;
 use crate::types::*;
 use ::futures::future::OptionFuture;
 use ::leptos::*;
 
 #[component]
-pub fn GameSetup(cx: Scope) -> impl IntoView {
-    let is_host = use_typed_context::<Memo_IsHost>(cx);
-    let player_id = use_typed_context::<Signal_PlayerId>(cx);
-    let player_name = use_typed_context::<Signal_PlayerName>(cx);
-    let player = create_memo(cx, move |_| {
-        player_id().map(|id| Player {
+pub fn GameSetup() -> impl IntoView {
+    let is_host = use_typed_context::<Memo_IsHost>();
+    let player_id = use_typed_context::<Signal_PlayerId>();
+    let player_name = use_typed_context::<Signal_PlayerName>();
+    let player = create_memo(move |_| {
+        player_id.get().map(|id| Player {
             id,
-            name: player_name(),
+            name: player_name.get(),
         })
     });
 
-    let players = use_typed_context::<Memo_Players>(cx);
-    let join_game = create_action(cx, move |_: &()| {
-        OptionFuture::from(player().map(|p| send(cx, JoinGame(p))))
-    });
+    let players = use_typed_context::<Memo_Players>();
+    let join_game =
+        create_action(move |_: &()| OptionFuture::from(player.get().map(|p| send(JoinGame(p)))));
 
-    let start_game = create_action(cx, move |_: &()| {
-        send(cx, StartGame(game_state(cx).with(|g| g.config.clone())))
-    });
+    let start_game =
+        create_action(move |_: &()| send(StartGame(game_state().with(|g| g.config.clone()))));
     view! {
-        cx,
         <label>"Pick a Nickname to join: "</label>
         <input
             type="text"
             class=text_input_class("")
-            default=player_name()
+            default=player_name.get()
             on:input=move |e| player_name.set(event_target_value(&e))
             on:keydown=move |e| {
                 if e.key() == "Enter" {
@@ -43,12 +40,12 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
         <div class="flex flex-row gap-4">
             <button
                 class=button_class(ButtonStyle::Primary, "")
-                prop:disabled=Signal::derive(cx, move|| player_id().is_none())
+                prop:disabled=Signal::derive(move|| player_id.get().is_none())
                 on:click=move |_| join_game.dispatch(())
             >
-            {move|| if join_game.version()() > 0 { "Update name" } else { "Join" }}
+            {move|| if join_game.version().get() > 0 { "Update name" } else { "Join" }}
             </button>
-            <When predicate=is_host>
+            <Show when=is_host fallback=|| ()>
                 <button
                     class=button_class(ButtonStyle::Secondary, "")
                     disabled=move|| players.with(|ps| ps.len() < 3)
@@ -56,14 +53,14 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
                 >
                     "Start game"
                 </button>
-            </When>
+            </Show>
         </div>
         <div>
             <p>{move || players.with(|ps| ps.len())}" players joined"</p>
             <ul class="list-inside list-disc flex flex-col items-start">
                 {move|| players.with(|ps| ps
                     .iter()
-                    .map(|p| view! { cx, <li>{p.name.clone()}</li>})
+                    .map(|p| view! { <li>{p.name.clone()}</li>})
                     .collect::<Vec<_>>()
                 )}
             </ul>
@@ -74,23 +71,21 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
 }
 
 #[component]
-pub fn ConfigureAcronymLength(cx: Scope) -> impl IntoView {
-    let g = game_state(cx);
+pub fn ConfigureAcronymLength() -> impl IntoView {
+    let g = game_state();
     let (min, set_min) = create_slice(
-        cx,
         g,
         move |g| g.config.letters_per_acronym.min,
         move |g, v| g.config.letters_per_acronym.min = v,
     );
     let (max, set_max) = create_slice(
-        cx,
         g,
         move |g| g.config.letters_per_acronym.max,
         move |g, v| g.config.letters_per_acronym.max = v,
     );
 
     const MIN: usize = 2;
-    view! { cx,
+    view! {
         <div class="flex flex-row gap-2">
             "From"
             <input
@@ -101,7 +96,7 @@ pub fn ConfigureAcronymLength(cx: Scope) -> impl IntoView {
                 prop:value=min
                 on:change=move|e| {
                     if let Ok(n) = event_target_value(&e).parse() {
-                        set_min(n);
+                        set_min.set(n);
                     }
                 }
             />
@@ -113,7 +108,7 @@ pub fn ConfigureAcronymLength(cx: Scope) -> impl IntoView {
                 prop:value=max
                 on:input=move|e| {
                     if let Ok(n) = event_target_value(&e).parse() {
-                        set_max(n);
+                        set_max.set(n);
                     }
                 }
             />

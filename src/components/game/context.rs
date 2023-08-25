@@ -21,50 +21,48 @@ pub enum Judge {
     Name(String),
 }
 
-pub fn provide_game_context(cx: Scope) {
+pub fn provide_game_context() {
     #[cfg(feature = "hydrate")]
-    crate::client::ws::connect_to_server(cx);
+    crate::client::ws::connect_to_server();
 
     #[cfg(feature = "hydrate")]
-    crate::client::timer::auto_sync_with_server(cx);
+    crate::client::timer::auto_sync_with_server();
 
-    let player_name = signal_player_name(cx);
-    provide_typed_context::<Signal_PlayerName>(cx, player_name);
+    let player_name = signal_player_name();
+    provide_typed_context::<Signal_PlayerName>(player_name);
 
-    let player_id = signal_player_id(cx);
-    provide_typed_context::<Signal_PlayerId>(cx, player_id);
+    let player_id = signal_player_id();
+    provide_typed_context::<Signal_PlayerId>(player_id);
 
     if DEBUG_MODE {
         // synchronize player id with player name
-        create_effect(cx, move |_| {
-            player_id.set(Some(player_name()));
+        create_effect(move |_| {
+            player_id.set(Some(player_name.get()));
         });
     }
 
-    let players = create_memo(cx, move |_| game_state(cx).with(|g| g.players.clone()));
-    provide_typed_context::<Memo_Players>(cx, players);
+    let players = create_memo(move |_| game_state().with(|g| g.players.clone()));
+    provide_typed_context::<Memo_Players>(players);
 
-    let judge = judge_memo(cx);
-    provide_typed_context::<Memo_Judge>(cx, judge);
+    let judge = judge_memo();
+    provide_typed_context::<Memo_Judge>(judge);
 
-    let is_host = memo_is_host(cx);
-    provide_typed_context::<Memo_IsHost>(cx, is_host);
+    let is_host = memo_is_host();
+    provide_typed_context::<Memo_IsHost>(is_host);
 
-    let timer_handle = store_value(cx, None);
-    provide_typed_context::<TimerHandle>(cx, timer_handle);
+    let timer_handle = store_value(None);
+    provide_typed_context::<TimerHandle>(timer_handle);
 
-    let round_counter = create_memo(cx, move |_| {
-        game_state(cx).with(|g| g.round_counter.clone())
-    });
-    provide_typed_context::<Memo_RoundCounter>(cx, round_counter);
+    let round_counter = create_memo(move |_| game_state().with(|g| g.round_counter.clone()));
+    provide_typed_context::<Memo_RoundCounter>(round_counter);
 }
 
-fn judge_memo(cx: Scope) -> Memo<Option<Judge>> {
-    let player_id = use_typed_context::<Signal_PlayerId>(cx);
-    let players = use_typed_context::<Memo_Players>(cx);
+fn judge_memo() -> Memo<Option<Judge>> {
+    let player_id = use_typed_context::<Signal_PlayerId>();
+    let players = use_typed_context::<Memo_Players>();
 
-    create_memo(cx, move |_| {
-        game_state(cx).with(|g| {
+    create_memo(move |_| {
+        game_state().with(|g| {
             g.judge.as_ref().and_then(|judge_id| {
                 if player_id.with(|id| id.as_ref() == Some(judge_id)) {
                     Some(Judge::Me)
@@ -80,12 +78,12 @@ fn judge_memo(cx: Scope) -> Memo<Option<Judge>> {
     })
 }
 
-fn memo_is_host(cx: Scope) -> Memo<bool> {
-    let player_id = use_typed_context::<Signal_PlayerId>(cx);
-    create_memo(cx, move |_| {
-        player_id()
+fn memo_is_host() -> Memo<bool> {
+    let player_id = use_typed_context::<Signal_PlayerId>();
+    create_memo(move |_| {
+        player_id.get()
             .and_then(|me| {
-                game_state(cx)
+                game_state()
                     .get()
                     .players
                     .first()
@@ -98,11 +96,11 @@ fn memo_is_host(cx: Scope) -> Memo<bool> {
 
 /// a signal for the player id
 /// that caches its value inside local storage
-fn signal_player_id(cx: Scope) -> RwSignal<Option<PlayerId>> {
-    let player_id: RwSignal<Option<String>> = create_rw_signal(cx, None);
+fn signal_player_id() -> RwSignal<Option<PlayerId>> {
+    let player_id: RwSignal<Option<String>> = create_rw_signal(None);
 
     #[cfg(feature = "local-storage")]
-    if player_id().is_none() {
+    if player_id.with_untracked(|id| id.is_none()) {
         use ::uuid::*;
         const STORAGE_KEY: &str = "acronymia-player-id";
 
@@ -124,8 +122,8 @@ fn signal_player_id(cx: Scope) -> RwSignal<Option<PlayerId>> {
 
 /// a signal for the player name
 /// that caches its value inside local storage
-fn signal_player_name(cx: Scope) -> RwSignal<PlayerName> {
-    let player_name: RwSignal<String> = create_rw_signal(cx, String::new());
+fn signal_player_name() -> RwSignal<PlayerName> {
+    let player_name: RwSignal<String> = create_rw_signal(String::new());
 
     #[cfg(feature = "local-storage")]
     {
@@ -136,7 +134,7 @@ fn signal_player_name(cx: Scope) -> RwSignal<PlayerName> {
                 player_name.set(name);
             }
 
-            create_effect(cx, move |_| {
+            create_effect(move |_| {
                 player_name.with(|name| {
                     _ = storage.set_item(STORAGE_KEY, name);
                 });

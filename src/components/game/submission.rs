@@ -5,19 +5,19 @@ use crate::types::{ClientMessage::*, PlayerId, Submission};
 use ::leptos::*;
 
 #[component]
-pub fn GameSubmission(cx: Scope) -> impl IntoView {
-    let judge = use_typed_context::<Memo_Judge>(cx);
-    let round_counter = use_typed_context::<Memo_RoundCounter>(cx);
-    let submissions = create_memo(cx, move |_| game_state(cx).with(|g| g.submission_count));
-    let player_count = game_state(cx).with(|g| g.players.len());
+pub fn GameSubmission() -> impl IntoView {
+    let judge = use_typed_context::<Memo_Judge>();
+    let round_counter = use_typed_context::<Memo_RoundCounter>();
+    let submissions = create_memo(move |_| game_state().with(|g| g.submission_count));
+    let player_count = game_state().with(|g| g.players.len());
 
     view! {
-        cx,
+
         <h2 class="text-l font-bold">
             {round_counter}
         </h2>
         <Prompt/>
-        <Show when=move|| judge() != Some(Judge::Me) fallback=move|_|() >
+        <Show when=move|| judge.get() != Some(Judge::Me) fallback=move||() >
             <PlayerPerspective />
         </Show>
         <Timer/>
@@ -32,16 +32,16 @@ pub fn GameSubmission(cx: Scope) -> impl IntoView {
 }
 
 #[component]
-fn JudgeDescription(cx: Scope) -> impl IntoView {
-    let judge = use_typed_context::<Memo_Judge>(cx);
-    move || match judge() {
-        None => view! {cx, <p>"Error: No judge"</p>},
-        Some(Judge::Me) => view! { cx,
+fn JudgeDescription() -> impl IntoView {
+    let judge = use_typed_context::<Memo_Judge>();
+    move || match judge.get() {
+        None => view! {<p>"Error: No judge"</p>},
+        Some(Judge::Me) => view! {
             <p>
                 <span class=judge_class()>"You"</span>" are the judge."
             </p>
         },
-        Some(Judge::Name(name)) => view! {cx,
+        Some(Judge::Name(name)) => view! {
             <p>
                 <span class=judge_class()>{name}</span>" is the judge."
             </p>
@@ -50,28 +50,25 @@ fn JudgeDescription(cx: Scope) -> impl IntoView {
 }
 
 #[component]
-fn PlayerPerspective(cx: Scope) -> impl IntoView {
-    let player_id = use_typed_context::<Signal_PlayerId>(cx);
-    let acronym = create_memo(cx, move |_| {
-        game_state(cx).with(|g| g.prompt.acronym.clone())
-    });
-    let num_of_words = acronym().len();
-    let input_refs = store_value(cx, init_vec(10, move || create_node_ref::<html::Input>(cx)));
+fn PlayerPerspective() -> impl IntoView {
+    let player_id = use_typed_context::<Signal_PlayerId>();
+    let acronym = create_memo(move |_| game_state().with(|g| g.prompt.acronym.clone()));
+    let num_of_words = acronym.get().len();
+    let input_refs = store_value(init_vec(10, move || create_node_ref::<html::Input>()));
     let get_ref = move |i| input_refs.with_value(|r| r[i]);
-    let submission = create_rw_signal::<Vec<Option<String>>>(cx, vec![None; num_of_words]);
+    let submission = create_rw_signal::<Vec<Option<String>>>(vec![None; num_of_words]);
 
     let submit_args =
-        move || player_id().and_then(|id| submission.with(|s| all_some(s).map(|s| (id, s))));
-    let submit = create_action(cx, move |(id, s): &(PlayerId, Submission)| {
-        send_and_save(cx, id.clone(), s.clone())
-    });
+        move || player_id.get().and_then(|id| submission.with(|s| all_some(s).map(|s| (id, s))));
+    let submit =
+        create_action(move |(id, s): &(PlayerId, Submission)| send_and_save(id.clone(), s.clone()));
 
-    view! { cx,
-        {move|| acronym().chars().enumerate().map(|(i, c)|{
+    view! {
+        {move|| acronym.get().chars().enumerate().map(|(i, c)|{
             // the macro gets confused and doesn't notice this variable is used
             #[allow(unused_variables)]
             let node_ref = get_ref(i);
-            view! {cx,
+            view! {
                 <input
                     type="text"
                     class=text_input_class("invalid:border-red-300")
@@ -115,9 +112,9 @@ fn PlayerPerspective(cx: Scope) -> impl IntoView {
                 "Submit"
             </button>
             <span class="px-2">
-                {move|| if submit.version()() > 0 {
+                {move|| if submit.version().get() > 0 {
                     submit.value().get().map(|s|
-                        Some(view! {cx,
+                        Some(view! {
                             <span>
                                 "submitted: "
                                 <span class="font-bold">{s.join(" ")}</span>
@@ -152,8 +149,8 @@ fn all_some<T: Clone>(v: &[Option<T>]) -> Option<Vec<T>> {
     )
 }
 
-async fn send_and_save(cx: Scope, id: PlayerId, s: Submission) -> Submission {
-    send(cx, SubmitAcronym(id, s.clone())).await;
+async fn send_and_save(id: PlayerId, s: Submission) -> Submission {
+    send(SubmitAcronym(id, s.clone())).await;
     s
 }
 
