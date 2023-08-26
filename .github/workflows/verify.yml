@@ -48,6 +48,7 @@ jobs:
       - name: Cargo Dependencies
         run: |
           cargo update
+          cargo install --features no_downloads --locked cargo-leptos || true
 
       - name: Rust Format
         run: |
@@ -63,6 +64,5 @@ jobs:
 #
 #      - name: Playwright Tests
 #        run: |
-#          cargo install --features no_downloads --locked cargo-leptos || true
 #          npm install
 #          cargo leptos end-to-end
