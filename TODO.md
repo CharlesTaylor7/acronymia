@@ -1,7 +1,6 @@
 # UI
 - [ ] Make the screen width bigger on larger devices. Prompts feel squished on desktop. 
 - [ ] Make scoring rules obvious in the UI
-- [ ] Make scoring penalties optional
 
 # Technical
 - [ ] Fix clippy errors and add to CI
@@ -11,5 +10,7 @@
 - [ ] Arc instead of `&'static`.
 
 # Game Features
+- [ ] Multi room support
 - [ ] Prompts submitted by players?
 - [ ] Head 2 head mode (Quiplash) instead of Judging mode (Apples 2 Apples)
+- [ ] Make scoring penalties optional
