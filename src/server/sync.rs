@@ -1,7 +1,7 @@
 use super::types::*;
 use ::leptos::*;
 use ::std::sync::OnceLock;
-use ::tokio::sync::{broadcast, mpsc, Mutex};
+use ::tokio::sync::{broadcast, mpsc, Mutex, MutexGuard};
 
 pub struct Global {
     mailbox_sender: mpsc::Sender<ClientMessage>,
@@ -31,8 +31,8 @@ pub fn mailer() -> mpsc::Sender<ClientMessage> {
 
 /// # Panics
 /// Panics if `spawn_state_thread` has not been run yet.  
-pub fn state() -> &'static Mutex<GameState> {
-    &GLOBAL.get().unwrap().state
+pub async fn lock_state() -> MutexGuard<'static, GameState> {
+    GLOBAL.get().unwrap().state.lock().await
 }
 
 /// You should only call this once at the top level of the app.
@@ -49,11 +49,11 @@ pub fn spawn_state_thread() {
         _ = GLOBAL.set(Global {
             mailbox_sender,
             broadcast_sender,
-            state: (Mutex::new(init_game_state())),
+            state: Mutex::new(init_game_state()),
         });
 
         while let Some(message) = receiver.recv().await {
-            let mut state = state().lock().await;
+            let mut state = lock_state().await;
             handle_message(message, &mut state, &sender).await;
         }
 
