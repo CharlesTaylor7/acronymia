@@ -1,6 +1,7 @@
 # UI
 - [ ] Make the screen width bigger on larger devices. Prompts feel squished on desktop. 
 - [ ] Make scoring rules obvious in the UI
+- [ ] Able to see your point total during game play
 
 # Technical
 - [ ] Fix clippy errors and add to CI
