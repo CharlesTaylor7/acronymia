@@ -20,7 +20,12 @@ pub fn GameSetup() -> impl IntoView {
 
     let players = use_typed_context::<Memo_Players>();
     let join_game =
-        create_action(move |_: &()| OptionFuture::from(player.get().map(|p| send(JoinGame(p)))));
+        with_current_owner(move |_:()|
+        create_action(move |_: &()|{
+            let owner = current_owner();
+            log!("create_action {:#?}", owner);
+            OptionFuture::from(player.get().map(|p| send_from(owner, JoinGame(p))))
+        }))(());
 
     let start_game =
         create_action(move |_: &()| send(StartGame(game_state().with(|g| g.config.clone()))));

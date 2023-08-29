@@ -11,7 +11,8 @@ use ::leptos::*;
 pub fn DebugView() -> impl IntoView {
     let is_host = use_typed_context::<Memo_IsHost>();
     let debug_region_expanded = create_rw_signal(false);
-    let stop_timer = create_action(move |_| send(StopTimer));
+    let owner = current_owner();
+    let stop_timer = create_action(move |_| send_from(owner, StopTimer));
 
     view! {
             <Show when=MaybeSignal::derive(move|| is_host() || DEV_MODE) fallback=|| ()>

@@ -42,10 +42,11 @@ pub fn connect_to_server() {
     });
 }
 
-pub async fn send(message: ClientMessage) {
+
+pub async fn send_from(owner: Owner, message: ClientMessage) {
     // do a dance to take ownership of the websocket connection's writer
     let mut ws_writer = None;
-    let stored_writer = use_typed_context::<WS_Writer>();
+    let stored_writer = use_typed_context_from::<WS_Writer>(owner);
     stored_writer.update_value(|v| {
         ws_writer = v.take();
     });

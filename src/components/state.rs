@@ -1,10 +1,23 @@
 pub use crate::types::ClientMessage::*;
 use crate::types::{ClientGameState, ClientMessage};
-use leptos::RwSignal;
+use leptos::{RwSignal, Owner};
+
+pub fn current_owner() -> Owner {
+    Owner::current().expect("")
+}
+
+#[cfg(feature = "hydrate")]
+pub async fn send_from(owner: Owner, message: ClientMessage) {
+    crate::client::ws::send_from(owner, message).await
+}
+
+#[cfg(feature = "ssr")]
+pub async fn send_from(_owner: Owner, _message: ClientMessage) {}
+
 
 #[cfg(feature = "hydrate")]
 pub async fn send(message: ClientMessage) {
-    crate::client::ws::send(message).await
+    crate::client::ws::send_from(current_owner(), message).await
 }
 
 #[cfg(feature = "ssr")]

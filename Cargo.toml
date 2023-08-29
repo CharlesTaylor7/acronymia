@@ -7,10 +7,10 @@ edition = "2021"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-leptos = { version = "0.5.0-beta", default-features = false, features = ["nightly", "serde"] }
-leptos_meta = { version = "0.5.0-beta", default-features = false, features=["nightly"]}
+leptos = { version = "0.5.0-beta", features = ["nightly", "serde"] }
+leptos_meta = { version = "0.5.0-beta", features=["nightly"]}
 leptos_actix = { version = "0.5.0-beta", optional = true}
-leptos_router = { version = "0.5.0-beta", default-features = false, features=["nightly"]}
+leptos_router = { version = "0.5.0-beta", features=["nightly"]}
 actix-files = { version = "0.6", optional = true }
 actix-web = { version = "4", optional = true, features = ["macros"] }
 actix-ws = { version = "0.2.5", optional = true }
@@ -35,6 +35,7 @@ macros = { path = "./macros" }
 [features]
 hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate", "dep:gloo-net", "local-storage", "uuid", "web-sys/Location", "dep:wasm-bindgen", "dep:console_log", "dep:console_error_panic_hook"]
 ssr = ["dep:actix-files", "dep:actix-web", "dep:leptos_actix", "leptos/ssr", "leptos_meta/ssr", "leptos_router/ssr", "dep:tokio", "dep:actix-ws", "dep:rand"]
+dev = []
 uuid = ["dep:uuid", "dep:getrandom"]
 local-storage = ["web-sys/Window", "web-sys/Storage"]
 

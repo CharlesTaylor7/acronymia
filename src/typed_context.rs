@@ -24,16 +24,32 @@ where
 
 /// # Panics
 /// Will panic if you neglected to call `provide_typed_context::<K>`
-/// in either the current `` or a parent one.
+/// from within the owning reactive scope 
 pub fn use_typed_context<K>() -> K::R
 where
     K: ContextKey,
 {
-    use_context::<ContextWrapper<K, K::R>>()
-        .unwrap_or_else(|| panic!("no context with key {k} exists, did you forget to call provide_typed_context::<{k}>?",
-            k = std::any::type_name::<K>()))
-        .item
+    use_typed_context_from::<K>(Owner::current().expect("cannot call use_typed_context without an active reactive runtime"))
 }
+
+
+/// # Panics
+/// Will panic if you neglected to call `provide_typed_context::<K>`
+/// from within the owning reactive scope 
+pub fn use_typed_context_from<K>(owner: Owner) -> K::R
+where
+    K: ContextKey,
+{
+    log!("use_typed_context_from {:#?}", owner);
+    with_owner(owner, move||
+        use_context::<ContextWrapper<K, K::R>>()
+            .unwrap_or_else(|| panic!("no context with key {k} exists, did you forget to call provide_typed_context::<{k}>?",
+                k = std::any::type_name::<K>()))
+            .item
+    )
+}
+
+
 
 /// Example: `define_context_key!(PlayerId`, `RwSignal`<String>)
 /// this defines a new context key called `PlayerId`,
