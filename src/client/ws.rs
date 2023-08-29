@@ -11,18 +11,18 @@ define_context!(
     StoredValue<Option<SplitSink<WebSocket, Message>>>
 );
 
-pub fn connect_to_server(cx: Scope) {
+pub fn connect_to_server() {
     let loc = window().location();
     let host = loc.host().unwrap();
     let protocol = loc.protocol().unwrap();
     let protocol = if protocol == "https:" { "wss:" } else { "ws:" };
     let uri = format!("{protocol}//{host}/ws");
 
-    let stored_writer = store_value(cx, None);
-    provide_typed_context::<WS_Writer>(cx, stored_writer);
+    let stored_writer = store_value(None);
+    provide_typed_context::<WS_Writer>(stored_writer);
 
-    let signal = create_rw_signal(cx, Default::default());
-    provide_typed_context::<WS_GameState>(cx, signal);
+    let signal = create_rw_signal(Default::default());
+    provide_typed_context::<WS_GameState>(signal);
 
     spawn_local(async move {
         loop {
@@ -42,10 +42,10 @@ pub fn connect_to_server(cx: Scope) {
     });
 }
 
-pub async fn send(cx: Scope, message: ClientMessage) {
+pub async fn send(message: ClientMessage) {
     // do a dance to take ownership of the websocket connection's writer
     let mut ws_writer = None;
-    let stored_writer = use_typed_context::<WS_Writer>(cx);
+    let stored_writer = use_typed_context::<WS_Writer>();
     stored_writer.update_value(|v| {
         ws_writer = v.take();
     });
@@ -66,8 +66,8 @@ fn serialize(message: &ClientMessage) -> Message {
     Message::Text(serde_json::to_string(message).expect("ClientMessage serialization failed"))
 }
 
-pub fn game_state(cx: Scope) -> RwSignal<ClientGameState> {
-    use_typed_context::<WS_GameState>(cx)
+pub fn game_state() -> RwSignal<ClientGameState> {
+    use_typed_context::<WS_GameState>()
 }
 
 fn apply_server_message(state: &mut ClientGameState, message: ServerMessage) {

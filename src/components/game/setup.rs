@@ -7,27 +7,25 @@ use ::futures::future::OptionFuture;
 use ::leptos::*;
 
 #[component]
-pub fn GameSetup(cx: Scope) -> impl IntoView {
-    let is_host = use_typed_context::<Memo_IsHost>(cx);
-    let player_id = use_typed_context::<Signal_PlayerId>(cx);
-    let player_name = use_typed_context::<Signal_PlayerName>(cx);
-    let player = create_memo(cx, move |_| {
+pub fn GameSetup() -> impl IntoView {
+    let is_host = use_typed_context::<Memo_IsHost>();
+    let player_id = use_typed_context::<Signal_PlayerId>();
+    let player_name = use_typed_context::<Signal_PlayerName>();
+    let player = create_memo(move |_| {
         player_id.get().map(|id| Player {
             id,
             name: player_name.get(),
         })
     });
 
-    let players = use_typed_context::<Memo_Players>(cx);
-    let join_game = create_action(cx, move |_: &()| {
-        OptionFuture::from(player.get().map(|p| send(cx, JoinGame(p))))
-    });
+    let players = use_typed_context::<Memo_Players>();
+    let join_game =
+        create_action(move |_: &()| OptionFuture::from(player.get().map(|p| send(JoinGame(p)))));
 
-    let start_game = create_action(cx, move |_: &()| {
-        send(cx, StartGame(game_state(cx).with(|g| g.config.clone())))
-    });
+    let start_game =
+        create_action(move |_: &()| send(StartGame(game_state().with(|g| g.config.clone()))));
     view! {
-        cx,
+
         <label>"Pick a Nickname to join: "</label>
         <input
             type="text"
@@ -43,16 +41,16 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
         <div class="flex flex-row gap-4">
             <button
                 class=button_class(ButtonStyle::Primary, "")
-                prop:disabled=Signal::derive(cx, move|| player_id.with(|id| id.is_none()))
-                on:click=move |_| join_game.dispatch(())
+                prop:disabled=Signal::derive(move|| player_id.with(|id| id.is_none()))
+                on:click=move|_| join_game.dispatch(())
             >
             {move|| if join_game.version().get() > 0 { "Update name" } else { "Join" }}
             </button>
-            <Show when=is_host fallback=|_| ()>
+            <Show when=is_host fallback=|| ()>
                 <button
                     class=button_class(ButtonStyle::Secondary, "")
                     disabled=move|| players.with(|ps| ps.len() < 3)
-                    on:click=move |_| start_game.dispatch(())
+                    on:click=move|_| start_game.dispatch(())
                 >
                     "Start game"
                 </button>
@@ -63,7 +61,7 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
             <ul class="list-inside list-disc flex flex-col items-start">
                 {move|| players.with(|ps| ps
                     .iter()
-                    .map(|p| view! { cx, <li>{p.name.clone()}</li>})
+                    .map(|p| view! { <li>{p.name.clone()}</li>})
                     .collect::<Vec<_>>()
                 )}
             </ul>
@@ -74,23 +72,21 @@ pub fn GameSetup(cx: Scope) -> impl IntoView {
 }
 
 #[component]
-pub fn ConfigureAcronymLength(cx: Scope) -> impl IntoView {
-    let g = game_state(cx);
+pub fn ConfigureAcronymLength() -> impl IntoView {
+    let g = game_state();
     let (min, set_min) = create_slice(
-        cx,
         g,
         move |g| g.config.letters_per_acronym.min,
         move |g, v| g.config.letters_per_acronym.min = v,
     );
     let (max, set_max) = create_slice(
-        cx,
         g,
         move |g| g.config.letters_per_acronym.max,
         move |g, v| g.config.letters_per_acronym.max = v,
     );
 
     const MIN: usize = 2;
-    view! { cx,
+    view! {
         <div class="flex flex-row gap-2">
             "From"
             <input

@@ -2,15 +2,15 @@ use crate::components::game::utils::state::*;
 use ::leptos::*;
 
 #[component]
-pub fn GameResults(cx: Scope) -> impl IntoView {
+pub fn GameResults() -> impl IntoView {
     view! {
-        cx,
+
         <p>"Scoreboard"</p>
         <table class="rounded border border-separate border-spacing-0 border-slate-400">
             <tbody>
-                {game_state(cx).with(|g|
+                {game_state().with(|g|
                     g.scores.iter().enumerate().map(|(i, (name, score))|
-                        view! { cx,
+                        view! {
                             <tr>
                                 <td
                                     class="border-r border-slate-400 p-4"
