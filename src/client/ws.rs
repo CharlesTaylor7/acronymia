@@ -5,7 +5,7 @@ use futures::{stream::SplitSink, SinkExt, StreamExt};
 use gloo_net::websocket::{futures::WebSocket, Message};
 use leptos::*;
 
-define_context!(WS_GameState, RwSignal<ClientGameState>);
+type GameState = RwSignal<ClientGameState>;
 type Writer = StoredValue<Option<SplitSink<WebSocket, Message>>>;
 
 pub fn connect_to_server() {
@@ -19,7 +19,7 @@ pub fn connect_to_server() {
     provide_context::<Writer>(stored_writer);
 
     let signal = create_rw_signal(Default::default());
-    provide_typed_context::<WS_GameState>(signal);
+    provide_context::<GameState>(signal);
 
     spawn_local(async move {
         loop {
@@ -43,7 +43,7 @@ pub fn connect_to_server() {
 pub async fn send(message: ClientMessage) {
     // do a dance to take ownership of the websocket connection's writer
     let mut ws_writer = None;
-    let stored_writer: Writer = use_context().expect("");
+    let stored_writer: Writer = use_context().expect("client ws");
     stored_writer.update_value(|v| {
         ws_writer = v.take();
     });
@@ -65,7 +65,7 @@ fn serialize(message: &ClientMessage) -> Message {
 }
 
 pub fn game_state() -> RwSignal<ClientGameState> {
-    use_typed_context::<WS_GameState>()
+    use_context::<GameState>().expect("game state")
 }
 
 fn apply_server_message(state: &mut ClientGameState, message: ServerMessage) {
