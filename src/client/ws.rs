@@ -6,10 +6,7 @@ use gloo_net::websocket::{futures::WebSocket, Message};
 use leptos::*;
 
 define_context!(WS_GameState, RwSignal<ClientGameState>);
-define_context!(
-    WS_Writer,
-    StoredValue<Option<SplitSink<WebSocket, Message>>>
-);
+type Writer = StoredValue<Option<SplitSink<WebSocket, Message>>>;
 
 pub fn connect_to_server() {
     let loc = window().location();
@@ -19,7 +16,7 @@ pub fn connect_to_server() {
     let uri = format!("{protocol}//{host}/ws");
 
     let stored_writer = store_value(None);
-    provide_typed_context::<WS_Writer>(stored_writer);
+    provide_context::<Writer>(stored_writer);
 
     let signal = create_rw_signal(Default::default());
     provide_typed_context::<WS_GameState>(signal);
@@ -42,10 +39,11 @@ pub fn connect_to_server() {
     });
 }
 
+
 pub async fn send(message: ClientMessage) {
     // do a dance to take ownership of the websocket connection's writer
     let mut ws_writer = None;
-    let stored_writer = use_typed_context::<WS_Writer>();
+    let stored_writer: Writer = use_context().expect("");
     stored_writer.update_value(|v| {
         ws_writer = v.take();
     });
