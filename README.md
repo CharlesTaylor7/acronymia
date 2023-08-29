@@ -17,30 +17,16 @@ The first person to join the game is granted host privileges which include a deb
 
 There is no multi-game support. It only supports one active game running at a time.
 
-### Letter Bag
-The ratio of letters matches the ratio of first letters in the english language.
-Table pulled from [Wikipedia](https://en.wikipedia.org/wiki/Letter_frequency#Relative_frequencies_of_the_first_letters_of_a_word_in_English_language).
+### Acronym Selection
+Acronyms are by default between 2-6 letters long, but any range of lengths can be chosen at game setup time.
 
-### Acronym selection
-The judge pulls out letters at random from the bag.
-
-Always 3 letters for now.
-
-Future Ideas:
-- [ ] Instead of random letters, let the judge pick an acronym for the round.
-- [ ] Make the random selection enforce pronounceability. (For now the game could be called initialismia).
-
+The probability of any letter being selected is proportional to its frequencey amongst the first letter of words in the English language. 
+The letter frequency table has been adapted from [Wikipedia](https://en.wikipedia.org/wiki/Letter_frequency#Relative_frequencies_of_the_first_letters_of_a_word_in_English_language).
 
 ### Timers
 60 seconds for acronym submission.
 45 seconds for judging.
 10 seconds for showing round winner before advancing to the next round.
-
-## TODO
-- [x] Prompts / Themed rounds
-- [x] Show countdown until next round
-- [ ] Able to see your point total during game play
-- [ ] Warn players about penalties before they submit
 
 
 ### Feature requests
