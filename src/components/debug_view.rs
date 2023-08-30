@@ -15,32 +15,32 @@ pub fn DebugView() -> impl IntoView {
     let stop_timer = create_action(move |_| send_from(owner, StopTimer));
 
     view! {
-            <Show when=MaybeSignal::derive(move|| is_host() || DEV_MODE) fallback=|| ()>
-                <button
-                    class=button_class(ButtonStyle::Neutral, "mt-4")
-                    on:click=move|_| debug_region_expanded.update(|b| *b = !*b)
-                >
-                    "Toggle Debug View"
-                </button>
-                <Show when=debug_region_expanded fallback=|| () >
-                    <div class="flex flex-col items-start gap-4">
-                        <h1 class="font-bold font-xl">"Begin Debug"</h1>
-                        <p>
-                            "You are "<PlayerName />
-                        </p>
-                        <PlayerRoster />
-                        <button
-                            class=button_class(ButtonStyle::Secondary, "")
-                            on:click=move|_| stop_timer.dispatch(())
-                        >
-                            "Stop timer"
-                        </button>
-                        <ResetButton />
+        <Show when=MaybeSignal::derive(move|| is_host() || DEV_MODE) fallback=|| ()>
+            <button
+                class=button_class(ButtonStyle::Neutral, "mt-4")
+                on:click=move|_| debug_region_expanded.update(|b| *b = !*b)
+            >
+                "Toggle Debug View"
+            </button>
+            <Show when=debug_region_expanded fallback=|| () >
+                <div class="flex flex-col items-start gap-4">
+                    <h1 class="font-bold font-xl">"Begin Debug"</h1>
+                    <p>
+                        "You are "<PlayerName />
+                    </p>
+                    <PlayerRoster />
+                    <button
+                        class=button_class(ButtonStyle::Secondary, "")
+                        on:click=move|_| stop_timer.dispatch(())
+                    >
+                        "Stop timer"
+                    </button>
+                    <ResetButton />
 
-                        <h1 class="font-bold font-xl">"End Debug"</h1>
-                    </div>
-                </Show>
+                    <h1 class="font-bold font-xl">"End Debug"</h1>
+                </div>
             </Show>
+        </Show>
     }
 }
 
