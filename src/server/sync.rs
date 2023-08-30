@@ -49,7 +49,7 @@ pub fn spawn_state_thread() {
         _ = GLOBAL.set(Global {
             mailbox_sender,
             broadcast_sender,
-            state: (Mutex::new(init_expect_context())),
+            state: (Mutex::new(game_state_init())),
         });
 
         while let Some(message) = receiver.recv().await {

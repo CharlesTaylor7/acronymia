@@ -243,7 +243,7 @@ where
     }
 }
 
-pub fn init_expect_context() -> GameState {
+pub fn game_state_init() -> GameState {
     let mut state = if DEV_MODE {
         demo_init(vec!["alice", "bob", "carl"])
     } else {
@@ -251,7 +251,8 @@ pub fn init_expect_context() -> GameState {
     };
 
     state.prompts = {
-        let s: String = std::fs::read_to_string("assets/prompts.txt").unwrap();
+        //let s: String = std::fs::read_to_string("assets/prompts.txt").unwrap();
+        let s= String::from("");
         let mut lines = s
             .lines()
             .filter_map(|line| {
