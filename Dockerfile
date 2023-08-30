@@ -23,12 +23,12 @@ RUN mkdir -p /app
 WORKDIR /app
 COPY . .
 
-# Build the app
-RUN cargo leptos build --release -vv
-
 # Build the css
 RUN npm ci tailwindcss --ignore-scripts
 RUN npm run tailwind
+
+# Build the app
+RUN cargo leptos build --release -vv
 
 FROM rustlang/rust:nightly-bullseye as runner
 # Copy the server binary to the /app directory
