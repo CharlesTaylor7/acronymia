@@ -11,22 +11,25 @@ use core::iter::once;
 #[component]
 pub fn Prompt() -> impl IntoView {
     let game_state = use_typed_context::<Signal_GameState>();
+    let prompt = create_memo(move |_| game_state.with(|g| g.prompt.clone()));
     view! {
         <p class="max-w-[205px]">
             <span>
-                {game_state.with(|g| g.prompt.before.clone())}
+                {move || prompt.with(|p| p.before.clone())}
             </span>
             <span class="inline font-bold text-emerald-600">
-            {
-                game_state.with(|g| g.prompt.acronym
-                    .chars()
-                    .flat_map(|c| c.to_uppercase().chain(once('.')))
-                    .collect::<String>()
-                )
-            }
+                {move ||
+                    prompt.with(|p|
+                        p
+                        .acronym
+                        .chars()
+                        .flat_map(|c| c.to_uppercase().chain(once('.')))
+                        .collect::<String>()
+                    )
+                }
             </span>
             <span>
-                {game_state.with(|g| g.prompt.after.clone())}
+                {move || prompt.with(|p| p.after.clone())}
             </span>
         </p>
     }
