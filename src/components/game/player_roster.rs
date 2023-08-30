@@ -10,23 +10,21 @@ pub fn PlayerRoster() -> impl IntoView {
     let impersonate = SignalSetter::from(use_typed_context::<Signal_PlayerId>());
 
     view! {
-
         <ul class="gap-3 list-inside list-disc flex flex-col items-start" >
-            {move||
-                players.with(|ps| ps
-                    .iter()
-                    .map(|p| view! {
-                        <PlayerView
-                            player=p.clone()
-                            impersonate=impersonate
-                        />
-                    })
-                    .collect::<Vec<_>>()
-                )
-            }
+            <For
+                each=players
+                key=|p| p.id.clone()
+                view=move|p| view! {
+                    <PlayerView
+                        player=p
+                        impersonate=impersonate
+                    />
+                }
+            />
         </ul>
     }
 }
+
 
 #[component]
 fn PlayerView(player: Player, impersonate: SignalSetter<Option<PlayerId>>) -> impl IntoView {
