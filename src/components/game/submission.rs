@@ -57,7 +57,9 @@ fn PlayerPerspective() -> impl IntoView {
     let acronym = create_memo(move |_| game_state.with(|g| g.prompt.acronym.clone()));
 
     let num_of_words = acronym().len();
-    let input_refs = store_value(init_vec(num_of_words, move || create_node_ref::<html::Input>()));
+    let input_refs = store_value(init_vec(num_of_words, move || {
+        create_node_ref::<html::Input>()
+    }));
     let get_ref = move |i| input_refs.with_value(|r| r[i]);
     let submission = create_rw_signal::<Vec<Option<String>>>(vec![None; num_of_words]);
 
