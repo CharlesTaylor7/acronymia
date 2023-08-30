@@ -19,6 +19,7 @@ pub fn GameSetup() -> impl IntoView {
 
     let players = use_typed_context::<Memo_Players>();
 
+    log!("GameSetup {:#?}", Owner::current());
     let start_game_action = create_ws_action();
     let start_game = move || {
         let config = StartGame(game_state().with(|g| g.config.clone()));
@@ -37,7 +38,7 @@ pub fn GameSetup() -> impl IntoView {
         <input
             type="text"
             class=text_input_class("")
-            default=player_name.get()
+            default=player_name
             on:input=move |e| player_name.set(event_target_value(&e))
             on:keydown=move |e| if e.key() == "Enter" { join_game(); } 
         />
