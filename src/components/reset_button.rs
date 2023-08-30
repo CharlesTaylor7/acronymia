@@ -1,16 +1,15 @@
-use crate::components::game::utils::state::*;
+use crate::components::state::*;
 use crate::components::styles::*;
+use crate::types::ClientMessage::*;
 use leptos::*;
 
 #[component]
-pub fn ResetButton(cx: Scope) -> impl IntoView {
-    let reset = create_action(cx, move |_: &()| send(cx, ResetState));
-
+pub fn ResetButton() -> impl IntoView {
+    let action = create_ws_action();
     view! {
-        cx,
         <button
             class=button_class(ButtonStyle::Danger, "")
-            on:click=move |_| reset.dispatch(())
+            on:click=move|_| action.dispatch(ResetState)
         >
             "Reset state"
         </button>

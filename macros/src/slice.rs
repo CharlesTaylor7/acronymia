@@ -5,17 +5,16 @@ pub use macros_impl::Sliceable;
 /// PartialEq & Clone.
 pub trait Sliceable: Sized {
     type Sliced;
-    fn slice(signal: RwSignal<Self>, cx: Scope) -> Self::Sliced;
+    fn slice(signal: RwSignal<Self>) -> Self::Sliced;
 }
 
 #[doc(hidden)]
 pub fn __create_slice<T, O: PartialEq<O>>(
-    cx: Scope,
     signal: RwSignal<T>,
     getter: impl Fn(&T) -> O + Clone + Copy + 'static,
     setter: impl Fn(&mut T, O) + Clone + Copy + 'static,
 ) -> JoinedSignal<O> {
-    let (getter, setter) = create_slice(cx, signal, getter, setter);
+    let (getter, setter) = create_slice(signal, getter, setter);
     JoinedSignal { getter, setter }
 }
 
@@ -23,7 +22,7 @@ pub fn __create_slice<T, O: PartialEq<O>>(
 /// Import this to provide an extension method for RwSignals.
 pub trait SignalSliceExt {
     type Output;
-    fn slice(self, cx: Scope) -> Self::Output;
+    fn slice(self) -> Self::Output;
 }
 
 impl<T: Sliceable> SignalSliceExt for RwSignal<T> {
@@ -31,8 +30,8 @@ impl<T: Sliceable> SignalSliceExt for RwSignal<T> {
 
     /// Create a slice for each field of the struct
     #[inline]
-    fn slice(self, cx: Scope) -> T::Sliced {
-        Sliceable::slice(self, cx)
+    fn slice(self) -> T::Sliced {
+        Sliceable::slice(self)
     }
 }
 

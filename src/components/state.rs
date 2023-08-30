@@ -1,28 +1,19 @@
+use crate::types::ClientMessage;
 pub use crate::types::ClientMessage::*;
-use crate::types::{ClientGameState, ClientMessage};
-use leptos::{RwSignal, Scope};
+use leptos::Action;
 
 #[cfg(feature = "hydrate")]
-pub async fn send(cx: Scope, message: ClientMessage) {
-    crate::client::ws::send(cx, message).await
+pub fn create_ws_action() -> Action<ClientMessage, ()> {
+    let owner = leptos::Owner::current().expect("");
+    leptos::create_action(move |message: &ClientMessage| {
+        crate::client::ws::send_from(owner, message.clone())
+    })
 }
 
 #[cfg(feature = "ssr")]
-pub async fn send(_cx: Scope, _message: ClientMessage) {}
-
-#[cfg(feature = "hydrate")]
-pub fn game_state(cx: Scope) -> RwSignal<ClientGameState> {
-    crate::client::ws::game_state(cx)
+pub fn create_ws_action() -> Action<ClientMessage, ()> {
+    leptos::create_action(move |_| async_do_nothing())
 }
 
 #[cfg(feature = "ssr")]
-pub fn game_state(cx: Scope) -> RwSignal<ClientGameState> {
-    match leptos::use_context(cx) {
-        Some(s) => s,
-        None => {
-            let signal = leptos::create_rw_signal(cx, Default::default());
-            leptos::provide_context(cx, signal);
-            signal
-        }
-    }
-}
+pub async fn async_do_nothing() {}

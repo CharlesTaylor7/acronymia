@@ -1,5 +1,6 @@
-use crate::components::game::utils::state::*;
+use crate::components::game::context::*;
 use ::leptos::*;
+use core::iter::once;
 
 /// Shows prompt with acronym.
 /// Acronym is stylized by:
@@ -8,24 +9,24 @@ use ::leptos::*;
 /// - capitalized letters
 /// - insert periods
 #[component]
-pub fn Prompt(cx: Scope) -> impl IntoView {
-    use core::iter::once;
-    view! { cx,
+pub fn Prompt() -> impl IntoView {
+    let game_state = use_typed_context::<Signal_GameState>();
+    view! {
         <p class="max-w-[205px]">
             <span>
-                {game_state(cx).with(|g| g.prompt.before.clone())}
+                {game_state.with(|g| g.prompt.before.clone())}
             </span>
             <span class="inline font-bold text-emerald-600">
             {
-                game_state(cx).with(|g| g.prompt.acronym
+                game_state.with(|g| g.prompt.acronym
                     .chars()
                     .flat_map(|c| c.to_uppercase().chain(once('.')))
                     .collect::<String>()
-                    )
+                )
             }
             </span>
             <span>
-                {game_state(cx).with(|g| g.prompt.after.clone())}
+                {game_state.with(|g| g.prompt.after.clone())}
             </span>
         </p>
     }

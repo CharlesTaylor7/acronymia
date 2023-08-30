@@ -4,11 +4,10 @@
 - [ ] Able to see your point total during game play
 
 # Technical
+- [ ] Fix leptos browser console warnings
 - [ ] Fix clippy errors and add to CI
-- [ ] Upgrade to Leptos 5.0.x
 - [ ] Make messages more incremental
 - [ ] Deploy to the internet
-- [ ] Arc instead of `&'static`.
 
 # Game Features
 - [ ] Multi room support

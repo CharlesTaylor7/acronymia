@@ -5,24 +5,20 @@ use futures::{stream::SplitSink, SinkExt, StreamExt};
 use gloo_net::websocket::{futures::WebSocket, Message};
 use leptos::*;
 
-define_context!(WS_GameState, RwSignal<ClientGameState>);
 define_context!(
     WS_Writer,
     StoredValue<Option<SplitSink<WebSocket, Message>>>
 );
 
-pub fn connect_to_server(cx: Scope) {
+pub fn connect_to_server(game_state: RwSignal<ClientGameState>) {
     let loc = window().location();
     let host = loc.host().unwrap();
     let protocol = loc.protocol().unwrap();
     let protocol = if protocol == "https:" { "wss:" } else { "ws:" };
     let uri = format!("{protocol}//{host}/ws");
 
-    let stored_writer = store_value(cx, None);
-    provide_typed_context::<WS_Writer>(cx, stored_writer);
-
-    let signal = create_rw_signal(cx, Default::default());
-    provide_typed_context::<WS_GameState>(cx, signal);
+    let stored_writer = store_value(None);
+    provide_typed_context::<WS_Writer>(stored_writer);
 
     spawn_local(async move {
         loop {
@@ -33,7 +29,7 @@ pub fn connect_to_server(cx: Scope) {
             while let Some(msg) = reader.next().await {
                 if let Some(Message::Text(m)) = msg.ok_or_log() {
                     if let Some(m) = serde_json::from_str(&m).ok_or_log() {
-                        signal.update(|g| apply_server_message(g, m));
+                        game_state.update(|g| apply_server_message(g, m));
                     }
                 }
             }
@@ -42,10 +38,10 @@ pub fn connect_to_server(cx: Scope) {
     });
 }
 
-pub async fn send(cx: Scope, message: ClientMessage) {
+pub async fn send_from(owner: Owner, message: ClientMessage) {
     // do a dance to take ownership of the websocket connection's writer
     let mut ws_writer = None;
-    let stored_writer = use_typed_context::<WS_Writer>(cx);
+    let stored_writer = use_typed_context_from::<WS_Writer>(owner);
     stored_writer.update_value(|v| {
         ws_writer = v.take();
     });
@@ -64,10 +60,6 @@ pub async fn send(cx: Scope, message: ClientMessage) {
 
 fn serialize(message: &ClientMessage) -> Message {
     Message::Text(serde_json::to_string(message).expect("ClientMessage serialization failed"))
-}
-
-pub fn game_state(cx: Scope) -> RwSignal<ClientGameState> {
-    use_typed_context::<WS_GameState>(cx)
 }
 
 fn apply_server_message(state: &mut ClientGameState, message: ServerMessage) {
