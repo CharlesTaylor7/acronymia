@@ -4,13 +4,11 @@ use leptos::*;
 
 #[component]
 pub fn ResetButton() -> impl IntoView {
-    let reset = create_action(move |_: &()| send(ResetState));
-
+    let action = create_ws_action();
     view! {
-
         <button
             class=button_class(ButtonStyle::Danger, "")
-            on:click=move|_| reset.dispatch(())
+            on:click=move|_| action.dispatch(ResetState)
         >
             "Reset state"
         </button>

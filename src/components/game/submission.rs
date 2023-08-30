@@ -62,8 +62,15 @@ fn PlayerPerspective() -> impl IntoView {
             .get()
             .and_then(|id| submission.with(|s| all_some(s).map(|s| (id, s))))
     };
-    let submit =
-        create_action(move |(id, s): &(PlayerId, Submission)| send_and_save(id.clone(), s.clone()));
+
+    let last_submission = store_value(None as Option<String>);
+    let submit_action = create_ws_action();
+    let submit = move || {
+        if let Some((id, s)) = submit_args() {
+            last_submission.set_value(s.join(" "))
+            submit_action.dispatch(SubmitAcronym(id, s));
+        }
+    };
 
     view! {
         {move|| acronym.get().chars().enumerate().map(|(i, c)|{
@@ -78,9 +85,7 @@ fn PlayerPerspective() -> impl IntoView {
                     on:keydown=move |e| {
                         if e.key() == "Enter" {
                             if i == num_of_words - 1 {
-                                if let Some(args) = submit_args() {
-                                    submit.dispatch(args);
-                                }
+                                submit()
                             } else {
                                _ = get_ref(i+1).get().unwrap().focus();
                             }
@@ -109,17 +114,17 @@ fn PlayerPerspective() -> impl IntoView {
             <button
                 class=button_class(ButtonStyle::Primary, "")
                 disabled=move|| submit_args().is_none()
-                on:click=move|_| if let Some(args) = submit_args() { submit.dispatch(args) }
+                on:click=move|_| submit()
             >
                 "Submit"
             </button>
             <span class="px-2">
-                {move|| if submit.version().get() > 0 {
-                    submit.value().get().map(|s|
+                {move|| if submit_action.version().get() > 0 {
+                    last_submission.get_value().map(|s|
                         Some(view! {
                             <span>
                                 "submitted: "
-                                <span class="font-bold">{s.join(" ")}</span>
+                                <span class="font-bold">{s}</span>
                             </span>
                         })
                     )
@@ -151,10 +156,6 @@ fn all_some<T: Clone>(v: &[Option<T>]) -> Option<Vec<T>> {
     )
 }
 
-async fn send_and_save(id: PlayerId, s: Submission) -> Submission {
-    send(SubmitAcronym(id, s.clone())).await;
-    s
-}
 
 #[cfg(feature = "ssr")]
 fn validate_word(_lead: char, _word: &str) -> Result<(), String> {

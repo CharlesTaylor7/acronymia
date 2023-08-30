@@ -25,23 +25,6 @@ pub fn create_ws_action() -> Action<ClientMessage, ()> {
 pub async fn async_do_nothing() {}
 
 #[cfg(feature = "hydrate")]
-pub async fn send_from(owner: Owner, message: ClientMessage) {
-    crate::client::ws::send_from(owner, message).await
-}
-
-#[cfg(feature = "ssr")]
-pub async fn send_from(_owner: Owner, _message: ClientMessage) {}
-
-
-#[cfg(feature = "hydrate")]
-pub async fn send(message: ClientMessage) {
-    crate::client::ws::send_from(current_owner(), message).await
-}
-
-#[cfg(feature = "ssr")]
-pub async fn send(_message: ClientMessage) {}
-
-#[cfg(feature = "hydrate")]
 pub fn game_state() -> RwSignal<ClientGameState> {
     crate::client::ws::game_state()
 }
