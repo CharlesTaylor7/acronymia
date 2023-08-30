@@ -4,7 +4,7 @@
 # https://leptos-rs.github.io/leptos/deployment.html#deploying-a-full-stack-app
 
 # Get started with a build env with Rust nightly
-FROM rustlang/rust:nightly-bullseye as builder
+FROM rustlang/rust:nightly-alpine as builder
 
 # Install cargo-binstall, which makes it easier to install other
 # cargo extensions like cargo-leptos
@@ -24,14 +24,14 @@ WORKDIR /app
 COPY . .
 
 # Build the css
-RUN apt install npm -y
+RUN apk add --update npm
 RUN npm ci tailwindcss --ignore-scripts
 RUN npm run tailwind
 
 # Build the app
 RUN cargo leptos build --release -vv
 
-FROM rustlang/rust:nightly-bullseye as runner
+FROM rustlang/rust:nightly-alpine as runner
 # Copy the server binary to the /app directory
 COPY --from=builder /app/target/server/release/acronymia /app/
 # /target/site contains our JS/WASM/CSS, etc.
