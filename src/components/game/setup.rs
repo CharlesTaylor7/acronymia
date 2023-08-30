@@ -40,7 +40,7 @@ pub fn GameSetup() -> impl IntoView {
             class=text_input_class("")
             default=player_name
             on:input=move |e| player_name.set(event_target_value(&e))
-            on:keydown=move |e| if e.key() == "Enter" { join_game(); } 
+            on:keydown=move |e| if e.key() == "Enter" { join_game(); }
         />
         <div class="flex flex-row gap-4">
             <button
@@ -121,4 +121,3 @@ pub fn ConfigureAcronymLength() -> impl IntoView {
         </div>
     }
 }
-

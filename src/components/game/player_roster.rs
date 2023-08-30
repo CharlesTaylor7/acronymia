@@ -29,10 +29,7 @@ pub fn PlayerRoster() -> impl IntoView {
 }
 
 #[component]
-fn PlayerView(
-    player: Player,
-    impersonate: SignalSetter<Option<PlayerId>>,
-) -> impl IntoView {
+fn PlayerView(player: Player, impersonate: SignalSetter<Option<PlayerId>>) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>();
     let action = create_ws_action();
 

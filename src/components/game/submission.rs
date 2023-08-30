@@ -156,7 +156,6 @@ fn all_some<T: Clone>(v: &[Option<T>]) -> Option<Vec<T>> {
     )
 }
 
-
 #[cfg(feature = "ssr")]
 fn validate_word(_lead: char, _word: &str) -> Result<(), String> {
     Ok(())

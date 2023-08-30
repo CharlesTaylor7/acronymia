@@ -42,7 +42,6 @@ pub fn connect_to_server() {
     });
 }
 
-
 pub async fn send_from(owner: Owner, message: ClientMessage) {
     log!("ws::send_from {:#?}", owner);
 
