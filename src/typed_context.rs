@@ -40,7 +40,6 @@ pub fn use_typed_context_from<K>(owner: Owner) -> K::R
 where
     K: ContextKey,
 {
-    log!("use_typed_context_from {:#?}", owner);
     with_owner(owner, move||
         use_context::<ContextWrapper<K, K::R>>()
             .unwrap_or_else(|| panic!("no context with key {k} exists, did you forget to call provide_typed_context::<{k}>?",

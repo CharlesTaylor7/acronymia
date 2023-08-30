@@ -44,6 +44,8 @@ pub fn connect_to_server() {
 
 
 pub async fn send_from(owner: Owner, message: ClientMessage) {
+    log!("ws::send_from {:#?}", owner);
+
     // do a dance to take ownership of the websocket connection's writer
     let mut ws_writer = None;
     let stored_writer = use_typed_context_from::<WS_Writer>(owner);
