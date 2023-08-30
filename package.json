@@ -1,10 +1,10 @@
 {
   "scripts": {
-    "postinstall": "npx playwright install --with-deps && npm run tailwind",
-    "tailwind": "npx tailwindcss -i ./input.css -o ./style/output.css"
+    "postinstall": "playwright install --with-deps && npm run tailwind",
+    "tailwind": "tailwindcss -i ./input.css -o ./style/output.css"
   },
   "devDependencies": {
     "@playwright/test": "^1.37.1",
-    "tailwindcss": "^3.2.7"
+    "tailwindcss": "^3.3.3"
   }
 }

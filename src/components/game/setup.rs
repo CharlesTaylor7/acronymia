@@ -65,7 +65,7 @@ pub fn GameSetup() -> impl IntoView {
             <ul class="list-inside list-disc flex flex-col items-start">
                 <For
                     each=players
-                    key=|p| p.id.clone()
+                    key=|p| format!("{}-{}", p.id, p.name)
                     view=|p| view! { <li>{p.name}</li> }
                 />
             </ul>
