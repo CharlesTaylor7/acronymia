@@ -14,7 +14,7 @@ pub fn PlayerRoster() -> impl IntoView {
             <For
                 each=players
                 key=|p| p.id.clone()
-                view=move|p| view! {
+                view=move |p| view! {
                     <PlayerView
                         player=p
                         impersonate=impersonate
