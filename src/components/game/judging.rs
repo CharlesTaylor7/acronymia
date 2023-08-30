@@ -31,9 +31,12 @@ pub fn GameJudging() -> impl IntoView {
 #[component]
 fn JudgePerspective() -> impl IntoView {
     let selected = create_rw_signal(None);
-    let submit_winner = create_action(move |_: &()| {
-        OptionFuture::from(selected.get().map(|winner| send(JudgeRound(winner))))
-    });
+    let submit_action = create_ws_action();
+    let submit_winner = move || {
+        if let Some(winner) = selected() {
+            action.dispatch(JudgeRound(winner));
+        }
+    };
 
     let option_class = move |id: &PlayerId| {
         let id = id.clone();
@@ -47,14 +50,13 @@ fn JudgePerspective() -> impl IntoView {
     };
 
     view! {
-
         <header><Prompt /></header>
         <Submissions disabled=false on_select=move|t| selected.set(Some(t)) option_class=option_class />
 
         <button
             class=button_class(ButtonStyle::Secondary, "mt-12")
-            disabled=move|| {selected.get().is_none() || submit_winner.version().get() > 0}
-            on:click=move|_| submit_winner.dispatch(())
+            disabled=move|| {selected.get().is_none() || submit_action.version().get() > 0}
+            on:click=move|_| submit_winner()
         >
         "Submit"
         </button>
