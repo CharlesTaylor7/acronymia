@@ -6,20 +6,22 @@ pub fn current_owner() -> Owner {
     Owner::current().expect("")
 }
 
+
 #[cfg(feature = "hydrate")]
-pub fn create_ws_send_action() -> Action<ClientMessage, ()> {
-    // crate::client::ws::send_from(owner, message).await
+pub fn create_ws_action() -> Action<ClientMessage, ()> {
     let owner = current_owner();
-    leptos::create_action(move |message: &ClientMessage| crate::client::ws::send_from(owner, message.clone()))
+    leptos::create_action(move |message: &ClientMessage|{
+        crate::client::ws::send_from(owner, message.clone())
+    })
 }
 
 #[cfg(feature = "ssr")]
-pub fn create_ws_send_action() -> Action<ClientMessage, ()> {
-    leptos::create_action(move |_:&ClientMessage| noop())
+pub fn create_ws_action() -> Action<ClientMessage, ()> {
+    leptos::create_action(move |_| async_do_nothing())
 }
 
-pub async fn noop() {}
-
+#[cfg(feature = "ssr")]
+pub async fn async_do_nothing() {}
 
 #[cfg(feature = "hydrate")]
 pub async fn send_from(owner: Owner, message: ClientMessage) {
