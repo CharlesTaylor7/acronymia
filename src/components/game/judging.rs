@@ -34,7 +34,7 @@ fn JudgePerspective() -> impl IntoView {
     let submit_action = create_ws_action();
     let submit_winner = move || {
         if let Some(winner) = selected() {
-            action.dispatch(JudgeRound(winner));
+            submit_action.dispatch(JudgeRound(winner));
         }
     };
 

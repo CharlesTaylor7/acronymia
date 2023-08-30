@@ -12,7 +12,7 @@ pub fn DebugView() -> impl IntoView {
     let is_host = use_typed_context::<Memo_IsHost>();
     let debug_region_expanded = create_rw_signal(false);
     let owner = current_owner();
-    let stop_timer = create_action(move |_| send_from(owner, StopTimer));
+    let action = create_ws_action();
 
     view! {
         <Show when=MaybeSignal::derive(move|| is_host() || DEV_MODE) fallback=|| ()>
@@ -31,7 +31,7 @@ pub fn DebugView() -> impl IntoView {
                     <PlayerRoster />
                     <button
                         class=button_class(ButtonStyle::Secondary, "")
-                        on:click=move|_| stop_timer.dispatch(())
+                        on:click=move|_| action.dispatch(StopTimer)
                     >
                         "Stop timer"
                     </button>

@@ -67,7 +67,7 @@ fn PlayerPerspective() -> impl IntoView {
     let submit_action = create_ws_action();
     let submit = move || {
         if let Some((id, s)) = submit_args() {
-            last_submission.set_value(s.join(" "))
+            last_submission.set_value(Some(s.join(" ")));
             submit_action.dispatch(SubmitAcronym(id, s));
         }
     };
