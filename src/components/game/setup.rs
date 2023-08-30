@@ -1,5 +1,5 @@
 use super::context::*;
-use super::utils::state::*;
+use crate::components::state::*;
 use crate::components::styles::*;
 use crate::types::ClientMessage::*;
 use crate::types::*;
@@ -18,12 +18,12 @@ pub fn GameSetup() -> impl IntoView {
     });
 
     let players = use_typed_context::<Memo_Players>();
+    let game_state = expect_context::<RwSignal<crate::types::ClientGameState>>();
 
-    let game_signal = expect_context();
     log!("GameSetup {:#?}", Owner::current());
     let start_game_action = create_ws_action();
     let start_game = move || {
-        let config = StartGame(game_signal.with(|g| g.config.clone()));
+        let config = StartGame(game_state.with(|g| g.config.clone()));
         start_game_action.dispatch(config);
     };
 
@@ -78,7 +78,7 @@ pub fn GameSetup() -> impl IntoView {
 
 #[component]
 pub fn ConfigureAcronymLength() -> impl IntoView {
-    let g = expect_context();
+    let g = expect_context::<RwSignal<crate::types::ClientGameState>>();
     let (min, set_min) = create_slice(
         g,
         move |g| g.config.letters_per_acronym.min,

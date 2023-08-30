@@ -1,4 +1,4 @@
-use crate::components::game::utils::state::*;
+use crate::components::state::*;
 use ::leptos::*;
 
 /// Shows prompt with acronym.
@@ -10,22 +10,23 @@ use ::leptos::*;
 #[component]
 pub fn Prompt() -> impl IntoView {
     use core::iter::once;
+    let game_state = expect_context::<RwSignal<crate::types::ClientGameState>>();
     view! {
         <p class="max-w-[205px]">
             <span>
-                {expect_context().with(|g| g.prompt.before.clone())}
+                {game_state.with(|g| g.prompt.before.clone())}
             </span>
             <span class="inline font-bold text-emerald-600">
             {
-                expect_context().with(|g| g.prompt.acronym
+                game_state.with(|g| g.prompt.acronym
                     .chars()
                     .flat_map(|c| c.to_uppercase().chain(once('.')))
                     .collect::<String>()
-                    )
+                )
             }
             </span>
             <span>
-                {expect_context().with(|g| g.prompt.after.clone())}
+                {game_state.with(|g| g.prompt.after.clone())}
             </span>
         </p>
     }

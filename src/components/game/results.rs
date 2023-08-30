@@ -1,14 +1,14 @@
-use crate::components::game::utils::state::*;
+use crate::components::state::*;
 use ::leptos::*;
 
 #[component]
 pub fn GameResults() -> impl IntoView {
+    let game_state = expect_context::<RwSignal<crate::types::ClientGameState>>();
     view! {
-
         <p>"Scoreboard"</p>
         <table class="rounded border border-separate border-spacing-0 border-slate-400">
             <tbody>
-                {expect_context().with(|g|
+                {game_state.with(|g|
                     g.scores.iter().enumerate().map(|(i, (name, score))|
                         view! {
                             <tr>

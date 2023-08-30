@@ -22,7 +22,7 @@ pub fn connect_to_server() {
     provide_typed_context::<WS_Writer>(stored_writer);
 
     let signal = create_rw_signal(Default::default());
-    provide_context::<RwSignal<GameState>>>(signal);
+    provide_context::<RwSignal<crate::types::ClientGameState>>(signal);
 
     spawn_local(async move {
         loop {

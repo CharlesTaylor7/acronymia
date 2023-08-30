@@ -1,5 +1,5 @@
 use super::{context::*, prompt::*, timer::*};
-use crate::components::game::utils::state::*;
+use crate::components::state::*;
 use crate::components::styles::*;
 use crate::typed_context::*;
 use crate::types::ClientMessage::*;
@@ -65,7 +65,8 @@ fn JudgePerspective() -> impl IntoView {
 
 #[component]
 fn PlayerPerspective(judge_name: String) -> impl IntoView {
-    let game_signal = expect_context();
+    let game_signal = 
+        expect_context::<RwSignal<crate::types::ClientGameState>>();
     view! {
         <Show when=move|| game_signal.with(|g| g.round_winner.is_none()) fallback=move||()>
             <p><span class=judge_class()>{&judge_name}</span>" is deliberating."</p>
@@ -85,7 +86,7 @@ where
     F1: 'static + Fn(&PlayerId) -> MaybeSignal<String>,
     F2: 'static + Copy + Fn(String),
 {
-    expect_context()
+    expect_context::<RwSignal<crate::types::ClientGameState>>()
         .with(|g| g.submissions.clone())
         .into_iter()
         .map(|(id, words)| {
@@ -118,7 +119,8 @@ where
 define_context!(LookupPlayer, Memo<HashMap<PlayerId, PlayerInfo>>);
 fn provide_player_lookup() {
     let hashmap = create_memo(move |_| {
-        expect_context().with(|g| {
+        expect_context::<RwSignal<crate::types::ClientGameState>>()
+        .with(|g| {
             g.round_winner
                 .as_ref()
                 .map_or(HashMap::with_capacity(0), |w| {

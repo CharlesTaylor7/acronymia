@@ -1,4 +1,3 @@
-use crate::components::game::utils::state::game_state;
 use crate::constants::*;
 use crate::*;
 use ::leptos::*;
@@ -41,8 +40,10 @@ pub fn provide_game_context() {
             player_id.set(Some(player_name.get()));
         });
     }
+    let game_state = 
+        expect_context::<RwSignal<crate::types::ClientGameState>>();
 
-    let players = create_memo(move |_| expect_context().with(|g| g.players.clone()));
+    let players = create_memo(move |_| game_state.with(|g| g.players.clone()));
     provide_typed_context::<Memo_Players>(players);
 
     let judge = judge_memo();
@@ -54,16 +55,17 @@ pub fn provide_game_context() {
     let timer_handle = store_value(None);
     provide_typed_context::<TimerHandle>(timer_handle);
 
-    let round_counter = create_memo(move |_| expect_context().with(|g| g.round_counter.clone()));
+    let round_counter = create_memo(move |_| game_state.with(|g| g.round_counter.clone()));
     provide_typed_context::<Memo_RoundCounter>(round_counter);
 }
 
 fn judge_memo() -> Memo<Option<Judge>> {
     let player_id = use_typed_context::<Signal_PlayerId>();
     let players = use_typed_context::<Memo_Players>();
+    let game_state = expect_context::<RwSignal<crate::types::ClientGameState>>();
 
     create_memo(move |_| {
-        expect_context().with(|g| {
+        game_state.with(|g| {
             g.judge.as_ref().and_then(|judge_id| {
                 if player_id.with(|id| id.as_ref() == Some(judge_id)) {
                     Some(Judge::Me)
@@ -81,11 +83,12 @@ fn judge_memo() -> Memo<Option<Judge>> {
 
 fn memo_is_host() -> Memo<bool> {
     let player_id = use_typed_context::<Signal_PlayerId>();
+    let game_state = expect_context::<RwSignal<crate::types::ClientGameState>>();
     create_memo(move |_| {
         player_id
             .get()
             .and_then(|me| {
-                expect_context()
+                    game_state
                     .get()
                     .players
                     .first()

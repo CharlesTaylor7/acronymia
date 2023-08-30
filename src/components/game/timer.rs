@@ -1,28 +1,28 @@
-use crate::components::game::utils::state::game_state;
+use crate::components::state::*;
 use crate::components::styles::*;
 use leptos::*;
 
 #[component]
 pub fn Timer() -> impl IntoView {
     apply_timer();
-    {
-        move || match expect_context().with(|g| (g.timer, g.round_winner.is_some())) {
-            (Some(secs), true) => view! {
-                <p>
-                    <span class=counter_class()>{secs}</span>" seconds until next round"
-                </p>
-            },
-            (Some(secs), false) => view! {
-                <p>
-                    <span class=counter_class()>{secs}</span>" seconds remaining"
-                </p>
-            },
-            (None, _) => view! {
-                <p>
-                    "Times up!"
-                </p>
-            },
-        }
+    let game_state = expect_context::<RwSignal<crate::types::ClientGameState>>();
+
+    move || match game_state.with(|g| (g.timer, g.round_winner.is_some())) {
+        (Some(secs), true) => view! {
+            <p>
+                <span class=counter_class()>{secs}</span>" seconds until next round"
+            </p>
+        },
+        (Some(secs), false) => view! {
+            <p>
+                <span class=counter_class()>{secs}</span>" seconds remaining"
+            </p>
+        },
+        (None, _) => view! {
+            <p>
+                "Times up!"
+            </p>
+        },
     }
 }
 /// counts down from initial value to 0
@@ -46,9 +46,10 @@ fn apply_timer() {
         });
     };
 
+    let game_state = expect_context::<RwSignal<crate::types::ClientGameState>>();
     let handle = set_interval_with_handle(
         move || {
-            expect_context().update(|g| match g.timer {
+            game_state.update(|g| match g.timer {
                 Some(s) if s > 0 => {
                     g.timer = Some(s - 1);
                 }

@@ -6,13 +6,12 @@ mod results;
 mod setup;
 mod submission;
 mod timer;
-pub mod utils;
 use self::context::*;
 use self::judging::*;
 use self::results::*;
 use self::setup::*;
 use self::submission::*;
-use self::utils::state::*;
+use crate::components::state::*;
 use crate::components::debug_view::*;
 use crate::types::*;
 use ::leptos::*;
@@ -20,7 +19,8 @@ use ::leptos::*;
 #[component]
 pub fn Game() -> impl IntoView {
     provide_game_context();
-    let game_step = create_memo(move |_| expect_context().with(|g| g.step.clone()));
+    let game_state = expect_context::<RwSignal<crate::types::ClientGameState>>();
+    let game_step = create_memo(move |_| game_state.with(|g| g.step.clone()));
 
     view! {
         <div class="flex flex-row justify-center m-4">

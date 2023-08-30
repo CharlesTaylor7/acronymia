@@ -1,6 +1,7 @@
-use crate::components::game::utils::state::*;
 use crate::components::styles::*;
+use crate::components::state::*;
 use leptos::*;
+use crate::types::ClientMessage::*;
 
 #[component]
 pub fn ResetButton() -> impl IntoView {
