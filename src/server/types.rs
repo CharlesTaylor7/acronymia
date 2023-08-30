@@ -251,8 +251,7 @@ pub fn game_state_init() -> GameState {
     };
 
     state.prompts = {
-        //let s: String = std::fs::read_to_string("assets/prompts.txt").unwrap();
-        let s= String::from("");
+        let s: String = std::fs::read_to_string("assets/prompts.txt").unwrap();
         let mut lines = s
             .lines()
             .filter_map(|line| {
