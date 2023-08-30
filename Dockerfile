@@ -42,7 +42,7 @@ COPY --from=builder /app/Cargo.toml /app/
 
 # Copy miscellaneous assets into the /app directory
 # e.g. assets/prompts.txt
-COPY --from=builder /app/assets /app/
+COPY --from=builder /app/assets /app/assets
 WORKDIR /app
 
 # Set any required env variables and
