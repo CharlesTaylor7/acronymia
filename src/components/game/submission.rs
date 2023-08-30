@@ -76,44 +76,49 @@ fn PlayerPerspective() -> impl IntoView {
         }
     };
 
+    let each = move || acronym.with(|a| a.chars().enumerate().collect::<Vec<_>>());
     view! {
-        {move|| acronym.get().chars().enumerate().map(|(i, c)|{
-            // the macro gets confused and doesn't notice this variable is used
-            #[allow(unused_variables)]
-            let node_ref = get_ref(i);
-            view! {
-                <input
-                    type="text"
-                    class=text_input_class("invalid:border-red-300")
-                    node_ref=node_ref
-                    on:keydown=move |e| {
-                        if e.key() == "Enter" {
-                            if i == num_of_words - 1 {
-                                submit()
-                            } else {
-                               _ = get_ref(i+1).get().unwrap().focus();
+        <For
+            each=each
+            key=|(i, _)| i.clone()
+            view=move |(i, c)| {
+                // the macro gets confused and doesn't notice this variable is used
+                #[allow(unused_variables)]
+                let node_ref = get_ref(i);
+                view! {
+                    <input
+                        type="text"
+                        class=text_input_class("invalid:border-red-300")
+                        node_ref=node_ref
+                        on:keydown=move |e| {
+                            if e.key() == "Enter" {
+                                if i == num_of_words - 1 {
+                                    submit()
+                                } else {
+                                   _ = get_ref(i+1).get().unwrap().focus();
+                                }
                             }
                         }
-                    }
-                    on:input=move |e| {
-                        let input: web_sys::HtmlInputElement = event_target(&e);
-                        let text = input.value();
-                        let result = validate_word(c, &text);
-                        match &result {
-                            Ok(_) => {
-                                input.set_custom_validity("");
-                                submission.update(move |s| s[i] = Some(text));
+                        on:input=move |e| {
+                            let input: web_sys::HtmlInputElement = event_target(&e);
+                            let text = input.value();
+                            let result = validate_word(c, &text);
+                            match &result {
+                                Ok(_) => {
+                                    input.set_custom_validity("");
+                                    submission.update(move |s| s[i] = Some(text));
+                                }
+                                Err(s) => {
+                                    input.set_custom_validity(s);
+                                    submission.update(move |s| s[i] = None);
+                                }
                             }
-                            Err(s) => {
-                                input.set_custom_validity(s);
-                                submission.update(move |s| s[i] = None);
-                            }
+                            input.report_validity();
                         }
-                        input.report_validity();
-                    }
-                />
+                    />
+                }
             }
-        }).collect::<Vec<_>>()}
+        />
         <div>
             <button
                 class=button_class(ButtonStyle::Primary, "")
