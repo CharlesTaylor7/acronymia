@@ -24,6 +24,9 @@ pub fn provide_game_context() {
     #[cfg(feature = "hydrate")]
     crate::client::ws::connect_to_server();
 
+    #[cfg(feature = "ssr")]
+    provide_context::<RwSignal<crate::types::ClientGameState>>(create_rw_signal(Default::default()));
+
     #[cfg(feature = "hydrate")]
     crate::client::timer::auto_sync_with_server();
 
