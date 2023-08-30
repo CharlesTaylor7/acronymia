@@ -7,7 +7,7 @@
 FROM rustlang/rust:nightly-alpine as builder
 
 # Install cargo-leptos
-RUN cargo install cargo-leptos
+RUN cargo install cargo-leptos -y
 
 # Add the WASM target
 RUN rustup target add wasm32-unknown-unknown
