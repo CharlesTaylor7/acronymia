@@ -1,5 +1,7 @@
+use crate::components::game::context::*;
 use crate::components::state::*;
 use ::leptos::*;
+use core::iter::once;
 
 /// Shows prompt with acronym.
 /// Acronym is stylized by:
@@ -9,7 +11,6 @@ use ::leptos::*;
 /// - insert periods
 #[component]
 pub fn Prompt() -> impl IntoView {
-    use core::iter::once;
     let game_state = use_typed_context::<Signal_GameState>();
     view! {
         <p class="max-w-[205px]">
