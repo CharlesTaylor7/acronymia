@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - main
-      - deploy-fly
+      - fly-deploy
 
 jobs:
   deploy:
