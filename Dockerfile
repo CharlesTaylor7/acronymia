@@ -23,11 +23,6 @@ RUN mkdir -p /app
 WORKDIR /app
 COPY . .
 
-# Build the css
-RUN apt update && apt install npm -y
-RUN npm ci tailwindcss --ignore-scripts
-RUN npm run tailwind
-
 # Build the app
 RUN cargo leptos build --release -vv
 
