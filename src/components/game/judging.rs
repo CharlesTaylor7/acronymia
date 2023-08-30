@@ -65,8 +65,9 @@ fn JudgePerspective() -> impl IntoView {
 
 #[component]
 fn PlayerPerspective(judge_name: String) -> impl IntoView {
+    let game_signal = game_state();
     view! {
-        <Show when=move|| game_state().with(|g| g.round_winner.is_none()) fallback=move||()>
+        <Show when=move|| game_signal.with(|g| g.round_winner.is_none()) fallback=move||()>
             <p><span class=judge_class()>{&judge_name}</span>" is deliberating."</p>
         </Show>
         <p><Prompt /></p>

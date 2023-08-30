@@ -2,13 +2,10 @@ pub use crate::types::ClientMessage::*;
 use crate::types::{ClientGameState, ClientMessage};
 use leptos::{log, Action, Owner, RwSignal};
 
-pub fn current_owner() -> Owner {
-    Owner::current().expect("")
-}
 
 #[cfg(feature = "hydrate")]
 pub fn create_ws_action() -> Action<ClientMessage, ()> {
-    let owner = current_owner();
+    let owner = Owner::current().expect("");
     leptos::create_action(move |message: &ClientMessage| {
         crate::client::ws::send_from(owner, message.clone())
     })

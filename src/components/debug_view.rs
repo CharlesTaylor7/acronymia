@@ -11,7 +11,6 @@ use ::leptos::*;
 pub fn DebugView() -> impl IntoView {
     let is_host = use_typed_context::<Memo_IsHost>();
     let debug_region_expanded = create_rw_signal(false);
-    let owner = current_owner();
     let action = create_ws_action();
 
     view! {

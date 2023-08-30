@@ -19,10 +19,11 @@ pub fn GameSetup() -> impl IntoView {
 
     let players = use_typed_context::<Memo_Players>();
 
+    let game_signal = game_state();
     log!("GameSetup {:#?}", Owner::current());
     let start_game_action = create_ws_action();
     let start_game = move || {
-        let config = StartGame(game_state().with(|g| g.config.clone()));
+        let config = StartGame(game_signal.with(|g| g.config.clone()));
         start_game_action.dispatch(config);
     };
 
