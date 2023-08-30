@@ -1,7 +1,7 @@
 use super::{context::*, prompt::*, timer::*};
 use crate::components::state::*;
 use crate::components::styles::*;
-use crate::types::{ClientMessage::*, PlayerId, Submission};
+use crate::types::ClientMessage::*;
 use ::leptos::*;
 
 #[component]
