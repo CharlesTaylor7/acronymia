@@ -30,7 +30,8 @@ COPY . .
 RUN cargo leptos build --release -vv
 
 # Build the css
-RUN cargo leptos build --release -vv
+RUN npm ci tailwindcss --ignore-scripts
+RUN npm run tailwind
 
 FROM rustlang/rust:nightly-bullseye as runner
 # Copy the server binary to the /app directory
