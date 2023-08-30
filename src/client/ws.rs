@@ -5,13 +5,12 @@ use futures::{stream::SplitSink, SinkExt, StreamExt};
 use gloo_net::websocket::{futures::WebSocket, Message};
 use leptos::*;
 
-define_context!(WS_GameState, RwSignal<ClientGameState>);
 define_context!(
     WS_Writer,
     StoredValue<Option<SplitSink<WebSocket, Message>>>
 );
 
-pub fn connect_to_server() {
+pub fn connect_to_server(game_state: RwSignal<ClientGameState>) {
     let loc = window().location();
     let host = loc.host().unwrap();
     let protocol = loc.protocol().unwrap();
@@ -20,9 +19,6 @@ pub fn connect_to_server() {
 
     let stored_writer = store_value(None);
     provide_typed_context::<WS_Writer>(stored_writer);
-
-    let signal = create_rw_signal(Default::default());
-    provide_context::<RwSignal<crate::types::ClientGameState>>(signal);
 
     spawn_local(async move {
         loop {
@@ -33,7 +29,7 @@ pub fn connect_to_server() {
             while let Some(msg) = reader.next().await {
                 if let Some(Message::Text(m)) = msg.ok_or_log() {
                     if let Some(m) = serde_json::from_str(&m).ok_or_log() {
-                        signal.update(|g| apply_server_message(g, m));
+                        game_state.update(|g| apply_server_message(g, m));
                     }
                 }
             }

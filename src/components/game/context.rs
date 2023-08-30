@@ -6,6 +6,7 @@ pub use typed_context::use_typed_context;
 use typed_context::{define_context, provide_typed_context};
 use types::*;
 
+define_context!(Signal_GameState, RwSignal<ClientGameState>);
 define_context!(Signal_PlayerId, RwSignal<Option<PlayerId>>);
 define_context!(Signal_PlayerName, RwSignal<String>);
 define_context!(Memo_Players, Memo<Vec<Player>>);
@@ -21,13 +22,11 @@ pub enum Judge {
 }
 
 pub fn provide_game_context() {
-    #[cfg(feature = "hydrate")]
-    crate::client::ws::connect_to_server();
+    let game_state = create_rw_signal(Default::default());
+    provide_typed_context::<Signal_GameState>(game_state);
 
-    #[cfg(feature = "ssr")]
-    provide_context::<RwSignal<crate::types::ClientGameState>>(
-        create_rw_signal(Default::default()),
-    );
+    #[cfg(feature = "hydrate")]
+    crate::client::ws::connect_to_server(game_state);
 
     #[cfg(feature = "hydrate")]
     crate::client::timer::auto_sync_with_server();
@@ -45,7 +44,6 @@ pub fn provide_game_context() {
             player_id.set(Some(player_name.get()));
         });
     }
-    let game_state = expect_context::<RwSignal<crate::types::ClientGameState>>();
 
     let players = create_memo(move |_| game_state.with(|g| g.players.clone()));
     provide_typed_context::<Memo_Players>(players);
