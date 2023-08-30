@@ -1,4 +1,8 @@
 # syntax=docker/dockerfile:1
+
+# Adapted from Leptos guide:
+# https://leptos-rs.github.io/leptos/deployment.html#deploying-a-full-stack-app
+
 # Get started with a build env with Rust nightly
 FROM rustlang/rust:nightly-bullseye as builder
 
