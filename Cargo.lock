@@ -21,7 +21,6 @@ dependencies = [
  "leptos_meta",
  "leptos_router",
  "log",
- "macros",
  "rand",
  "serde",
  "serde_json",
@@ -1511,22 +1510,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "718e8fae447df0c7e1ba7f5189829e63fd536945c8988d61444c19039f16b670"
 dependencies = [
  "hashbrown 0.13.2",
-]
-
-[[package]]
-name = "macros"
-version = "0.1.0"
-dependencies = [
- "leptos",
- "macros-impl",
-]
-
-[[package]]
-name = "macros-impl"
-version = "0.1.0"
-dependencies = [
- "quote",
- "syn 2.0.29",
 ]
 
 [[package]]

@@ -1,10 +1,25 @@
 pub use crate::types::ClientMessage::*;
 use crate::types::{ClientGameState, ClientMessage};
-use leptos::{RwSignal, Owner};
+use leptos::{RwSignal, Owner, Action};
 
 pub fn current_owner() -> Owner {
     Owner::current().expect("")
 }
+
+#[cfg(feature = "hydrate")]
+pub fn create_ws_send_action() -> Action<ClientMessage, ()> {
+    // crate::client::ws::send_from(owner, message).await
+    let owner = current_owner();
+    leptos::create_action(move |message: &ClientMessage| crate::client::ws::send_from(owner, message.clone()))
+}
+
+#[cfg(feature = "ssr")]
+pub fn create_ws_send_action() -> Action<ClientMessage, ()> {
+    leptos::create_action(move |_:&ClientMessage| noop())
+}
+
+pub async fn noop() {}
+
 
 #[cfg(feature = "hydrate")]
 pub async fn send_from(owner: Owner, message: ClientMessage) {

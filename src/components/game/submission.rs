@@ -12,7 +12,6 @@ pub fn GameSubmission() -> impl IntoView {
     let player_count = game_state().with(|g| g.players.len());
 
     view! {
-
         <h2 class="text-l font-bold">
             {round_counter}
         </h2>
