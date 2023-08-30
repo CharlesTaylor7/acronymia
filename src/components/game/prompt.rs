@@ -13,7 +13,7 @@ pub fn Prompt() -> impl IntoView {
     let game_state = use_typed_context::<Signal_GameState>();
     let prompt = create_memo(move |_| game_state.with(|g| g.prompt.clone()));
     view! {
-        <p class="max-w-[205px]">
+        <p>
             <span>
                 {move || prompt.with(|p| p.before.clone())}
             </span>

@@ -12,14 +12,12 @@ pub fn App() -> impl IntoView {
         <Title text="Acronymia"/>
         <Body class="font-sans bg-slate-700 text-slate-400"/>
         <Router>
-            <main>
-                <Routes>
-                    <Route
-                        path=""
-                        view=Game
-                    />
-                </Routes>
-            </main>
+            <Routes>
+                <Route
+                    path=""
+                    view=Game
+                />
+            </Routes>
         </Router>
     }
 }

@@ -24,8 +24,8 @@ pub fn Game() -> impl IntoView {
 
     view! {
         <div class="flex flex-row justify-center m-4">
-            <div class="flex flex-col items-start gap-4">
-                <h1 class="text-4xl font-bold tracking-wide">
+            <div class="w-4/5 md:w-1/2 lg:w-1/5 flex flex-col items-start gap-4">
+                <h1 class="self-center text-4xl font-bold tracking-wide">
                     "Acronymia"
                 </h1>
                 {move|| match game_step.get() {
