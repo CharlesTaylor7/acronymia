@@ -39,6 +39,10 @@ COPY --from=builder /app/target/server/release/acronymia /app/
 COPY --from=builder /app/target/site /app/site
 # Copy Cargo.toml if it’s needed at runtime
 COPY --from=builder /app/Cargo.toml /app/
+
+# Copy miscellaneous assets into the /app directory
+# e.g. assets/prompts.txt
+COPY --from=builder /app/assets /app/
 WORKDIR /app
 
 # Set any required env variables and
