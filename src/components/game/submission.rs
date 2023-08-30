@@ -9,8 +9,9 @@ pub fn GameSubmission() -> impl IntoView {
     let judge = use_typed_context::<Memo_Judge>();
     let round_counter = use_typed_context::<Memo_RoundCounter>();
     let game_state = use_typed_context::<Signal_GameState>();
-    let submissions = create_memo(move |_| game_state.with(|g| g.submission_count));
-    let player_count = game_state.with(|g| g.players.len());
+    let submission_ratio = create_memo(move |_| {
+        game_state.with(|g| format!("{}/{}", g.submission_count, g.players.len() - 1))
+    });
 
     view! {
         <h2 class="text-l font-bold">
@@ -24,7 +25,7 @@ pub fn GameSubmission() -> impl IntoView {
         <JudgeDescription/>
         <p>
             <span class="text-pink-100">
-                {submissions}"/"{player_count - 1}
+                {submission_ratio}
             </span>
             " submissions received"
         </p>
