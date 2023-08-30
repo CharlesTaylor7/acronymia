@@ -22,7 +22,7 @@ pub fn connect_to_server() {
     provide_typed_context::<WS_Writer>(stored_writer);
 
     let signal = create_rw_signal(Default::default());
-    provide_typed_context::<WS_GameState>(signal);
+    provide_context::<RwSignal<GameState>>>(signal);
 
     spawn_local(async move {
         loop {
@@ -68,9 +68,6 @@ fn serialize(message: &ClientMessage) -> Message {
     Message::Text(serde_json::to_string(message).expect("ClientMessage serialization failed"))
 }
 
-pub fn game_state() -> RwSignal<ClientGameState> {
-    use_typed_context::<WS_GameState>()
-}
 
 fn apply_server_message(state: &mut ClientGameState, message: ServerMessage) {
     match message {

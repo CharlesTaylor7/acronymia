@@ -20,7 +20,7 @@ use ::leptos::*;
 #[component]
 pub fn Game() -> impl IntoView {
     provide_game_context();
-    let game_step = create_memo(move |_| game_state().with(|g| g.step.clone()));
+    let game_step = create_memo(move |_| expect_context().with(|g| g.step.clone()));
 
     view! {
         <div class="flex flex-row justify-center m-4">

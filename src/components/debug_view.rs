@@ -66,7 +66,7 @@ fn PlayerName() -> impl IntoView {
 fn get_name() -> Option<String> {
     use_typed_context::<Signal_PlayerId>().with(|id| {
         id.as_ref().and_then(|id| {
-            game_state().with(|g| {
+            expect_context().with(|g| {
                 g.players
                     .iter()
                     .find(|p| p.id == *id)

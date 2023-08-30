@@ -8,8 +8,8 @@ use ::leptos::*;
 pub fn GameSubmission() -> impl IntoView {
     let judge = use_typed_context::<Memo_Judge>();
     let round_counter = use_typed_context::<Memo_RoundCounter>();
-    let submissions = create_memo(move |_| game_state().with(|g| g.submission_count));
-    let player_count = game_state().with(|g| g.players.len());
+    let submissions = create_memo(move |_| expect_context().with(|g| g.submission_count));
+    let player_count = expect_context().with(|g| g.players.len());
 
     view! {
         <h2 class="text-l font-bold">
@@ -51,7 +51,7 @@ fn JudgeDescription() -> impl IntoView {
 #[component]
 fn PlayerPerspective() -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>();
-    let acronym = create_memo(move |_| game_state().with(|g| g.prompt.acronym.clone()));
+    let acronym = create_memo(move |_| expect_context().with(|g| g.prompt.acronym.clone()));
     let num_of_words = acronym().len();
     let input_refs = store_value(init_vec(10, move || create_node_ref::<html::Input>()));
     let get_ref = move |i| input_refs.with_value(|r| r[i]);

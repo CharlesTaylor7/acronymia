@@ -42,7 +42,7 @@ pub fn provide_game_context() {
         });
     }
 
-    let players = create_memo(move |_| game_state().with(|g| g.players.clone()));
+    let players = create_memo(move |_| expect_context().with(|g| g.players.clone()));
     provide_typed_context::<Memo_Players>(players);
 
     let judge = judge_memo();
@@ -54,7 +54,7 @@ pub fn provide_game_context() {
     let timer_handle = store_value(None);
     provide_typed_context::<TimerHandle>(timer_handle);
 
-    let round_counter = create_memo(move |_| game_state().with(|g| g.round_counter.clone()));
+    let round_counter = create_memo(move |_| expect_context().with(|g| g.round_counter.clone()));
     provide_typed_context::<Memo_RoundCounter>(round_counter);
 }
 
@@ -63,7 +63,7 @@ fn judge_memo() -> Memo<Option<Judge>> {
     let players = use_typed_context::<Memo_Players>();
 
     create_memo(move |_| {
-        game_state().with(|g| {
+        expect_context().with(|g| {
             g.judge.as_ref().and_then(|judge_id| {
                 if player_id.with(|id| id.as_ref() == Some(judge_id)) {
                     Some(Judge::Me)
@@ -85,7 +85,7 @@ fn memo_is_host() -> Memo<bool> {
         player_id
             .get()
             .and_then(|me| {
-                game_state()
+                expect_context()
                     .get()
                     .players
                     .first()

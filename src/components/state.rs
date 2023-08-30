@@ -20,12 +20,12 @@ pub fn create_ws_action() -> Action<ClientMessage, ()> {
 pub async fn async_do_nothing() {}
 
 #[cfg(feature = "hydrate")]
-pub fn game_state() -> RwSignal<ClientGameState> {
-    crate::client::ws::game_state()
+pub fn expect_context() -> RwSignal<ClientGameState> {
+    crate::client::ws::expect_context()
 }
 
 #[cfg(feature = "ssr")]
-pub fn game_state() -> RwSignal<ClientGameState> {
+pub fn expect_context() -> RwSignal<ClientGameState> {
     match leptos::use_context() {
         Some(s) => s,
         None => {

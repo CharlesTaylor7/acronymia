@@ -8,7 +8,7 @@ pub fn GameResults() -> impl IntoView {
         <p>"Scoreboard"</p>
         <table class="rounded border border-separate border-spacing-0 border-slate-400">
             <tbody>
-                {game_state().with(|g|
+                {expect_context().with(|g|
                     g.scores.iter().enumerate().map(|(i, (name, score))|
                         view! {
                             <tr>

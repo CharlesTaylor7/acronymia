@@ -13,11 +13,11 @@ pub fn Prompt() -> impl IntoView {
     view! {
         <p class="max-w-[205px]">
             <span>
-                {game_state().with(|g| g.prompt.before.clone())}
+                {expect_context().with(|g| g.prompt.before.clone())}
             </span>
             <span class="inline font-bold text-emerald-600">
             {
-                game_state().with(|g| g.prompt.acronym
+                expect_context().with(|g| g.prompt.acronym
                     .chars()
                     .flat_map(|c| c.to_uppercase().chain(once('.')))
                     .collect::<String>()
@@ -25,7 +25,7 @@ pub fn Prompt() -> impl IntoView {
             }
             </span>
             <span>
-                {game_state().with(|g| g.prompt.after.clone())}
+                {expect_context().with(|g| g.prompt.after.clone())}
             </span>
         </p>
     }

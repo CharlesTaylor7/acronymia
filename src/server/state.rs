@@ -106,7 +106,7 @@ pub async fn handle_message(
 
         // BEGIN DEBUG MESSAGES
         ClientMessage::ResetState => {
-            *state = init_game_state();
+            *state = init_expect_context();
             _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
         }
 

@@ -243,7 +243,7 @@ where
     }
 }
 
-pub fn init_game_state() -> GameState {
+pub fn init_expect_context() -> GameState {
     let mut state = if DEV_MODE {
         demo_init(vec!["alice", "bob", "carl"])
     } else {

@@ -19,7 +19,7 @@ pub fn GameSetup() -> impl IntoView {
 
     let players = use_typed_context::<Memo_Players>();
 
-    let game_signal = game_state();
+    let game_signal = expect_context();
     log!("GameSetup {:#?}", Owner::current());
     let start_game_action = create_ws_action();
     let start_game = move || {
@@ -78,7 +78,7 @@ pub fn GameSetup() -> impl IntoView {
 
 #[component]
 pub fn ConfigureAcronymLength() -> impl IntoView {
-    let g = game_state();
+    let g = expect_context();
     let (min, set_min) = create_slice(
         g,
         move |g| g.config.letters_per_acronym.min,
