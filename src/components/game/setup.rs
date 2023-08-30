@@ -91,7 +91,7 @@ pub fn ConfigureAcronymLength() -> impl IntoView {
 
     const MIN: usize = 2;
     view! {
-        <div class="flex flex-row gap-2">
+        <div class="flex flex-row gap-2 items-start">
             "From"
             <input
                 type="number"
