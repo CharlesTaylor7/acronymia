@@ -24,6 +24,7 @@ WORKDIR /app
 COPY . .
 
 # Build the css
+RUN apt install npm -y
 RUN npm ci tailwindcss --ignore-scripts
 RUN npm run tailwind
 
