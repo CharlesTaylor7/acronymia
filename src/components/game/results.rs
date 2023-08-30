@@ -3,7 +3,7 @@ use ::leptos::*;
 
 #[component]
 pub fn GameResults() -> impl IntoView {
-    let game_state = expect_context::<RwSignal<crate::types::ClientGameState>>();
+    let game_state = use_typed_context::<Signal_GameState>();
     view! {
         <p>"Scoreboard"</p>
         <table class="rounded border border-separate border-spacing-0 border-slate-400">

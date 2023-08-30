@@ -10,7 +10,7 @@ use ::leptos::*;
 #[component]
 pub fn Prompt() -> impl IntoView {
     use core::iter::once;
-    let game_state = expect_context::<RwSignal<crate::types::ClientGameState>>();
+    let game_state = use_typed_context::<Signal_GameState>();
     view! {
         <p class="max-w-[205px]">
             <span>

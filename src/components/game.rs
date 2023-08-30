@@ -19,7 +19,7 @@ use ::leptos::*;
 #[component]
 pub fn Game() -> impl IntoView {
     provide_game_context();
-    let game_state = expect_context::<RwSignal<crate::types::ClientGameState>>();
+    let game_state = use_typed_context::<Signal_GameState>();
     let game_step = create_memo(move |_| game_state.with(|g| g.step.clone()));
 
     view! {

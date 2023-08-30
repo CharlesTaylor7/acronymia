@@ -18,7 +18,7 @@ pub fn GameSetup() -> impl IntoView {
     });
 
     let players = use_typed_context::<Memo_Players>();
-    let game_state = expect_context::<RwSignal<crate::types::ClientGameState>>();
+    let game_state = use_typed_context::<Signal_GameState>();
 
     log!("GameSetup {:#?}", Owner::current());
     let start_game_action = create_ws_action();
@@ -78,7 +78,7 @@ pub fn GameSetup() -> impl IntoView {
 
 #[component]
 pub fn ConfigureAcronymLength() -> impl IntoView {
-    let g = expect_context::<RwSignal<crate::types::ClientGameState>>();
+    let g = use_typed_context::<Signal_GameState>();
     let (min, set_min) = create_slice(
         g,
         move |g| g.config.letters_per_acronym.min,

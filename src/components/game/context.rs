@@ -64,7 +64,7 @@ pub fn provide_game_context() {
 fn judge_memo() -> Memo<Option<Judge>> {
     let player_id = use_typed_context::<Signal_PlayerId>();
     let players = use_typed_context::<Memo_Players>();
-    let game_state = expect_context::<RwSignal<crate::types::ClientGameState>>();
+    let game_state = use_typed_context::<Signal_GameState>();
 
     create_memo(move |_| {
         game_state.with(|g| {
@@ -85,7 +85,7 @@ fn judge_memo() -> Memo<Option<Judge>> {
 
 fn memo_is_host() -> Memo<bool> {
     let player_id = use_typed_context::<Signal_PlayerId>();
-    let game_state = expect_context::<RwSignal<crate::types::ClientGameState>>();
+    let game_state = use_typed_context::<Signal_GameState>();
     create_memo(move |_| {
         player_id
             .get()

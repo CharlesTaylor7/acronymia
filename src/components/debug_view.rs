@@ -65,7 +65,7 @@ fn PlayerName() -> impl IntoView {
 
 fn get_name() -> Option<String> {
     let player_id = use_typed_context::<Signal_PlayerId>();
-    let game_state = expect_context::<RwSignal<crate::types::ClientGameState>>();
+    let game_state = use_typed_context::<Signal_GameState>();
     player_id.with(|id| {
         id.as_ref().and_then(|id| {
             game_state.with(|g| {
