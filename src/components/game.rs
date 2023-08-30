@@ -11,8 +11,8 @@ use self::judging::*;
 use self::results::*;
 use self::setup::*;
 use self::submission::*;
-use crate::components::state::*;
 use crate::components::debug_view::*;
+use crate::components::state::*;
 use crate::types::*;
 use ::leptos::*;
 

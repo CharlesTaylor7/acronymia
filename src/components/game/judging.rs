@@ -65,8 +65,7 @@ fn JudgePerspective() -> impl IntoView {
 
 #[component]
 fn PlayerPerspective(judge_name: String) -> impl IntoView {
-    let game_signal = 
-        expect_context::<RwSignal<crate::types::ClientGameState>>();
+    let game_signal = expect_context::<RwSignal<crate::types::ClientGameState>>();
     view! {
         <Show when=move|| game_signal.with(|g| g.round_winner.is_none()) fallback=move||()>
             <p><span class=judge_class()>{&judge_name}</span>" is deliberating."</p>
@@ -119,8 +118,7 @@ where
 define_context!(LookupPlayer, Memo<HashMap<PlayerId, PlayerInfo>>);
 fn provide_player_lookup() {
     let hashmap = create_memo(move |_| {
-        expect_context::<RwSignal<crate::types::ClientGameState>>()
-        .with(|g| {
+        expect_context::<RwSignal<crate::types::ClientGameState>>().with(|g| {
             g.round_winner
                 .as_ref()
                 .map_or(HashMap::with_capacity(0), |w| {

@@ -1,7 +1,7 @@
-use crate::components::styles::*;
 use crate::components::state::*;
-use leptos::*;
+use crate::components::styles::*;
 use crate::types::ClientMessage::*;
+use leptos::*;
 
 #[component]
 pub fn ResetButton() -> impl IntoView {

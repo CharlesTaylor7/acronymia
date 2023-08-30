@@ -68,7 +68,6 @@ fn serialize(message: &ClientMessage) -> Message {
     Message::Text(serde_json::to_string(message).expect("ClientMessage serialization failed"))
 }
 
-
 fn apply_server_message(state: &mut ClientGameState, message: ServerMessage) {
     match message {
         GameState(g) => {

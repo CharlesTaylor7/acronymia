@@ -25,7 +25,9 @@ pub fn provide_game_context() {
     crate::client::ws::connect_to_server();
 
     #[cfg(feature = "ssr")]
-    provide_context::<RwSignal<crate::types::ClientGameState>>(create_rw_signal(Default::default()));
+    provide_context::<RwSignal<crate::types::ClientGameState>>(
+        create_rw_signal(Default::default()),
+    );
 
     #[cfg(feature = "hydrate")]
     crate::client::timer::auto_sync_with_server();
@@ -43,8 +45,7 @@ pub fn provide_game_context() {
             player_id.set(Some(player_name.get()));
         });
     }
-    let game_state = 
-        expect_context::<RwSignal<crate::types::ClientGameState>>();
+    let game_state = expect_context::<RwSignal<crate::types::ClientGameState>>();
 
     let players = create_memo(move |_| game_state.with(|g| g.players.clone()));
     provide_typed_context::<Memo_Players>(players);
@@ -91,7 +92,7 @@ fn memo_is_host() -> Memo<bool> {
         player_id
             .get()
             .and_then(|me| {
-                    game_state
+                game_state
                     .get()
                     .players
                     .first()
