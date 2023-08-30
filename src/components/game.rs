@@ -23,19 +23,12 @@ pub fn Game() -> impl IntoView {
     let game_step = create_memo(move |_| game_state.with(|g| g.step.clone()));
 
     view! {
-        <div class="flex flex-row justify-center m-4">
-            <div class="mx-2 flex flex-col items-start gap-4">
-                <h1 class="self-center text-4xl font-bold tracking-wide">
-                    "Acronymia"
-                </h1>
-                {move|| match game_step.get() {
-                    GameStep::Setup => view! { <GameSetup /> },
-                    GameStep::Submission => view! { <GameSubmission /> },
-                    GameStep::Judging => view! { <GameJudging />},
-                    GameStep::Results => view! { <GameResults />},
-                }}
-                <DebugView />
-            </div>
-        </div>
+        {move|| match game_step.get() {
+            GameStep::Setup => view! { <GameSetup /> },
+            GameStep::Submission => view! { <GameSubmission /> },
+            GameStep::Judging => view! { <GameJudging />},
+            GameStep::Results => view! { <GameResults />},
+        }}
+        <DebugView />
     }
 }
