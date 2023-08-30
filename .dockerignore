@@ -3,3 +3,7 @@ Dockerfile
 .dockerignore
 node_modules
 .git
+.github
+target
+end2end
+mprocs.yaml
