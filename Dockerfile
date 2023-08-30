@@ -6,9 +6,6 @@
 # Get started with a build env with Rust nightly
 FROM rustlang/rust:nightly-bullseye as builder
 
-# If you’re using stable, use this instead
-# FROM rust:1.70-bullseye as builder
-
 # Install cargo-binstall, which makes it easier to install other
 # cargo extensions like cargo-leptos
 RUN wget https://github.com/cargo-bins/cargo-binstall/releases/latest/download/cargo-binstall-x86_64-unknown-linux-musl.tgz
