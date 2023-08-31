@@ -24,7 +24,10 @@ WORKDIR /app
 COPY . .
 
 # Build the app
-RUN cargo leptos build --release -vv
+# release mode is disabled until hydration bugs are fixed with the latest leptos version:
+# https://github.com/leptos-rs/leptos/issues/1609
+RUN cargo leptos build -vv # --release
+
 
 FROM rustlang/rust:nightly-bullseye as runner
 # Copy the server binary to the /app directory

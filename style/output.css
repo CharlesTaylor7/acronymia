@@ -434,10 +434,6 @@ video {
   display: none;
 }
 
-html {
-  height: 100%;
-}
-
 *, ::before, ::after {
   --tw-border-spacing-x: 0;
   --tw-border-spacing-y: 0;
