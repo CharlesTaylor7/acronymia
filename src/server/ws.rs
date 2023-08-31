@@ -28,10 +28,12 @@ pub async fn handle_ws_request(
 ) -> Result<HttpResponse, Error> {
     let (res, session, msg_stream) = actix_ws::handle(&req, stream)?;
 
-
-    let player_id = String::from(""); 
-    // TODO: send via http header?
-    rt::spawn(handle_connection(player_id, session, msg_stream));
+    let header = req.headers().get("Acronymia-Player-Id");
+    if let Some(player_id) = header {
+        if let Ok(player_id) = player_id.to_str() {
+            rt::spawn(handle_connection(player_id.to_owned(), session, msg_stream));
+        }
+    }
 
     Ok(res)
 }
