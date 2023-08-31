@@ -1,5 +1,6 @@
 use super::types::*;
 use ::leptos::*;
+use ::std::collections::HashMap;
 use ::std::sync::OnceLock;
 use ::tokio::sync::{broadcast, mpsc, Mutex};
 
@@ -7,11 +8,9 @@ pub struct Global {
     mailbox_sender: mpsc::Sender<(SessionId, ClientMessage)>,
     broadcast_sender: broadcast::Sender<ServerMessage>,
     state: Mutex<GameState>,
-    // TODO: hashmap?
-    sessions: Mutex<Vec<(SessionId, PlayerId)>>,
 }
 
-pub type Sessions = Vec<(SessionId, PlayerId)>;
+pub type Sessions = HashMap<SessionId, PlayerId>;
 
 pub static GLOBAL: OnceLock<Global> = OnceLock::new();
 
@@ -54,12 +53,12 @@ pub fn spawn_state_thread() {
             mailbox_sender,
             broadcast_sender,
             state: Mutex::new(game_state_init()),
-            sessions: Mutex::new(Vec::default()),
         });
+
+        let mut sessions = HashMap::new();
 
         while let Some((sessionId, message)) = receiver.recv().await {
             let mut state = state().lock().await;
-            let mut sessions = GLOBAL.get().unwrap().sessions.lock().await;
             handle_message(sessionId, message, &mut state, &mut sessions, &sender).await;
         }
 
