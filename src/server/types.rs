@@ -1,5 +1,6 @@
 use super::random::shuffle;
 use crate::constants::*;
+pub use crate::types::*;
 use ::leptos::log;
 use ::std::collections::HashMap;
 use ::tokio::{
@@ -7,11 +8,9 @@ use ::tokio::{
     time::{Duration, Instant},
 };
 pub use ::uuid::Uuid;
-pub use crate::types::*;
 
 /// Index into the rotation vector
 type JudgeId = usize;
-
 
 /// Server game state
 /// The idea is to make the state very normalized.

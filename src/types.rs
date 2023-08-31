@@ -15,7 +15,7 @@ pub struct SessionId(pub String);
 #[derive(Serialize, Deserialize, Clone, Default, Debug, PartialEq)]
 pub enum GameStep {
     #[default]
-    Setup,      // Player's joining and game config
+    Setup, // Player's joining and game config
     Submission, // Player's submit acronyms
     Judging,    // Judge judges
     Results,    // Scoreboard at game end
