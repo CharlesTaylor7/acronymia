@@ -9,7 +9,7 @@ pub type PlayerId = String;
 pub type PlayerName = String;
 
 /// Uuid generated automatically server side
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, Hash, PartialEq, Eq)]
 pub struct SessionId(pub String);
 
 #[derive(Serialize, Deserialize, Clone, Default, Debug, PartialEq)]

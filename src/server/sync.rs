@@ -1,6 +1,6 @@
 use super::types::*;
 use ::leptos::*;
-use ::std::collections::HashMap;
+use ::std::collections::{HashMap, hash_map};
 use ::std::sync::OnceLock;
 use ::tokio::sync::{broadcast, mpsc, Mutex};
 
@@ -10,7 +10,42 @@ pub struct Global {
     state: Mutex<GameState>,
 }
 
-pub type Sessions = HashMap<SessionId, PlayerId>;
+#[derive(Debug)]
+pub struct Sessions {
+    session_ids: HashMap<PlayerId, SessionId>,
+    player_ids: HashMap<SessionId, PlayerId>,
+}
+
+impl Sessions {
+    pub fn new() -> Sessions {
+        Sessions {
+            session_ids: HashMap::new(),
+            player_ids: HashMap::new(),
+        }
+    }
+
+    pub fn connect(&mut self, session_id: SessionId, player_id: PlayerId) -> Result<(), ()> {
+        match self.session_ids.entry(player_id.clone()) {
+            hash_map::Entry::Vacant(entry) => { 
+                leptos::log!("player_id: {:#?}", player_id);
+                entry.insert(session_id.clone());
+                self.player_ids.insert(session_id, player_id);
+                Ok(())
+            },
+            hash_map::Entry::Occupied(_) => {
+                leptos::log!("stopped the hackers!");
+                Err(())
+            },
+        }
+    }
+
+    pub fn remove(&mut self, session_id: &SessionId) {
+        let player_id = self.player_ids.remove(session_id);
+        if let Some(player_id) = player_id {
+            self.session_ids.remove(&player_id);
+        }
+    }
+}
 
 pub static GLOBAL: OnceLock<Global> = OnceLock::new();
 
@@ -55,7 +90,7 @@ pub fn spawn_state_thread() {
             state: Mutex::new(game_state_init()),
         });
 
-        let mut sessions = HashMap::new();
+        let mut sessions = Sessions::new();
 
         while let Some((session_id, message)) = receiver.recv().await {
             let mut state = state().lock().await;

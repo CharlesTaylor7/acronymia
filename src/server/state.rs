@@ -20,10 +20,13 @@ pub async fn handle_message(
     leptos::log!("session {:#?}", session_id);
     match message {
         ClientMessage::Connect(player_id) => {
-            _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
+            if let Ok(_) = sessions.connect(session_id, player_id) {
+                _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
+            }
         }
 
         ClientMessage::Disconnect => {
+            sessions.remove(&session_id);
         }
 
         // register your name for the current game
