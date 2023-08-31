@@ -29,8 +29,6 @@ fn PlayerView(player: Player) -> impl IntoView {
     let player_id = use_typed_context::<Signal_PlayerId>();
     let action = create_ws_action();
 
-    // TODO: why do I have to clone this variable so many times?
-    // If I try to only once in each callback, I get weird ownership errors.
     let stored_id = store_value(player.id);
     let impersonate = move || player_id.set(Some(stored_id.get_value()));
     let kick = move || action.dispatch(KickPlayer(stored_id.get_value()));
