@@ -12,6 +12,16 @@ use ::tokio::{
     sync::{broadcast::error::RecvError, mpsc},
     time::interval,
 };
+use ::derive_more::{Display, Error};
+
+#[derive(Debug, Display, Error)]
+struct ApplicationError {
+    message: &'static str,
+}
+
+// Use default implementation for `error_response()` method
+impl ::actix_web::ResponseError for ApplicationError {}
+
 
 /// How often heartbeat pings are sent.
 /// Should be half (or less) of the acceptable client timeout.
@@ -32,10 +42,10 @@ pub async fn handle_ws_request(
     if let Some(player_id) = header {
         if let Ok(player_id) = player_id.to_str() {
             rt::spawn(handle_connection(player_id.to_owned(), session, msg_stream));
+            return Ok(res);
         }
     }
-
-    Ok(res)
+    Err(ApplicationError { message: "missing player id" }.into())
 }
 
 async fn handle_connection(
