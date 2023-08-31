@@ -11,12 +11,14 @@ use ::tokio::{
 
 // TODO: client actions need to be both restricted by game step & player role
 pub async fn handle_message(
+    session_id: SessionId,
     message: ClientMessage,
     state: &mut GameState,
+    sessions: &mut sync::Sessions,
     messenger: &Sender<ServerMessage>,
 ) {
     match message {
-        ClientMessage::Connected => {
+        ClientMessage::Connect(player_id) => {
             _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
         }
         // register your name for the current game

@@ -1,6 +1,7 @@
 use super::sync::*;
 use crate::extensions::ResultExt;
 use crate::types::*;
+use ::uuid::Uuid;
 use ::actix_web::{rt, web, Error, HttpRequest, HttpResponse};
 use ::actix_ws::{CloseCode, CloseReason, Message};
 use ::futures::StreamExt as _;
@@ -43,8 +44,10 @@ async fn handle_connection(
     let mut last_heartbeat = Instant::now();
     let mut interval = interval(HEARTBEAT_INTERVAL);
 
+    let session_id = SessionId(Uuid::new_v4().to_string());
+    let player_id = String::from(""); // TODO: send via http header?
     // just connected, server will send back the complete state
-    mailer.send(ClientMessage::Connected).await.ok_or_log();
+    mailer.send((session_id, ClientMessage::Connect(player_id))).await.ok_or_log();
 
     let reason = loop {
         let tick = interval.tick();
@@ -107,7 +110,7 @@ async fn handle_client_message(
     msg: Option<Result<Message, actix_ws::ProtocolError>>,
     session: &mut actix_ws::Session,
     last_heartbeat: &mut Instant,
-    mailer: &mpsc::Sender<ClientMessage>,
+    mailer: &mpsc::Sender<(SessionId, ClientMessage)>,
 ) -> Option<CloseReason> {
     // websocket closed
     if msg.is_none() {

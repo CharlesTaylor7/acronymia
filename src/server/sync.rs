@@ -4,10 +4,14 @@ use ::std::sync::OnceLock;
 use ::tokio::sync::{broadcast, mpsc, Mutex};
 
 pub struct Global {
-    mailbox_sender: mpsc::Sender<ClientMessage>,
+    mailbox_sender: mpsc::Sender<(SessionId, ClientMessage)>,
     broadcast_sender: broadcast::Sender<ServerMessage>,
     state: Mutex<GameState>,
+    // TODO: hashmap?
+    sessions: Mutex<Vec<(SessionId, PlayerId)>>,
 }
+
+pub type Sessions = Vec<(SessionId, PlayerId)>;
 
 pub static GLOBAL: OnceLock<Global> = OnceLock::new();
 
@@ -25,7 +29,7 @@ pub fn subscribe() -> broadcast::Receiver<ServerMessage> {
 ///
 /// # Panics
 /// Panics if `spawn_state_thread` has not been run yet.  
-pub fn mailer() -> mpsc::Sender<ClientMessage> {
+pub fn mailer() -> mpsc::Sender<(SessionId, ClientMessage)> {
     GLOBAL.get().unwrap().mailbox_sender.clone()
 }
 
@@ -49,12 +53,14 @@ pub fn spawn_state_thread() {
         _ = GLOBAL.set(Global {
             mailbox_sender,
             broadcast_sender,
-            state: (Mutex::new(game_state_init())),
+            state: Mutex::new(game_state_init()),
+            sessions: Mutex::new(Vec::default()),
         });
 
-        while let Some(message) = receiver.recv().await {
+        while let Some((sessionId, message)) = receiver.recv().await {
             let mut state = state().lock().await;
-            handle_message(message, &mut state, &sender).await;
+            let mut sessions = GLOBAL.get().unwrap().sessions.lock().await;
+            handle_message(sessionId, message, &mut state, &mut sessions, &sender).await;
         }
 
         log!("state thread closed");

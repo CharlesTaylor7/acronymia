@@ -8,10 +8,14 @@ pub type PlayerId = String;
 
 pub type PlayerName = String;
 
+/// Uuid generated automatically server side
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct SessionId(pub String);
+
 #[derive(Serialize, Deserialize, Clone, Default, Debug, PartialEq)]
 pub enum GameStep {
     #[default]
-    Setup, // Player's joining and game config
+    Setup,      // Player's joining and game config
     Submission, // Player's submit acronyms
     Judging,    // Judge judges
     Results,    // Scoreboard at game end
@@ -78,7 +82,7 @@ pub struct Prompt {
 /// message from a client to the server
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ClientMessage {
-    Connected,
+    Connect(PlayerId),
     JoinGame(Player),
     KickPlayer(PlayerId),
     StartGame(Config),
