@@ -113,6 +113,7 @@ pub enum ServerMessage {
     IncrementSubmissionCount,
     /// Seconds remaining on the clock
     UpdateRemainingTime(Option<u64>),
+    Disconnect(SessionId),
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]

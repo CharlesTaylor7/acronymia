@@ -1,6 +1,6 @@
 use crate::extensions::ResultExt;
 use crate::typed_context::*;
-use crate::types::{ServerMessage::*, *};
+use crate::types::{ServerMessage, ClientGameState, TimerTag, ClientMessage};
 use futures::{stream::SplitSink, SinkExt, StreamExt};
 use gloo_net::websocket::{futures::WebSocket, Message};
 use leptos::*;
@@ -64,12 +64,12 @@ fn serialize(message: &ClientMessage) -> Message {
 
 fn apply_server_message(state: &mut ClientGameState, message: ServerMessage) {
     match message {
-        GameState(g) => {
+        ServerMessage::GameState(g) => {
             // replace the current game state completely
             *state = g;
         }
 
-        PlayerJoined(new) => {
+        ServerMessage::PlayerJoined(new) => {
             if let Some(p) = state.players.iter_mut().find(|p| p.id == new.id) {
                 p.name = new.name;
             } else {
@@ -77,17 +77,20 @@ fn apply_server_message(state: &mut ClientGameState, message: ServerMessage) {
             }
         }
 
-        ShowRoundWinner(player_id) => {
+        ServerMessage::ShowRoundWinner(player_id) => {
             state.round_winner = Some(player_id);
             state.timer = Some(TimerTag::ShowRoundWinner.secs());
         }
 
-        IncrementSubmissionCount => {
+        ServerMessage::IncrementSubmissionCount => {
             state.submission_count += 1;
         }
 
-        UpdateRemainingTime(time) => {
+        ServerMessage::UpdateRemainingTime(time) => {
             state.timer = time;
+        }
+
+        ServerMessage::Disconnect(_) => {
         }
     }
 }
