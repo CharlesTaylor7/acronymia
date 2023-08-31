@@ -6,7 +6,6 @@
 - [ ] Fix leptos browser console warnings
 - [ ] Fix clippy errors and add to CI
 - [ ] Make messages more incremental
-- [ ] Deploy to the internet
 
 # Game Features
 - [ ] Multi room support
