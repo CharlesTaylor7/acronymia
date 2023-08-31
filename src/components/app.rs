@@ -10,7 +10,7 @@ pub fn App() -> impl IntoView {
     view! {
         <Stylesheet id="leptos" href="/pkg/acronymia.css"/>
         <Title text="Acronymia"/>
-        <Body class="font-sans bg-slate-700 text-slate-400"/>
+        <Body class="h-100 font-sans bg-slate-700 text-slate-400"/>
         <Router>
             <Routes>
                 <Route
