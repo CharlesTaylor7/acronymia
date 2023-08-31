@@ -69,6 +69,7 @@ async fn handle_connection(
             // (2) Client websocket
             msg = msg_stream.next() =>
                 handle_client_message(msg, &mut session, &mut last_heartbeat, &mailer).await,
+
             // (3) Heartbeat. Sends a ping, or closes the socket.
             _ = tick =>
                 handle_heartbeat(&mut session, last_heartbeat).await,
