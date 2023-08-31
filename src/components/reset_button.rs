@@ -11,7 +11,7 @@ pub fn ResetButton() -> impl IntoView {
             class=button_class(ButtonStyle::Danger, "")
             on:click=move|_| action.dispatch(ResetState)
         >
-            "Reset state"
+            "Reset Everything"
         </button>
     }
 }

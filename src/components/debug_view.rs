@@ -34,8 +34,8 @@ pub fn DebugView() -> impl IntoView {
                     >
                         "Stop timer"
                     </button>
+                    Warning: This ends the current game in progress, and kicks all players.
                     <ResetButton />
-
                     <h1 class="font-bold font-xl">"End Debug"</h1>
                 </div>
             </Show>
