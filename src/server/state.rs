@@ -24,8 +24,6 @@ pub async fn handle_message(
         }
 
         ClientMessage::Disconnect => {
-            leptos::log!("{:#?}", session_id);
-            _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
         }
 
         // register your name for the current game
