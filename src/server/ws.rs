@@ -44,10 +44,11 @@ async fn handle_connection(
     let mut last_heartbeat = Instant::now();
     let mut interval = interval(HEARTBEAT_INTERVAL);
 
-    let session_id = SessionId(Uuid::new_v4().to_string());
     let player_id = String::from(""); // TODO: send via http header?
     // just connected, server will send back the complete state
-    mailer.send((session_id, ClientMessage::Connect(player_id))).await.ok_or_log();
+    //
+    let session_id = SessionId(Uuid::new_v4().to_string());
+    mailer.send((session_id.clone(), ClientMessage::Connect(player_id))).await.ok_or_log();
 
     let reason = loop {
         let tick = interval.tick();
@@ -71,7 +72,7 @@ async fn handle_connection(
 
             // (2) Client websocket
             msg = msg_stream.next() =>
-                handle_client_message(msg, &mut session, &mut last_heartbeat, &mailer).await,
+                handle_client_message(session_id.clone(), msg, &mut session, &mut last_heartbeat, &mailer).await,
 
             // (3) Heartbeat. Sends a ping, or closes the socket.
             _ = tick =>
@@ -107,6 +108,7 @@ async fn handle_heartbeat(
 }
 
 async fn handle_client_message(
+    session_id: SessionId,
     msg: Option<Result<Message, actix_ws::ProtocolError>>,
     session: &mut actix_ws::Session,
     last_heartbeat: &mut Instant,
@@ -121,7 +123,7 @@ async fn handle_client_message(
         match msg {
             Message::Text(text) => {
                 if let Some(msg) = serde_json::from_str(&text).ok_or_log() {
-                    mailer.send(msg).await.ok_or_log();
+                    mailer.send((session_id, msg)).await.ok_or_log();
                 }
             },
 
