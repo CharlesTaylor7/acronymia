@@ -83,6 +83,7 @@ pub struct Prompt {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ClientMessage {
     Connect(PlayerId),
+    Disconnect,
     JoinGame(Player),
     KickPlayer(PlayerId),
     StartGame(Config),

@@ -17,10 +17,17 @@ pub async fn handle_message(
     sessions: &mut sync::Sessions,
     messenger: &Sender<ServerMessage>,
 ) {
+    leptos::log!("session {:#?}", session_id);
     match message {
         ClientMessage::Connect(player_id) => {
             _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
         }
+
+        ClientMessage::Disconnect => {
+            leptos::log!("{:#?}", session_id);
+            _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
+        }
+
         // register your name for the current game
         // allows you to update your name if you already joined
         ClientMessage::JoinGame(player) => {

@@ -85,6 +85,7 @@ async fn handle_connection(
     };
 
     session.close(Some(reason)).await.ok_or_log();
+    mailer.send((session_id, ClientMessage::Disconnect)).await.ok_or_log();
 
     log!("disconnected");
 }
