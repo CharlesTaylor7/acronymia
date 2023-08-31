@@ -28,12 +28,16 @@ pub async fn handle_ws_request(
 ) -> Result<HttpResponse, Error> {
     let (res, session, msg_stream) = actix_ws::handle(&req, stream)?;
 
-    rt::spawn(handle_connection(session, msg_stream));
+
+    let player_id = String::from(""); 
+    // TODO: send via http header?
+    rt::spawn(handle_connection(player_id, session, msg_stream));
 
     Ok(res)
 }
 
 async fn handle_connection(
+    player_id: PlayerId,
     mut session: actix_ws::Session,
     mut msg_stream: actix_ws::MessageStream,
 ) {
@@ -44,9 +48,6 @@ async fn handle_connection(
     let mut last_heartbeat = Instant::now();
     let mut interval = interval(HEARTBEAT_INTERVAL);
 
-    let player_id = String::from(""); // TODO: send via http header?
-    // just connected, server will send back the complete state
-    //
     let session_id = SessionId(Uuid::new_v4().to_string());
     mailer.send((session_id.clone(), ClientMessage::Connect(player_id))).await.ok_or_log();
 

@@ -57,9 +57,9 @@ pub fn spawn_state_thread() {
 
         let mut sessions = HashMap::new();
 
-        while let Some((sessionId, message)) = receiver.recv().await {
+        while let Some((session_id, message)) = receiver.recv().await {
             let mut state = state().lock().await;
-            handle_message(sessionId, message, &mut state, &mut sessions, &sender).await;
+            handle_message(session_id, message, &mut state, &mut sessions, &sender).await;
         }
 
         log!("state thread closed");
