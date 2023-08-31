@@ -41,14 +41,18 @@ pub async fn handle_ws_request(
     req: HttpRequest,
     stream: web::Payload,
 ) -> Result<HttpResponse, Error> {
-    let Params { player_id } = web::Query::<Params>::from_query(req.query_string())
-        .unwrap()
-        .into_inner();
-
-    let (res, session, msg_stream) = actix_ws::handle(&req, stream)?;
-    rt::spawn(handle_connection(player_id, session, msg_stream));
-    return Ok(res);
-    //Err(ApplicationError { message: "missing player id" }.into())
+    let query = web::Query::<Params>::from_query(req.query_string());
+    match query {
+        Ok(query) => {
+            let Params { player_id } = query.into_inner();
+            let (res, session, msg_stream) = actix_ws::handle(&req, stream)?;
+            rt::spawn(handle_connection(player_id, session, msg_stream));
+            return Ok(res);
+        }
+        Err(_) => {
+            Err(ApplicationError { message: "missing player id" }.into())
+        }
+    }
 }
 
 async fn handle_connection(

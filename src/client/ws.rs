@@ -10,12 +10,12 @@ define_context!(
     StoredValue<Option<SplitSink<WebSocket, Message>>>
 );
 
-pub fn connect_to_server(game_state: RwSignal<ClientGameState>) {
+pub fn connect_to_server(game_state: RwSignal<ClientGameState>, player_id: String) {
     let loc = window().location();
     let host = loc.host().unwrap();
     let protocol = loc.protocol().unwrap();
     let protocol = if protocol == "https:" { "wss:" } else { "ws:" };
-    let uri = format!("{protocol}//{host}/ws");
+    let uri = format!("{protocol}//{host}/ws?player_id={player_id}");
 
     let stored_writer = store_value(None);
     provide_typed_context::<WS_Writer>(stored_writer);
