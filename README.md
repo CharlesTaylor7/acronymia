@@ -56,7 +56,16 @@ npm run playwright-setup
 ## Development commands
 - Run the dev server: `cargo leptos watch --features=dev`
 - Run tailwind to bundle the css: `npm run tailwind -- --watch`
-- Lint rust code: `cargo clippy`
 - Run unit tests: `cargo leptos test`
 - Run Playwright tests: `cargo leptos end-to-end`
 - Build the production server: `cargo leptos build --release`
+
+## Using Cargo by itself
+`cargo build ` will fail by itself will fail to build.
+That's because there is conditionally compiled code in the project, that requires either the `hydrate` or `ssr` flag to be set.
+
+So for example, if you want to just focus on the server code. You can still run commands like `test`, `clippy`, `check` with cargo by itself. You just need to append `--features=ssr` to all those commands.
+
+## Using cargo-leptos
+To manage the project as a whole, it's best to use the `cargo-leptos` extension.
+`cargo leptos watch` is equivalent to watching both frontend & backend builds at the same time.
