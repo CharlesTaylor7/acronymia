@@ -151,7 +151,7 @@ async fn handle_client_message(
         match msg {
             Message::Text(text) => {
                 if let Some(msg) = serde_json::from_str(&text).ok_or_log() {
-                    mailer.send((session_id, msg)).await.ok_or_log();
+                    mailer.send((session_id.clone(), msg)).await.ok_or_log();
                 }
             },
 
