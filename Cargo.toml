@@ -23,7 +23,8 @@ serde = "1.0.152"
 uuid = { version = "1.3.0", features = [ "v4" ]}
 futures = "0.3.26"
 web-sys = { version = "0.3.61" }
-gloo-net = { version = "0.2.6", features = ["eventsource", "websocket"], optional = true }
+gloo-net = { version = "0.2.6", features = ["websocket"], optional = true }
+gloo-timers = { version = "0.3.0", features = ["futures"], optional = true }
 serde_json = "1.0.94"
 rand = { version = "0.8.5", optional = true }
 tokio = { version = "1.26.0", features = ["macros", "rt", "sync", "time"], optional = true }
@@ -33,7 +34,7 @@ derive_more = { version = "0.99.17", optional = true }
 # macros = { path = "./macros" }
 
 [features]
-hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate", "dep:gloo-net", "local-storage", "web-sys/Location", "dep:wasm-bindgen", "dep:console_log", "dep:console_error_panic_hook"]
+hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate", "dep:gloo-net", "dep:gloo-timers", "local-storage", "web-sys/Location", "dep:wasm-bindgen", "dep:console_log", "dep:console_error_panic_hook"]
 ssr = ["dep:actix-files", "dep:actix-web", "dep:leptos_actix", "leptos/ssr", "leptos_meta/ssr", "leptos_router/ssr", "dep:tokio", "dep:actix-ws", "dep:rand", "dep:derive_more"]
 dev = []
 local-storage = ["web-sys/Window", "web-sys/Storage"]

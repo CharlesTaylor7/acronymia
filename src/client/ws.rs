@@ -1,9 +1,11 @@
 use crate::extensions::ResultExt;
 use crate::typed_context::*;
 use crate::types::{ClientGameState, ClientMessage, ServerMessage, TimerTag};
-use futures::{stream::SplitSink, SinkExt, StreamExt};
-use gloo_net::websocket::{futures::WebSocket, Message};
-use leptos::*;
+use ::futures::{stream::SplitSink, SinkExt, StreamExt};
+use ::gloo_net::websocket::{futures::WebSocket, Message};
+use ::gloo_timers::future::sleep;
+use ::std::time::Duration;
+use ::leptos::*;
 
 define_context!(
     WS_Writer,
@@ -21,6 +23,7 @@ pub fn connect_to_server(game_state: RwSignal<ClientGameState>, player_id: Strin
     provide_typed_context::<WS_Writer>(stored_writer);
 
     spawn_local(async move {
+        let mut backoff = 1;
         loop {
             let (writer, mut reader) = WebSocket::open(&uri).unwrap().split();
             stored_writer.set_value(Some(writer));
@@ -34,6 +37,8 @@ pub fn connect_to_server(game_state: RwSignal<ClientGameState>, player_id: Strin
                 }
             }
             log!("disconnected");
+            sleep(Duration::new(backoff, 0)).await;
+            backoff *= 2;
         }
     });
 }
