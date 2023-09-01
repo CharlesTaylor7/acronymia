@@ -17,7 +17,6 @@ type JudgeId = usize;
 /// Server game state
 /// The idea is to make the state very normalized.
 /// e.g. Determining who the current judge is can be a function, that looks at the last item of the rounds vector. (instead of another field for meta data like that)
-#[cfg(feature = "ssr")]
 #[derive(Default, Debug)]
 pub struct GameState {
     pub step: GameStep,
