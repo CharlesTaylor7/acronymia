@@ -52,7 +52,6 @@ fn JudgeDescription() -> impl IntoView {
 
 #[component]
 fn PlayerPerspective() -> impl IntoView {
-    let player_id = use_typed_context::<Signal_PlayerId>();
     let game_state = use_typed_context::<Signal_GameState>();
     let acronym = create_memo(move |_| game_state.with(|g| g.prompt.acronym.clone()));
 
@@ -61,20 +60,15 @@ fn PlayerPerspective() -> impl IntoView {
         create_node_ref::<html::Input>()
     }));
     let get_ref = move |i| input_refs.with_value(|r| r[i]);
+
     let submission = create_rw_signal::<Vec<Option<String>>>(vec![None; num_of_words]);
-
-    let submit_args = move || {
-        player_id
-            .get()
-            .and_then(|id| submission.with(|s| all_some(s).map(|s| (id, s))))
-    };
-
+    let submit_args = move || submission.with(|s| all_some(s));
     let last_submission = store_value(None as Option<String>);
     let submit_action = create_ws_action();
     let submit = move || {
-        if let Some((id, s)) = submit_args() {
+        if let Some(s) = submit_args() {
             last_submission.set_value(Some(s.join(" ")));
-            submit_action.dispatch(SubmitAcronym(id, s));
+            submit_action.dispatch(SubmitAcronym(s));
         }
     };
 

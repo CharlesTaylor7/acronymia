@@ -71,19 +71,25 @@ pub async fn handle_message(
             start_submission_step(state, messenger);
         }
 
-        ClientMessage::SubmitAcronym(player_id, submission) => {
-            // have to be in the game to submit
-            if state.players.get(&player_id).is_none() {
-                return;
-            }
-
+        ClientMessage::SubmitAcronym(submission) => {
             // can't submit after step ends
             if state.step != GameStep::Submission {
                 return;
             }
 
+            let id = sessions.player_id(&session_id);
+            if id.is_none() {
+                return;
+            }
+            let id = id.unwrap().to_owned();
+
+            // have to be in the game to submit
+            if state.players.get(&id).is_none() {
+                return;
+            }
+
             if let Some(round) = state.rounds.last_mut() {
-                let prev = round.submissions.insert(player_id, submission);
+                let prev = round.submissions.insert(id, submission);
 
                 // if all submissions are in, go to judging step
                 if round.submissions.len() + 1 == state.rotation.len() {

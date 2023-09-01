@@ -89,7 +89,7 @@ pub enum ClientMessage {
     },
     KickPlayer(PlayerId),
     StartGame(Config),
-    SubmitAcronym(PlayerId, Submission),
+    SubmitAcronym(Submission),
     JudgeRound(PlayerId),
     GetRemainingTime,
     /// for debugging only
