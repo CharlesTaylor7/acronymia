@@ -49,9 +49,10 @@ pub async fn handle_ws_request(
             rt::spawn(handle_connection(player_id, session, msg_stream));
             return Ok(res);
         }
-        Err(_) => {
-            Err(ApplicationError { message: "missing player id" }.into())
+        Err(_) => Err(ApplicationError {
+            message: "missing player id",
         }
+        .into()),
     }
 }
 
@@ -188,8 +189,18 @@ async fn handle_server_message(
     session: &mut actix_ws::Session,
 ) -> Option<CloseReason> {
     if let Some(msg) = msg.ok_or_log() {
-        if let Some(msg) = serde_json::to_string(&msg).ok_or_log() {
-            session.text(msg).await.ok_or_log();
+        let serialized = serde_json::to_string(&msg).ok_or_log();
+
+        if let ServerMessage::Disconnect(session_id) = msg {
+            log!("disconnect server message");
+            return Some(CloseReason {
+                code: CloseCode::Other(0),
+                description: Some("disconnect from server message".to_owned()),
+            });
+        }
+
+        if let Some(text) = serialized {
+            session.text(text).await.ok_or_log();
         }
     }
     None

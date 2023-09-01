@@ -1,6 +1,6 @@
 use super::types::*;
 use ::leptos::*;
-use ::std::collections::{HashMap, hash_map};
+use ::std::collections::{hash_map, HashMap};
 use ::std::sync::OnceLock;
 use ::tokio::sync::{broadcast, mpsc, Mutex};
 
@@ -26,16 +26,16 @@ impl Sessions {
 
     pub fn connect(&mut self, session_id: SessionId, player_id: PlayerId) -> Result<(), ()> {
         match self.session_ids.entry(player_id.clone()) {
-            hash_map::Entry::Vacant(entry) => { 
+            hash_map::Entry::Vacant(entry) => {
                 leptos::log!("player_id: {:#?}", player_id);
                 entry.insert(session_id.clone());
                 self.player_ids.insert(session_id, player_id);
                 Ok(())
-            },
+            }
             hash_map::Entry::Occupied(_) => {
                 leptos::log!("stopped the hackers!");
                 Err(())
-            },
+            }
         }
     }
 
