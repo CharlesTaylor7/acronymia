@@ -27,9 +27,7 @@ impl Sessions {
                 self.player_ids.insert(session_id, player_id);
                 Ok(())
             }
-            hash_map::Entry::Occupied(_) => {
-                Err(session_id)
-            }
+            hash_map::Entry::Occupied(_) => Err(session_id),
         }
     }
 
