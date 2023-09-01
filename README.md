@@ -28,7 +28,6 @@ The letter frequency table has been adapted from [Wikipedia](https://en.wikipedi
 45 seconds for judging.
 10 seconds for showing round winner before advancing to the next round.
 
-
 ### Feature requests
 - Configurable Letter Distribution
 - Audio cues when you need to make a decision.
@@ -37,15 +36,6 @@ The letter frequency table has been adapted from [Wikipedia](https://en.wikipedi
 ### Scoring Ideas
 - Audience Vote mechanic for additional scoring
 - Double points per the second round of play
-
-## Implementation Notes
-
-- Web sockets for all server <-> client communication. Polling & SSE were both leading to poor user experience.
-
-- Central server thread with in memory state & synchronized with client handler threads via message passing.
-
-- SPA (Single Page Application)
-
 
 # Development
 This project is proudly built with the [Leptos](https://github.com/leptos-rs/leptos) web framework and bootstrapped from the [cargo-leptos](https://github.com/akesson/cargo-leptos) tool.
@@ -58,6 +48,9 @@ rustup toolchain install nightly --allow-downgrade  # ensure you have Rust night
 rustup target add wasm32-unknown-unknown            # ensure you can compile to Web Assembly
 cargo install cargo-leptos                          # installs development scripts for a leptos project
 npm install                                         # installs tailwind & playwright 
+
+# (optional) if you want to run playwright tests 
+npm run playwright-setup
 ```
 
 ## Development commands

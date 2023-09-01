@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "postinstall": "playwright install --with-deps && npm run tailwind",
+    "setup-playwright": "playwright install --with-deps",
     "tailwind": "tailwindcss -i ./input.css -o ./style/output.css"
   },
   "devDependencies": {
