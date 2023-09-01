@@ -30,10 +30,9 @@ fn PlayerView(player: Player) -> impl IntoView {
     let action = create_ws_action();
 
     let stored_id = store_value(player.id);
-    let impersonate = move || player_id.set(Some(stored_id.get_value()));
+    let impersonate = move || player_id.set(stored_id.get_value());
     let kick = move || action.dispatch(KickPlayer(stored_id.get_value()));
-    let disabled_kick =
-        move || stored_id.with_value(|id1| player_id.with(|id2| Some(id1) == id2.as_ref()));
+    let disabled_kick = move || stored_id.with_value(|id1| player_id.with(|id2| id1 == id2));
     view! {
         <li>
             {player.name}

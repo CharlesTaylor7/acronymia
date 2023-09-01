@@ -7,8 +7,8 @@ use typed_context::{define_context, provide_typed_context};
 use types::*;
 
 define_context!(Signal_GameState, RwSignal<ClientGameState>);
-define_context!(Signal_PlayerId, RwSignal<Option<PlayerId>>);
-define_context!(Signal_PlayerName, RwSignal<String>);
+define_context!(Signal_PlayerId, RwSignal<PlayerId>);
+define_context!(Signal_PlayerName, RwSignal<PlayerName>);
 define_context!(Memo_Players, Memo<Vec<Player>>);
 define_context!(Memo_Judge, Memo<Option<Judge>>);
 define_context!(Memo_IsHost, Memo<bool>);
@@ -29,7 +29,7 @@ pub fn provide_game_context() {
     provide_typed_context::<Signal_PlayerId>(player_id);
 
     #[cfg(feature = "hydrate")]
-    crate::client::ws::connect_to_server(game_state, player_id.get_untracked().unwrap());
+    crate::client::ws::connect_to_server(game_state, player_id.get_untracked());
 
     #[cfg(feature = "hydrate")]
     crate::client::timer::auto_sync_with_server();
@@ -40,7 +40,7 @@ pub fn provide_game_context() {
         // synchronize player id with player name
         // this ensures impersonation works properly
         create_effect(move |_| {
-            player_id.set(Some(player_name.get()));
+            player_id.set(player_name.get());
         });
     }
 
@@ -68,7 +68,7 @@ fn judge_memo() -> Memo<Option<Judge>> {
     create_memo(move |_| {
         game_state.with(|g| {
             g.judge.as_ref().and_then(|judge_id| {
-                if player_id.with(|id| id.as_ref() == Some(judge_id)) {
+                if player_id.with(|id| id == judge_id) {
                     Some(Judge::Me)
                 } else {
                     players.with(|ps| {
@@ -87,43 +87,41 @@ fn memo_is_host() -> Memo<bool> {
     let game_state = use_typed_context::<Signal_GameState>();
     create_memo(move |_| {
         player_id
-            .get()
-            .and_then(|me| {
+            .with(|me| {
                 game_state
                     .get()
                     .players
                     .first()
                     .as_ref()
-                    .map(|p| p.id == me)
+                    .map(|p| p.id == *me)
             })
             .unwrap_or(false)
     })
 }
 
+#[cfg(feature = "ssr")]
+fn signal_player_id() -> RwSignal<PlayerId> {
+    create_rw_signal("".to_owned())
+}
+
 /// a signal for the player id
 /// that caches its value inside local storage
-fn signal_player_id() -> RwSignal<Option<PlayerId>> {
-    let player_id: RwSignal<Option<String>> = create_rw_signal(None);
+#[cfg(feature = "hydrate")]
+fn signal_player_id() -> RwSignal<PlayerId> {
+    const STORAGE_KEY: &str = "acronymia-player-id";
 
-    #[cfg(feature = "hydrate")]
-    {
-        use ::uuid::*;
-        const STORAGE_KEY: &str = "acronymia-player-id";
-
-        let new_player_id = move |storage: web_sys::Storage| {
-            let id = Uuid::new_v4().to_string();
-            _ = storage.set_item(STORAGE_KEY, &id);
-            player_id.set(Some(id));
-        };
-        match window().local_storage() {
-            Ok(Some(storage)) => match storage.get_item(STORAGE_KEY) {
-                Ok(Some(id)) => player_id.set(Some(id)),
-                _ => new_player_id(storage),
-            },
-            _ => (),
-        }
-    }
-    player_id
+    let new_player_id = move |storage: web_sys::Storage| {
+        let id = uuid::Uuid::new_v4().to_string();
+        _ = storage.set_item(STORAGE_KEY, &id);
+        id
+        //player_id.set(Some(id));
+    };
+    let storage = window().local_storage().unwrap().unwrap();
+    let id = match storage.get_item(STORAGE_KEY) {
+        Ok(Some(id)) => id,
+        _ => new_player_id(storage),
+    };
+    create_rw_signal(id)
 }
 
 /// a signal for the player name
