@@ -1,6 +1,5 @@
 use super::types::*;
 use ::leptos::*;
-use ::std::collections::{hash_map, HashMap};
 use ::std::sync::OnceLock;
 use ::tokio::sync::{broadcast, mpsc, Mutex};
 
@@ -8,43 +7,6 @@ pub struct Global {
     mailbox_sender: mpsc::Sender<(SessionId, ClientMessage)>,
     broadcast_sender: broadcast::Sender<ServerMessage>,
     state: Mutex<GameState>,
-}
-
-#[derive(Debug)]
-pub struct Sessions {
-    session_ids: HashMap<PlayerId, SessionId>,
-    player_ids: HashMap<SessionId, PlayerId>,
-}
-
-impl Sessions {
-    pub fn new() -> Sessions {
-        Sessions {
-            session_ids: HashMap::new(),
-            player_ids: HashMap::new(),
-        }
-    }
-
-    pub fn connect(&mut self, session_id: SessionId, player_id: PlayerId) -> Result<(), SessionId> {
-        match self.session_ids.entry(player_id.clone()) {
-            hash_map::Entry::Vacant(entry) => {
-                leptos::log!("player_id: {:#?}", player_id);
-                entry.insert(session_id.clone());
-                self.player_ids.insert(session_id, player_id);
-                Ok(())
-            }
-            hash_map::Entry::Occupied(_) => {
-                leptos::log!("stopped the hackers!");
-                Err(session_id)
-            }
-        }
-    }
-
-    pub fn remove(&mut self, session_id: &SessionId) {
-        let player_id = self.player_ids.remove(session_id);
-        if let Some(player_id) = player_id {
-            self.session_ids.remove(&player_id);
-        }
-    }
 }
 
 pub static GLOBAL: OnceLock<Global> = OnceLock::new();

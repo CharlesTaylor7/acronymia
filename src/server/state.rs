@@ -14,7 +14,7 @@ pub async fn handle_message(
     session_id: SessionId,
     message: ClientMessage,
     state: &mut GameState,
-    sessions: &mut sync::Sessions,
+    sessions: &mut Sessions,
     messenger: &Sender<ServerMessage>,
 ) {
     leptos::log!("session {:#?}", session_id);
