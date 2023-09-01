@@ -105,7 +105,7 @@ fn memo_is_host() -> Memo<bool> {
 fn signal_player_id() -> RwSignal<Option<PlayerId>> {
     let player_id: RwSignal<Option<String>> = create_rw_signal(None);
 
-    #[cfg(feature = "local-storage")]
+    #[cfg(feature = "hydrate")]
     {
         use ::uuid::*;
         const STORAGE_KEY: &str = "acronymia-player-id";
@@ -131,7 +131,7 @@ fn signal_player_id() -> RwSignal<Option<PlayerId>> {
 fn signal_player_name() -> RwSignal<PlayerName> {
     let player_name: RwSignal<String> = create_rw_signal(String::new());
 
-    #[cfg(feature = "local-storage")]
+    #[cfg(feature = "hydrate")]
     {
         const STORAGE_KEY: &str = "acronymia-player-name";
 
