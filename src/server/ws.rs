@@ -96,7 +96,7 @@ async fn handle_connection(
 
             // (2) Client websocket
             msg = msg_stream.next() =>
-                handle_client_message(session_id.clone(), msg, &mut session, &mut last_heartbeat, &mailer).await,
+                handle_client_message(msg, &mut session, &session_id, &mut last_heartbeat, &mailer).await,
 
             // (3) Heartbeat. Sends a ping, or closes the socket.
             _ = tick =>
@@ -136,9 +136,9 @@ async fn handle_heartbeat(
 }
 
 async fn handle_client_message(
-    session_id: SessionId,
     msg: Option<Result<Message, actix_ws::ProtocolError>>,
     session: &mut actix_ws::Session,
+    session_id: &SessionId,
     last_heartbeat: &mut Instant,
     mailer: &mpsc::Sender<(SessionId, ClientMessage)>,
 ) -> Option<CloseReason> {
