@@ -2,20 +2,12 @@ use super::context::*;
 use crate::components::state::*;
 use crate::components::styles::*;
 use crate::types::ClientMessage::*;
-use crate::types::*;
 use ::leptos::*;
 
 #[component]
 pub fn GameSetup() -> impl IntoView {
     let is_host = use_typed_context::<Memo_IsHost>();
-    let player_id = use_typed_context::<Signal_PlayerId>();
     let player_name = use_typed_context::<Signal_PlayerName>();
-    let player = create_memo(move |_| {
-        player_id.get().map(|id| Player {
-            id,
-            name: player_name.get(),
-        })
-    });
 
     let players = use_typed_context::<Memo_Players>();
     let game_state = use_typed_context::<Signal_GameState>();
@@ -28,9 +20,9 @@ pub fn GameSetup() -> impl IntoView {
 
     let join_game_action = create_ws_action();
     let join_game = move || {
-        if let Some(p) = player() {
-            join_game_action.dispatch(JoinGame(p));
-        }
+        join_game_action.dispatch(JoinGame {
+            name: player_name.get(),
+        })
     };
 
     view! {
@@ -45,7 +37,6 @@ pub fn GameSetup() -> impl IntoView {
         <div class="flex flex-row gap-4">
             <button
                 class=button_class(ButtonStyle::Primary, "")
-                prop:disabled=Signal::derive(move|| player_id.with(|id| id.is_none()))
                 on:click=move|_| join_game()
             >
             {move|| if join_game_action.version().get() > 0 { "Update name" } else { "Join" }}

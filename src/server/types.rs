@@ -82,6 +82,10 @@ impl Sessions {
             self.session_ids.remove(&player_id);
         }
     }
+
+    pub fn player_id(&self, session_id: &SessionId) -> Option<&PlayerId> {
+        self.player_ids.get(session_id)
+    }
 }
 
 #[derive(Debug, Default)]

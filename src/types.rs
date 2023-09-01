@@ -84,7 +84,9 @@ pub struct Prompt {
 pub enum ClientMessage {
     Connect(PlayerId),
     Disconnect,
-    JoinGame(Player),
+    JoinGame {
+        name: String,
+    },
     KickPlayer(PlayerId),
     StartGame(Config),
     SubmitAcronym(PlayerId, Submission),
