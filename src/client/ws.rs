@@ -1,6 +1,6 @@
 use crate::extensions::ResultExt;
 use crate::typed_context::*;
-use crate::types::{ClientGameState, ClientMessage, ServerMessage, TimerTag};
+use crate::types::{ClientGameState, ClientMessage, ServerMessage, TimerTag, PlayerId};
 use ::futures::{stream::SplitSink, SinkExt, StreamExt};
 use ::gloo_net::websocket::{futures::WebSocket, Message};
 use ::gloo_timers::future::sleep;
@@ -43,13 +43,15 @@ pub fn connect_to_server(game_state: RwSignal<ClientGameState>, player_id: Strin
     });
 }
 
+pub fn take<T>(stored: StoredValue<Option<T>>) -> Option<T> {
+    let mut val = None;
+    stored.update_value(|v| val = v.take()); 
+    val
+}
+
 pub async fn send_from(owner: Owner, message: ClientMessage) {
-    // do a dance to take ownership of the websocket connection's writer
-    let mut ws_writer = None;
     let stored_writer = use_typed_context_from::<WS_Writer>(owner);
-    stored_writer.update_value(|v| {
-        ws_writer = v.take();
-    });
+    let ws_writer = take(stored_writer);
 
     if let Some(mut ws_writer) = ws_writer {
         ws_writer.send(serialize(&message)).await.ok_or_log();

@@ -7,7 +7,7 @@ pub trait ResultExt<T> {
 }
 
 impl<T, E: Debug> ResultExt<T> for Result<T, E> {
-    /// Transorm a Result<T,E> into an Option<T>.
+    /// Transorm a Result<T,E> into an `Option<T>`.
     /// Log the error if any.
     fn ok_or_log(self) -> Option<T> {
         match self {

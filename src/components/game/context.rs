@@ -114,7 +114,6 @@ fn signal_player_id() -> RwSignal<PlayerId> {
         let id = uuid::Uuid::new_v4().to_string();
         _ = storage.set_item(STORAGE_KEY, &id);
         id
-        //player_id.set(Some(id));
     };
     let storage = window().local_storage().unwrap().unwrap();
     let id = match storage.get_item(STORAGE_KEY) {

@@ -2,11 +2,16 @@ procs:
   Leptos:
     shell: cargo leptos watch --features=dev
 
+  Client Docs:
+    shell: cargo doc --features=hydrate --open
+    autostart: false
+
   Tailwind:
     shell: npm run tailwind -- --watch
 
   Unit Tests:
     shell: cargo watch --features=ssr -x test
+    autostart: false
 
   Playwright Tests:
     shell: cargo leptos end-to-end
