@@ -1,4 +1,6 @@
+mod sessions;
 use super::random::shuffle;
+pub use self::sessions::Sessions;
 use crate::constants::*;
 pub use crate::types::*;
 use ::leptos::log;
@@ -45,47 +47,6 @@ pub struct ServerPlayer {
     pub quit: bool,
     pub id: PlayerId,
     pub name: String,
-}
-
-#[derive(Debug)]
-pub struct Sessions {
-    session_ids: HashMap<PlayerId, SessionId>,
-    player_ids: HashMap<SessionId, PlayerId>,
-}
-
-impl Sessions {
-    pub fn new() -> Sessions {
-        Sessions {
-            session_ids: HashMap::new(),
-            player_ids: HashMap::new(),
-        }
-    }
-
-    pub fn connect(&mut self, session_id: SessionId, player_id: PlayerId) -> Result<(), SessionId> {
-        match self.session_ids.entry(player_id.clone()) {
-            hash_map::Entry::Vacant(entry) => {
-                leptos::log!("player_id: {:#?}", player_id);
-                entry.insert(session_id.clone());
-                self.player_ids.insert(session_id, player_id);
-                Ok(())
-            }
-            hash_map::Entry::Occupied(_) => {
-                leptos::log!("stopped the hackers!");
-                Err(session_id)
-            }
-        }
-    }
-
-    pub fn remove(&mut self, session_id: &SessionId) {
-        let player_id = self.player_ids.remove(session_id);
-        if let Some(player_id) = player_id {
-            self.session_ids.remove(&player_id);
-        }
-    }
-
-    pub fn player_id(&self, session_id: &SessionId) -> Option<&PlayerId> {
-        self.player_ids.get(session_id)
-    }
 }
 
 #[derive(Debug, Default)]

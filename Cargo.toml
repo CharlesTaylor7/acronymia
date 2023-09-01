@@ -36,7 +36,8 @@ derive_more = { version = "0.99.17", optional = true }
 [features]
 hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate", "dep:gloo-net", "dep:gloo-timers", "web-sys/Location", "web-sys/Window", "web-sys/Storage", "dep:wasm-bindgen", "dep:console_log", "dep:console_error_panic_hook"]
 ssr = ["dep:actix-files", "dep:actix-web", "dep:leptos_actix", "leptos/ssr", "leptos_meta/ssr", "leptos_router/ssr", "dep:tokio", "dep:actix-ws", "dep:rand", "dep:derive_more"]
-dev = []
+dev = ["impersonation"]
+impersonation = []
 
 [package.metadata.leptos]
 # The name used by wasm-bindgen/cargo-leptos for the JS/WASM bundle. Defaults to the crate name   
