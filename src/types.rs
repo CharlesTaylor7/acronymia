@@ -9,6 +9,7 @@ pub type PlayerId = String;
 pub type PlayerName = String;
 
 /// Uuid generated automatically server side
+/// Uniquely identifies each web socket connection
 #[derive(Serialize, Deserialize, Clone, Debug, Hash, PartialEq, Eq)]
 pub struct SessionId(pub String);
 
