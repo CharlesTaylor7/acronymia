@@ -11,14 +11,27 @@ use ::tokio::{
 
 // TODO: client actions need to be both restricted by game step & player role
 pub async fn handle_message(
+    session_id: SessionId,
     message: ClientMessage,
     state: &mut GameState,
+    sessions: &mut sync::Sessions,
     messenger: &Sender<ServerMessage>,
 ) {
+    leptos::log!("session {:#?}", session_id);
     match message {
-        ClientMessage::Connected => {
-            _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
+        ClientMessage::Connect(player_id) => match sessions.connect(session_id, player_id) {
+            Ok(_) => {
+                _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
+            }
+            Err(session_id) => {
+                _ = messenger.send(ServerMessage::DuplicateSession(session_id));
+            }
+        },
+
+        ClientMessage::Disconnect => {
+            sessions.remove(&session_id);
         }
+
         // register your name for the current game
         // allows you to update your name if you already joined
         ClientMessage::JoinGame(player) => {

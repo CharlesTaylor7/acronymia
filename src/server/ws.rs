@@ -3,14 +3,25 @@ use crate::extensions::ResultExt;
 use crate::types::*;
 use ::actix_web::{rt, web, Error, HttpRequest, HttpResponse};
 use ::actix_ws::{CloseCode, CloseReason, Message};
+use ::derive_more::{Display, Error};
 use ::futures::StreamExt as _;
 use ::leptos::log;
+use ::serde::Deserialize;
 use ::std::time::{Duration, Instant};
 use ::tokio::{
     pin, select,
     sync::{broadcast::error::RecvError, mpsc},
     time::interval,
 };
+use ::uuid::Uuid;
+
+#[derive(Debug, Display, Error)]
+struct ApplicationError {
+    message: &'static str,
+}
+
+// Use default implementation for `error_response()` method
+impl ::actix_web::ResponseError for ApplicationError {}
 
 /// How often heartbeat pings are sent.
 /// Should be half (or less) of the acceptable client timeout.
@@ -19,20 +30,34 @@ const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
 /// How long before lack of client response causes a timeout.
 const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
 
+#[derive(Debug, Deserialize)]
+pub struct Params {
+    player_id: PlayerId,
+}
+
 /// Handshake and start websocket handler with heartbeats.
 /// Adapted from [Actix example code](https://github.com/actix/examples/blob/25368e6b65120224f845137c9333850968456153/websockets/echo-actorless/src/handler.rs).
 pub async fn handle_ws_request(
     req: HttpRequest,
     stream: web::Payload,
 ) -> Result<HttpResponse, Error> {
-    let (res, session, msg_stream) = actix_ws::handle(&req, stream)?;
-
-    rt::spawn(handle_connection(session, msg_stream));
-
-    Ok(res)
+    let query = web::Query::<Params>::from_query(req.query_string());
+    match query {
+        Ok(query) => {
+            let Params { player_id } = query.into_inner();
+            let (res, session, msg_stream) = actix_ws::handle(&req, stream)?;
+            rt::spawn(handle_connection(player_id, session, msg_stream));
+            return Ok(res);
+        }
+        Err(_) => Err(ApplicationError {
+            message: "missing player id",
+        }
+        .into()),
+    }
 }
 
 async fn handle_connection(
+    player_id: PlayerId,
     mut session: actix_ws::Session,
     mut msg_stream: actix_ws::MessageStream,
 ) {
@@ -43,8 +68,11 @@ async fn handle_connection(
     let mut last_heartbeat = Instant::now();
     let mut interval = interval(HEARTBEAT_INTERVAL);
 
-    // just connected, server will send back the complete state
-    mailer.send(ClientMessage::Connected).await.ok_or_log();
+    let session_id = SessionId(Uuid::new_v4().to_string());
+    mailer
+        .send((session_id.clone(), ClientMessage::Connect(player_id)))
+        .await
+        .ok_or_log();
 
     let reason = loop {
         let tick = interval.tick();
@@ -64,11 +92,11 @@ async fn handle_connection(
 
             // (1) Server broadcast
             msg = server_broadcast.recv() =>
-                handle_server_message(msg, &mut session).await,
+                handle_server_message(msg, &mut session, &session_id).await,
 
             // (2) Client websocket
             msg = msg_stream.next() =>
-                handle_client_message(msg, &mut session, &mut last_heartbeat, &mailer).await,
+                handle_client_message(msg, &mut session, &session_id, &mut last_heartbeat, &mailer).await,
 
             // (3) Heartbeat. Sends a ping, or closes the socket.
             _ = tick =>
@@ -81,6 +109,10 @@ async fn handle_connection(
     };
 
     session.close(Some(reason)).await.ok_or_log();
+    mailer
+        .send((session_id, ClientMessage::Disconnect))
+        .await
+        .ok_or_log();
 
     log!("disconnected");
 }
@@ -106,8 +138,9 @@ async fn handle_heartbeat(
 async fn handle_client_message(
     msg: Option<Result<Message, actix_ws::ProtocolError>>,
     session: &mut actix_ws::Session,
+    session_id: &SessionId,
     last_heartbeat: &mut Instant,
-    mailer: &mpsc::Sender<ClientMessage>,
+    mailer: &mpsc::Sender<(SessionId, ClientMessage)>,
 ) -> Option<CloseReason> {
     // websocket closed
     if msg.is_none() {
@@ -118,7 +151,7 @@ async fn handle_client_message(
         match msg {
             Message::Text(text) => {
                 if let Some(msg) = serde_json::from_str(&text).ok_or_log() {
-                    mailer.send(msg).await.ok_or_log();
+                    mailer.send((session_id.clone(), msg)).await.ok_or_log();
                 }
             },
 
@@ -154,10 +187,24 @@ async fn handle_client_message(
 async fn handle_server_message(
     msg: Result<ServerMessage, RecvError>,
     session: &mut actix_ws::Session,
+    session_id: &SessionId,
 ) -> Option<CloseReason> {
     if let Some(msg) = msg.ok_or_log() {
-        if let Some(msg) = serde_json::to_string(&msg).ok_or_log() {
-            session.text(msg).await.ok_or_log();
+        let serialized = serde_json::to_string(&msg).ok_or_log();
+
+        if let ServerMessage::DuplicateSession(id) = msg {
+            if id == *session_id {
+                return Some(CloseReason {
+                    code: CloseCode::Other(0),
+                    description: Some(
+                        "player cannot open duplicate web socket connections".to_owned(),
+                    ),
+                });
+            }
+        }
+
+        if let Some(text) = serialized {
+            session.text(text).await.ok_or_log();
         }
     }
     None

@@ -8,6 +8,10 @@ pub type PlayerId = String;
 
 pub type PlayerName = String;
 
+/// Uuid generated automatically server side
+#[derive(Serialize, Deserialize, Clone, Debug, Hash, PartialEq, Eq)]
+pub struct SessionId(pub String);
+
 #[derive(Serialize, Deserialize, Clone, Default, Debug, PartialEq)]
 pub enum GameStep {
     #[default]
@@ -78,7 +82,8 @@ pub struct Prompt {
 /// message from a client to the server
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ClientMessage {
-    Connected,
+    Connect(PlayerId),
+    Disconnect,
     JoinGame(Player),
     KickPlayer(PlayerId),
     StartGame(Config),
@@ -108,6 +113,7 @@ pub enum ServerMessage {
     IncrementSubmissionCount,
     /// Seconds remaining on the clock
     UpdateRemainingTime(Option<u64>),
+    DuplicateSession(SessionId),
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]

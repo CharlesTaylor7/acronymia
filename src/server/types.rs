@@ -7,6 +7,7 @@ use ::tokio::{
     sync::oneshot,
     time::{Duration, Instant},
 };
+pub use ::uuid::Uuid;
 
 /// Index into the rotation vector
 type JudgeId = usize;
@@ -303,7 +304,6 @@ mod tests {
     use crate::server::types::*;
     #[test]
     fn scores() {
-        let state = GameState::default();
         let state = GameState {
             rounds: vec![
                 Round {
@@ -362,7 +362,6 @@ mod tests {
             ],
             ..demo_init(vec!["a", "b", "c"])
         };
-        let scores = state.scores();
         assert_eq!(
             state.scores(),
             vec![

@@ -1,26 +1,29 @@
 use crate::extensions::ResultExt;
 use crate::typed_context::*;
-use crate::types::{ServerMessage::*, *};
-use futures::{stream::SplitSink, SinkExt, StreamExt};
-use gloo_net::websocket::{futures::WebSocket, Message};
-use leptos::*;
+use crate::types::{ClientGameState, ClientMessage, ServerMessage, TimerTag};
+use ::futures::{stream::SplitSink, SinkExt, StreamExt};
+use ::gloo_net::websocket::{futures::WebSocket, Message};
+use ::gloo_timers::future::sleep;
+use ::leptos::*;
+use ::std::time::Duration;
 
 define_context!(
     WS_Writer,
     StoredValue<Option<SplitSink<WebSocket, Message>>>
 );
 
-pub fn connect_to_server(game_state: RwSignal<ClientGameState>) {
+pub fn connect_to_server(game_state: RwSignal<ClientGameState>, player_id: String) {
     let loc = window().location();
     let host = loc.host().unwrap();
     let protocol = loc.protocol().unwrap();
     let protocol = if protocol == "https:" { "wss:" } else { "ws:" };
-    let uri = format!("{protocol}//{host}/ws");
+    let uri = format!("{protocol}//{host}/ws?player_id={player_id}");
 
     let stored_writer = store_value(None);
     provide_typed_context::<WS_Writer>(stored_writer);
 
     spawn_local(async move {
+        let mut backoff = 1;
         loop {
             let (writer, mut reader) = WebSocket::open(&uri).unwrap().split();
             stored_writer.set_value(Some(writer));
@@ -34,6 +37,8 @@ pub fn connect_to_server(game_state: RwSignal<ClientGameState>) {
                 }
             }
             log!("disconnected");
+            sleep(Duration::new(backoff, 0)).await;
+            backoff *= 2;
         }
     });
 }
@@ -64,12 +69,12 @@ fn serialize(message: &ClientMessage) -> Message {
 
 fn apply_server_message(state: &mut ClientGameState, message: ServerMessage) {
     match message {
-        GameState(g) => {
+        ServerMessage::GameState(g) => {
             // replace the current game state completely
             *state = g;
         }
 
-        PlayerJoined(new) => {
+        ServerMessage::PlayerJoined(new) => {
             if let Some(p) = state.players.iter_mut().find(|p| p.id == new.id) {
                 p.name = new.name;
             } else {
@@ -77,17 +82,19 @@ fn apply_server_message(state: &mut ClientGameState, message: ServerMessage) {
             }
         }
 
-        ShowRoundWinner(player_id) => {
+        ServerMessage::ShowRoundWinner(player_id) => {
             state.round_winner = Some(player_id);
             state.timer = Some(TimerTag::ShowRoundWinner.secs());
         }
 
-        IncrementSubmissionCount => {
+        ServerMessage::IncrementSubmissionCount => {
             state.submission_count += 1;
         }
 
-        UpdateRemainingTime(time) => {
+        ServerMessage::UpdateRemainingTime(time) => {
             state.timer = time;
         }
+
+        ServerMessage::DuplicateSession(_) => {}
     }
 }

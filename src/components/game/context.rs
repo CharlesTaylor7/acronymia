@@ -25,18 +25,17 @@ pub fn provide_game_context() {
     let game_state = create_rw_signal(Default::default());
     provide_typed_context::<Signal_GameState>(game_state);
 
+    let player_id = signal_player_id();
+    provide_typed_context::<Signal_PlayerId>(player_id);
+
     #[cfg(feature = "hydrate")]
-    crate::client::ws::connect_to_server(game_state);
+    crate::client::ws::connect_to_server(game_state, player_id.get_untracked().unwrap());
 
     #[cfg(feature = "hydrate")]
     crate::client::timer::auto_sync_with_server();
 
     let player_name = signal_player_name();
     provide_typed_context::<Signal_PlayerName>(player_name);
-
-    let player_id = signal_player_id();
-    provide_typed_context::<Signal_PlayerId>(player_id);
-
     if DEV_MODE {
         // synchronize player id with player name
         // this ensures impersonation works properly
