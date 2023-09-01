@@ -29,13 +29,12 @@ serde_json = "1.0.94"
 rand = { version = "0.8.5", optional = true }
 tokio = { version = "1.26.0", features = ["macros", "rt", "sync", "time"], optional = true }
 js-sys = "0.3.61"
-derive_more = { version = "0.99.17", optional = true }
 # internal dependencies
 # macros = { path = "./macros" }
 
 [features]
 hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate", "dep:gloo-net", "dep:gloo-timers", "web-sys/Location", "web-sys/Window", "web-sys/Storage", "dep:wasm-bindgen", "dep:console_log", "dep:console_error_panic_hook"]
-ssr = ["dep:actix-files", "dep:actix-web", "dep:leptos_actix", "leptos/ssr", "leptos_meta/ssr", "leptos_router/ssr", "dep:tokio", "dep:actix-ws", "dep:rand", "dep:derive_more"]
+ssr = ["dep:actix-files", "dep:actix-web", "dep:leptos_actix", "leptos/ssr", "leptos_meta/ssr", "leptos_router/ssr", "dep:tokio", "dep:actix-ws", "dep:rand"]
 dev = ["impersonation"]
 impersonation = []
 

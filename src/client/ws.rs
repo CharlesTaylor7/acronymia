@@ -1,6 +1,6 @@
 use crate::extensions::ResultExt;
 use crate::typed_context::*;
-use crate::types::{ClientGameState, ClientMessage, ServerMessage, TimerTag, PlayerId};
+use crate::types::{ClientGameState, ClientMessage, PlayerId, ServerMessage, TimerTag};
 use ::futures::{stream::SplitSink, SinkExt, StreamExt};
 use ::gloo_net::websocket::{futures::WebSocket, Message};
 use ::gloo_timers::future::sleep;
@@ -12,15 +12,20 @@ define_context!(
     StoredValue<Option<SplitSink<WebSocket, Message>>>
 );
 
-pub fn connect_to_server(game_state: RwSignal<ClientGameState>, player_id: String) {
+pub fn connect_to_server(game_state: RwSignal<ClientGameState>, player_id: RwSignal<PlayerId>) {
     let loc = window().location();
     let host = loc.host().unwrap();
     let protocol = loc.protocol().unwrap();
     let protocol = if protocol == "https:" { "wss:" } else { "ws:" };
-    let uri = format!("{protocol}//{host}/ws?player_id={player_id}");
+    let uri = format!("{protocol}//{host}/ws");
 
     let stored_writer = store_value(None);
     provide_typed_context::<WS_Writer>(stored_writer);
+    create_effect(move |_| {
+        spawn_local(async move {
+            send(stored_writer, ClientMessage::Connect(player_id())).await;
+        });
+    });
 
     spawn_local(async move {
         let mut backoff = 1;
@@ -45,12 +50,16 @@ pub fn connect_to_server(game_state: RwSignal<ClientGameState>, player_id: Strin
 
 pub fn take<T>(stored: StoredValue<Option<T>>) -> Option<T> {
     let mut val = None;
-    stored.update_value(|v| val = v.take()); 
+    stored.update_value(|v| val = v.take());
     val
 }
 
 pub async fn send_from(owner: Owner, message: ClientMessage) {
     let stored_writer = use_typed_context_from::<WS_Writer>(owner);
+    send(stored_writer, message).await
+}
+
+pub async fn send(stored_writer: context_type!(WS_Writer), message: ClientMessage) {
     let ws_writer = take(stored_writer);
 
     if let Some(mut ws_writer) = ws_writer {

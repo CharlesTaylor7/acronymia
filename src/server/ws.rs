@@ -3,10 +3,8 @@ use crate::extensions::ResultExt;
 use crate::types::*;
 use ::actix_web::{rt, web, Error, HttpRequest, HttpResponse};
 use ::actix_ws::{CloseCode, CloseReason, Message};
-use ::derive_more::{Display, Error};
 use ::futures::StreamExt as _;
 use ::leptos::log;
-use ::serde::Deserialize;
 use ::std::time::{Duration, Instant};
 use ::tokio::{
     pin, select,
@@ -15,14 +13,6 @@ use ::tokio::{
 };
 use ::uuid::Uuid;
 
-#[derive(Debug, Display, Error)]
-struct ApplicationError {
-    message: &'static str,
-}
-
-// Use default implementation for `error_response()` method
-impl ::actix_web::ResponseError for ApplicationError {}
-
 /// How often heartbeat pings are sent.
 /// Should be half (or less) of the acceptable client timeout.
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
@@ -30,34 +20,18 @@ const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
 /// How long before lack of client response causes a timeout.
 const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
 
-#[derive(Debug, Deserialize)]
-pub struct Params {
-    player_id: PlayerId,
-}
-
 /// Handshake and start websocket handler with heartbeats.
 /// Adapted from [Actix example code](https://github.com/actix/examples/blob/25368e6b65120224f845137c9333850968456153/websockets/echo-actorless/src/handler.rs).
 pub async fn handle_ws_request(
     req: HttpRequest,
     stream: web::Payload,
 ) -> Result<HttpResponse, Error> {
-    let query = web::Query::<Params>::from_query(req.query_string());
-    match query {
-        Ok(query) => {
-            let Params { player_id } = query.into_inner();
-            let (res, session, msg_stream) = actix_ws::handle(&req, stream)?;
-            rt::spawn(handle_connection(player_id, session, msg_stream));
-            return Ok(res);
-        }
-        Err(_) => Err(ApplicationError {
-            message: "missing player id",
-        }
-        .into()),
-    }
+    let (res, session, msg_stream) = actix_ws::handle(&req, stream)?;
+    rt::spawn(handle_connection(session, msg_stream));
+    Ok(res)
 }
 
 async fn handle_connection(
-    player_id: PlayerId,
     mut session: actix_ws::Session,
     mut msg_stream: actix_ws::MessageStream,
 ) {
@@ -69,11 +43,6 @@ async fn handle_connection(
     let mut interval = interval(HEARTBEAT_INTERVAL);
 
     let session_id = SessionId(Uuid::new_v4().to_string());
-    mailer
-        .send((session_id.clone(), ClientMessage::Connect(player_id)))
-        .await
-        .ok_or_log();
-
     let reason = loop {
         let tick = interval.tick();
         pin!(tick);

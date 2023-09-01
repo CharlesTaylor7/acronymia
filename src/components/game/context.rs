@@ -29,7 +29,7 @@ pub fn provide_game_context() {
     provide_typed_context::<Signal_PlayerId>(player_id);
 
     #[cfg(feature = "hydrate")]
-    crate::client::ws::connect_to_server(game_state, player_id.get_untracked());
+    crate::client::ws::connect_to_server(game_state, player_id);
 
     #[cfg(feature = "hydrate")]
     crate::client::timer::auto_sync_with_server();
