@@ -32,6 +32,8 @@ pub fn connect_to_server(game_state: RwSignal<ClientGameState>, player_id: RwSig
                     }
                 }
             }
+            signal_ws_writer.set(None);
+            log!("disconnected");
             sleep(Duration::new(backoff, 0)).await;
             backoff *= 2;
         }
