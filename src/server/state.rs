@@ -19,11 +19,14 @@ pub async fn handle_message(
 ) {
     leptos::log!("session {:#?}", session_id);
     match message {
-        ClientMessage::Connect(player_id) => {
-            if let Ok(_) = sessions.connect(session_id, player_id) {
+        ClientMessage::Connect(player_id) => match sessions.connect(session_id, player_id) {
+            Ok(_) => {
                 _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
             }
-        }
+            Err(session_id) => {
+                _ = messenger.send(ServerMessage::DuplicateSession(session_id));
+            }
+        },
 
         ClientMessage::Disconnect => {
             sessions.remove(&session_id);

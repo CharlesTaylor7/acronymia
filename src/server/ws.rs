@@ -92,7 +92,7 @@ async fn handle_connection(
 
             // (1) Server broadcast
             msg = server_broadcast.recv() =>
-                handle_server_message(msg, &mut session).await,
+                handle_server_message(msg, &mut session, &session_id).await,
 
             // (2) Client websocket
             msg = msg_stream.next() =>
@@ -187,21 +187,24 @@ async fn handle_client_message(
 async fn handle_server_message(
     msg: Result<ServerMessage, RecvError>,
     session: &mut actix_ws::Session,
+    session_id: &SessionId,
 ) -> Option<CloseReason> {
     if let Some(msg) = msg.ok_or_log() {
-        log!("{:#?}", msg);
         let serialized = serde_json::to_string(&msg).ok_or_log();
+
+        if let ServerMessage::DuplicateSession(id) = msg {
+            if id == *session_id {
+                return Some(CloseReason {
+                    code: CloseCode::Other(0),
+                    description: Some(
+                        "player cannot open duplicate web socket connections".to_owned(),
+                    ),
+                });
+            }
+        }
 
         if let Some(text) = serialized {
             session.text(text).await.ok_or_log();
-        }
-
-        if let ServerMessage::Disconnect(session_id) = msg {
-            log!("disconnect server message");
-            return Some(CloseReason {
-                code: CloseCode::Other(0),
-                description: Some("disconnect from server message".to_owned()),
-            });
         }
     }
     None

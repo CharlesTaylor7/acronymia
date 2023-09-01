@@ -24,7 +24,7 @@ impl Sessions {
         }
     }
 
-    pub fn connect(&mut self, session_id: SessionId, player_id: PlayerId) -> Result<(), ()> {
+    pub fn connect(&mut self, session_id: SessionId, player_id: PlayerId) -> Result<(), SessionId> {
         match self.session_ids.entry(player_id.clone()) {
             hash_map::Entry::Vacant(entry) => {
                 leptos::log!("player_id: {:#?}", player_id);
@@ -34,7 +34,7 @@ impl Sessions {
             }
             hash_map::Entry::Occupied(_) => {
                 leptos::log!("stopped the hackers!");
-                Err(())
+                Err(session_id)
             }
         }
     }

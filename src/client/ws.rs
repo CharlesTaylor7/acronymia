@@ -4,8 +4,8 @@ use crate::types::{ClientGameState, ClientMessage, ServerMessage, TimerTag};
 use ::futures::{stream::SplitSink, SinkExt, StreamExt};
 use ::gloo_net::websocket::{futures::WebSocket, Message};
 use ::gloo_timers::future::sleep;
-use ::std::time::Duration;
 use ::leptos::*;
+use ::std::time::Duration;
 
 define_context!(
     WS_Writer,
@@ -95,6 +95,6 @@ fn apply_server_message(state: &mut ClientGameState, message: ServerMessage) {
             state.timer = time;
         }
 
-        ServerMessage::Disconnect(_) => {}
+        ServerMessage::DuplicateSession(_) => {}
     }
 }
