@@ -7,10 +7,7 @@ use ::gloo_timers::future::sleep;
 use ::leptos::*;
 use ::std::time::Duration;
 
-define_context!(
-    WS_Writer,
-    StoredValue<Option<SplitSink<WebSocket, Message>>>
-);
+define_context!(WS_Writer, RwSignal<Option<SplitSink<WebSocket, Message>>>);
 
 pub fn connect_to_server(game_state: RwSignal<ClientGameState>, player_id: RwSignal<PlayerId>) {
     let loc = window().location();
@@ -19,20 +16,14 @@ pub fn connect_to_server(game_state: RwSignal<ClientGameState>, player_id: RwSig
     let protocol = if protocol == "https:" { "wss:" } else { "ws:" };
     let uri = format!("{protocol}//{host}/ws");
 
-    let stored_writer = store_value(None);
-    provide_typed_context::<WS_Writer>(stored_writer);
-    create_effect(move |_| {
-        spawn_local(async move {
-            send(stored_writer, ClientMessage::Connect(player_id())).await;
-        });
-    });
+    let signal_ws_writer = create_rw_signal(None);
+    provide_typed_context::<WS_Writer>(signal_ws_writer);
 
     spawn_local(async move {
         let mut backoff = 1;
         loop {
             let (writer, mut reader) = WebSocket::open(&uri).unwrap().split();
-            stored_writer.set_value(Some(writer));
-            log!("connected");
+            signal_ws_writer.set(Some(writer));
 
             while let Some(msg) = reader.next().await {
                 if let Some(Message::Text(m)) = msg.ok_or_log() {
@@ -41,10 +32,21 @@ pub fn connect_to_server(game_state: RwSignal<ClientGameState>, player_id: RwSig
                     }
                 }
             }
-            log!("disconnected");
             sleep(Duration::new(backoff, 0)).await;
             backoff *= 2;
         }
+    });
+
+    create_effect(move |_| {
+        signal_ws_writer.with(|ws_writer| {
+            if ws_writer.is_some() {
+                let id = player_id();
+                log!("connect as {}", id);
+                spawn_local(async move {
+                    send(signal_ws_writer, ClientMessage::Connect(id)).await;
+                });
+            }
+        })
     });
 }
 
@@ -54,20 +56,26 @@ pub fn take<T>(stored: StoredValue<Option<T>>) -> Option<T> {
     val
 }
 
-pub async fn send_from(owner: Owner, message: ClientMessage) {
-    let stored_writer = use_typed_context_from::<WS_Writer>(owner);
-    send(stored_writer, message).await
+pub fn take_untracked<T>(signal: RwSignal<Option<T>>) -> Option<T> {
+    let mut val = None;
+    signal.update_untracked(|v| val = v.take());
+    val
 }
 
-pub async fn send(stored_writer: context_type!(WS_Writer), message: ClientMessage) {
-    let ws_writer = take(stored_writer);
+pub async fn send_from(owner: Owner, message: ClientMessage) {
+    let signal_ws_writer = use_typed_context_from::<WS_Writer>(owner);
+    send(signal_ws_writer, message).await
+}
+
+pub async fn send(signal_ws_writer: context_type!(WS_Writer), message: ClientMessage) {
+    let ws_writer = take_untracked(signal_ws_writer);
 
     if let Some(mut ws_writer) = ws_writer {
         ws_writer.send(serialize(&message)).await.ok_or_log();
 
         // Put that thing back where it came from (or so help me)
         // Ensures the web socket writer can be reused later.
-        stored_writer.set_value(Some(ws_writer));
+        signal_ws_writer.set_untracked(Some(ws_writer));
     } else {
         // TODO: should we buffer writes somewhere on the client side?
         log!("busy, message dropped: {:#?}", &message);

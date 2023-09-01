@@ -12,7 +12,6 @@ dependencies = [
  "cfg-if",
  "console_error_panic_hook",
  "console_log",
- "derive_more",
  "futures",
  "gloo-net",
  "gloo-timers",
