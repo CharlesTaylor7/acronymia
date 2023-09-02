@@ -138,11 +138,11 @@ async fn handle_client_message(
             }
 
             Message::Binary(_) => {
-                log::warn!("no support for binary");
+                leptos::log!("no support for binary");
             }
 
             Message::Continuation(_) => {
-                log::warn!("no support for continuation frames");
+                leptos::log!("no support for continuation frames");
             }
 
             // no-op; ignore
