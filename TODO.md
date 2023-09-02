@@ -23,3 +23,6 @@
 - [ ] Fix leptos browser console warnings
 - [ ] Make client messages more incremental, prevent resending the entire state.
 
+## Multi room client
+- [ ] Start new room button
+- [ ] Copy room url to clipboard button
