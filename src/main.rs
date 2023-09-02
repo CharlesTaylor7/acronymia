@@ -4,7 +4,7 @@ async fn main() -> std::io::Result<()> {
     use acronymia::components::app::App;
     use acronymia::server::{sync, ws};
     use actix_files::Files;
-    use actix_web::{middleware, web, App, HttpServer};
+    use actix_web::{cookie::Key, middleware, web, App, HttpServer};
     use actix_session::{storage::CookieSessionStore, SessionMiddleware};
     use leptos::get_configuration;
     use leptos_actix::{generate_route_list, LeptosRoutes};
@@ -23,14 +23,13 @@ async fn main() -> std::io::Result<()> {
         let leptos_options = &conf.leptos_options;
         let site_root = &leptos_options.site_root;
         let routes = &routes;
-
         App::new()
             .service(web::resource("/ws").route(web::get().to(ws::handle_ws_request)))
             .route("/api/{tail:.*}", leptos_actix::handle_server_fns())
             .leptos_routes(leptos_options.to_owned(), routes.to_owned(), App)
             .service(Files::new("/", site_root))
             .wrap(middleware::Compress::default())
-            .wrap(SessionMiddleware::new(CookieSessionStore::default(), secret_key.clone()))
+            .wrap(SessionMiddleware::new(CookieSessionStore::default(), Key::generate()))
     })
     .bind(addr)?
     .run()
