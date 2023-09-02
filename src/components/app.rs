@@ -1,5 +1,5 @@
-use crate::components::pages;
 use crate::components::game::Game;
+use crate::components::pages;
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
