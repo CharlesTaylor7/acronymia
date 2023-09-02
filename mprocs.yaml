@@ -2,6 +2,10 @@ procs:
   Leptos:
     shell: cargo leptos watch --features=dev
 
+  Server Docs:
+    shell: cargo doc --features=ssr --open
+    autostart: false
+
   Client Docs:
     shell: cargo doc --features=hydrate --open
     autostart: false
