@@ -1,0 +1,11 @@
+{
+    "rust-analyzer.showUnlinkedFileNotification": false,
+    // Following advice from:
+    // https://github.com/leptos-rs/leptos/issues/1310#issue-1794910655
+    "rust-analyzer.procMacro.ignored": {
+        "leptos_macro": [
+            "server",
+            "component"
+        ],
+    },
+}
