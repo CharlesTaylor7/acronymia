@@ -155,6 +155,7 @@ impl GameState {
     pub fn scores(&self) -> Vec<(PlayerName, i64)> {
         let mut score_map = HashMap::new();
         for round in &self.rounds {
+            #[allow(clippy::cast_possible_wrap)]
             let points = round.prompt.acronym.len() as i64;
             if let Some(winner) = &round.winner {
                 let penalty = submission_penalty(&round.submissions[winner]);
@@ -245,10 +246,12 @@ fn word_penalty(word: &str) -> i64 {
         .chars()
         .filter(|c| {
             let c = *c as u32;
+            // outside range of a-z & A-Z
             c < 65 || (c > 91 && c < 97) || c > 122
         })
         .count();
 
+    #[allow(clippy::cast_possible_wrap)]
     -(violations as i64)
 }
 
