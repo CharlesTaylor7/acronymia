@@ -99,7 +99,7 @@ fn memo_is_host() -> Memo<bool> {
     })
 }
 
-#[cfg(feature = "ssr")]
+#[cfg(not(feature = "hydrate"))]
 fn signal_player_id() -> RwSignal<PlayerId> {
     create_rw_signal("".to_owned())
 }

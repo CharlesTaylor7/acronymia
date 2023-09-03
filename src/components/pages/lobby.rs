@@ -4,7 +4,7 @@ use ::leptos_router::*;
 
 #[component]
 pub fn Lobby() -> impl IntoView {
-    #[cfg(feature = "ssr")]
+    #[cfg(not(feature = "hydrate"))]
     let on_click = move |_| ();
 
     #[cfg(feature = "hydrate")]
