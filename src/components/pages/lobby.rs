@@ -12,7 +12,7 @@ pub fn Lobby() -> impl IntoView {
         use ::uuid::*;
         let code = Uuid::new_v4().to_string();
         let nav = use_navigate();
-        nav(&format!("room/{}", code), NavigateOptions::default())
+        nav(&format!("room/{}", code), NavigateOptions::default());
     };
 
     view! {

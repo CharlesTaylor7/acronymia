@@ -48,7 +48,7 @@ pub fn connect_to_server(game_state: RwSignal<ClientGameState>, player_id: RwSig
                     send(signal_ws_writer, ClientMessage::Connect(id)).await;
                 });
             }
-        })
+        });
     });
 }
 
@@ -66,7 +66,7 @@ pub fn take_untracked<T>(signal: RwSignal<Option<T>>) -> Option<T> {
 
 pub async fn send_from(owner: Owner, message: ClientMessage) {
     let signal_ws_writer = use_typed_context_from::<WS_Writer>(owner);
-    send(signal_ws_writer, message).await
+    send(signal_ws_writer, message).await;
 }
 
 pub async fn send(signal_ws_writer: context_type!(WS_Writer), message: ClientMessage) {
