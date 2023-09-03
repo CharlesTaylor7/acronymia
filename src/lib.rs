@@ -25,16 +25,12 @@ pub mod extensions;
 pub mod typed_context;
 pub mod types;
 
-use cfg_if::cfg_if;
-
-cfg_if! {
+cfg_if::cfg_if! {
     if #[cfg(feature = "ssr")] {
         pub mod server;
     }
-}
 
-cfg_if! {
-    if #[cfg(feature = "hydrate")] {
+    else if #[cfg(feature = "hydrate")] {
         pub mod client;
 
         use leptos::*;
