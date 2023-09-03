@@ -14,6 +14,5 @@ pub fn create_ws_action() -> Action<ClientMessage, ()> {
 
 #[cfg(not(feature = "hydrate"))]
 pub fn create_ws_action() -> Action<ClientMessage, ()> {
-    async fn async_do_nothing() {}
-    leptos::create_action(move |_| async_do_nothing())
+    leptos::create_action(move |_| async {})
 }
