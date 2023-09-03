@@ -101,7 +101,7 @@ fn memo_is_host() -> Memo<bool> {
 
 #[cfg(not(feature = "hydrate"))]
 fn signal_player_id() -> RwSignal<PlayerId> {
-    create_rw_signal("".to_owned())
+    create_rw_signal(String::new())
 }
 
 /// a signal for the player id

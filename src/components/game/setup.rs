@@ -22,7 +22,7 @@ pub fn GameSetup() -> impl IntoView {
     let join_game = move || {
         join_game_action.dispatch(JoinGame {
             name: player_name.get(),
-        })
+        });
     };
 
     view! {

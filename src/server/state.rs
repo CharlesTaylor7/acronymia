@@ -20,7 +20,7 @@ pub async fn handle_message(
     leptos::log!("session {:#?}", session_id);
     match message {
         ClientMessage::Connect(player_id) => match sessions.connect(session_id, player_id) {
-            Ok(_) => {
+            Ok(()) => {
                 _ = messenger.send(ServerMessage::GameState(state.to_client_state()));
             }
             Err(session_id) => {
@@ -43,7 +43,7 @@ pub async fn handle_message(
             if id.is_none() {
                 return;
             }
-            let id = id.unwrap().to_owned();
+            let id = id.unwrap().clone();
             let server_player = ServerPlayer {
                 id: id.clone(),
                 name: name.clone(),
@@ -81,7 +81,7 @@ pub async fn handle_message(
             if id.is_none() {
                 return;
             }
-            let id = id.unwrap().to_owned();
+            let id = id.unwrap().clone();
 
             // have to be in the game to submit
             if state.players.get(&id).is_none() {

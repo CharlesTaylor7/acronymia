@@ -108,8 +108,8 @@ impl GameState {
             ("What is ".to_owned(), " ?".to_owned())
         };
         Prompt {
-            acronym,
             before,
+            acronym,
             after,
         }
     }

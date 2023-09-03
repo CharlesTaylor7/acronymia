@@ -76,7 +76,7 @@ fn PlayerPerspective() -> impl IntoView {
     view! {
         <For
             each=each
-            key=|(i, _)| i.clone()
+            key=|(i, _)| *i
             view=move |(i, c)| {
                 // the macro gets confused and doesn't notice this variable is used
                 #[allow(unused_variables)]
@@ -89,7 +89,7 @@ fn PlayerPerspective() -> impl IntoView {
                         on:keydown=move |e| {
                             if e.key() == "Enter" {
                                 if i == num_of_words - 1 {
-                                    submit()
+                                    submit();
                                 } else {
                                    _ = get_ref(i+1).get().unwrap().focus();
                                 }
@@ -100,7 +100,7 @@ fn PlayerPerspective() -> impl IntoView {
                             let text = input.value();
                             let result = validate_word(c, &text);
                             match &result {
-                                Ok(_) => {
+                                Ok(()) => {
                                     input.set_custom_validity("");
                                     submission.update(move |s| s[i] = Some(text));
                                 }
