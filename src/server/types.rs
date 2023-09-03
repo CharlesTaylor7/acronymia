@@ -236,6 +236,22 @@ impl GameState {
     }
 }
 
+fn submission_penalty(sub: &Submission) -> i64 {
+    sub.iter().map(|w| word_penalty(w)).sum()
+}
+
+fn word_penalty(word: &str) -> i64 {
+    let violations = word
+        .chars()
+        .filter(|c| {
+            let c = *c as u32;
+            c < 65 || (c > 91 && c < 97) || c > 122
+        })
+        .count();
+
+    -(violations as i64)
+}
+
 fn insert_or_add<K>(map: &mut HashMap<K, i64>, key: K, amount: i64)
 where
     K: std::hash::Hash + Eq,

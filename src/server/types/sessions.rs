@@ -2,7 +2,7 @@ use crate::types::{PlayerId, SessionId};
 use ::std::collections::HashMap;
 
 #[cfg(not(feature = "impersonation"))]
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Sessions {
     session_ids: HashMap<PlayerId, SessionId>,
     player_ids: HashMap<SessionId, PlayerId>,
@@ -14,8 +14,6 @@ impl Sessions {
         Sessions {
             session_ids: HashMap::new(),
             player_ids: HashMap::new(),
-            #[cfg(feature = "impersonation")]
-            impersonations: HashMap::new(),
         }
     }
 
@@ -46,7 +44,7 @@ impl Sessions {
 /// Compatibility layer around a single hashmap
 /// The regular sessions struct actually prevents stolen identity
 #[cfg(feature = "impersonation")]
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Sessions {
     player_ids: HashMap<SessionId, PlayerId>,
 }
