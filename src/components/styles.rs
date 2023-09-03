@@ -23,12 +23,10 @@ impl ButtonStyle {
 
         format!(
             "{} {} rounded p-2 disabled:cursor-not-allowed disabled:bg-slate-600",
-            class,
-            custom,
+            class, custom,
         )
     }
 }
-
 
 pub fn text_input_class(custom: &str) -> String {
     format!(
