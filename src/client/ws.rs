@@ -9,6 +9,9 @@ use ::std::time::Duration;
 
 define_context!(WS_Writer, RwSignal<Option<SplitSink<WebSocket, Message>>>);
 
+///
+/// # Panics
+/// - May panic if the page url cannot be obtained from the browser
 pub fn connect_to_server(game_state: RwSignal<ClientGameState>, player_id: RwSignal<PlayerId>) {
     let loc = window().location();
     let host = loc.host().unwrap();

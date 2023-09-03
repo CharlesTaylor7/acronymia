@@ -117,7 +117,7 @@ fn PlayerPerspective() -> impl IntoView {
         />
         <div>
             <button
-                class=button_class(ButtonStyle::Primary, "")
+                class=ButtonStyle::Primary.class()
                 disabled=move|| submit_args().is_none()
                 on:click=move|_| submit()
             >
@@ -172,7 +172,7 @@ fn validate_word(_lead: char, _word: &str) -> Result<(), String> {
 fn validate_word(lead: char, word: &str) -> Result<(), String> {
     use js_sys::RegExp;
     let pattern = RegExp::new(&format!("^{}", lead), "i");
-    if let Some(_) = pattern.exec(word) {
+    if pattern.exec(word).is_some() {
         Ok(())
     } else {
         Err(format!(

@@ -8,7 +8,7 @@ pub fn ResetButton() -> impl IntoView {
     let action = create_ws_action();
     view! {
         <button
-            class=button_class(ButtonStyle::Danger, "")
+            class=ButtonStyle::Danger.class()
             on:click=move|_| action.dispatch(ResetState)
         >
             "Reset Everything"

@@ -36,14 +36,14 @@ pub fn GameSetup() -> impl IntoView {
         />
         <div class="flex flex-row gap-4">
             <button
-                class=button_class(ButtonStyle::Primary, "")
+                class=ButtonStyle::Primary.class()
                 on:click=move|_| join_game()
             >
             {move|| if join_game_action.version().get() > 0 { "Update name" } else { "Join" }}
             </button>
             <Show when=is_host fallback=|| ()>
                 <button
-                    class=button_class(ButtonStyle::Secondary, "")
+                    class=ButtonStyle::Secondary.class()
                     disabled=move|| players.with(|ps| ps.len() < 3)
                     on:click=move|_| start_game()
                 >
@@ -68,6 +68,8 @@ pub fn GameSetup() -> impl IntoView {
 
 #[component]
 pub fn ConfigureAcronymLength() -> impl IntoView {
+    const MIN_ACRONYM_LENGTH: usize = 2;
+
     let g = use_typed_context::<Signal_GameState>();
     let (min, set_min) = create_slice(
         g,
@@ -80,14 +82,13 @@ pub fn ConfigureAcronymLength() -> impl IntoView {
         move |g, v| g.config.letters_per_acronym.max = v,
     );
 
-    const MIN: usize = 2;
     view! {
         <div class="flex flex-row gap-2 items-start">
             "From"
             <input
                 type="number"
                 class=number_input_class("w-[4rem]")
-                min=MIN
+                min=MIN_ACRONYM_LENGTH
                 prop:max=max
                 prop:value=min
                 on:change=move|e| {

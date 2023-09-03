@@ -18,13 +18,13 @@ pub fn Lobby() -> impl IntoView {
     view! {
         Welcome to the lobby!
         <button
-            class=button_class(ButtonStyle::Primary, "")
+            class=ButtonStyle::Primary.class()
             on:click=on_click
         >
             Start New Game
         </button>
 
-        <A href="/room/stale" class=button_class(ButtonStyle::Danger, "")>
+        <A href="/room/stale" class=ButtonStyle::Danger.class()>
             Demo Stale Game Link
         </A>
     }

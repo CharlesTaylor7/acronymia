@@ -53,7 +53,7 @@ fn JudgePerspective() -> impl IntoView {
         <Submissions disabled=false on_select=move|t| selected.set(Some(t)) option_class=option_class />
 
         <button
-            class=button_class(ButtonStyle::Secondary, "mt-12")
+            class=ButtonStyle::Secondary.class_with("mt-12")
             disabled=move|| {selected.get().is_none() || submit_action.version().get() > 0}
             on:click=move|_| submit_winner()
         >
@@ -94,7 +94,7 @@ where
 
                 <div class="flex flex-col justify-content">
                     <button
-                        class=move|| class.with(|s| button_class(ButtonStyle::Nothing, s))
+                        class=move|| class.with(|s| ButtonStyle::Nothing.class_with(s))
                         disabled=disabled
                         on:click=move|_| on_select(id.clone())
                     >

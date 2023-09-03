@@ -16,7 +16,7 @@ pub fn DebugView() -> impl IntoView {
     view! {
         <Show when=MaybeSignal::derive(move|| is_host() || DEV_MODE) fallback=|| ()>
             <button
-                class=button_class(ButtonStyle::Neutral, "mt-4")
+                class=ButtonStyle::Neutral.class_with("mt-4")
                 on:click=move|_| debug_region_expanded.update(|b| *b = !*b)
             >
                 "Toggle Debug View"
@@ -29,7 +29,7 @@ pub fn DebugView() -> impl IntoView {
                     </p>
                     <PlayerRoster />
                     <button
-                        class=button_class(ButtonStyle::Secondary, "")
+                        class=ButtonStyle::Secondary.class()
                         on:click=move|_| action.dispatch(StopTimer)
                     >
                         "Stop timer"
