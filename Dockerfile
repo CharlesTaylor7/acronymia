@@ -2,7 +2,7 @@ FROM lukemathwalker/cargo-chef:latest as chef
 WORKDIR /app
 
 FROM chef AS planner
-COPY ./Cargo.toml ./Cargo.lock ./
+COPY ./Cargo.toml ./Cargo.lock ./rust-toolchain.toml ./
 COPY ./src ./src
 RUN cargo chef prepare
 
