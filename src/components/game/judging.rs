@@ -91,7 +91,6 @@ where
             let class = option_class(&id);
             let id2 = id.clone();
             view! {
-
                 <div class="flex flex-col justify-content">
                     <button
                         class=move|| class.with(|s| ButtonStyle::Nothing.class_with(s))
