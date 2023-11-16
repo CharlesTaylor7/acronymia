@@ -100,6 +100,7 @@ pub enum ClientMessage {
 }
 
 /// message from the server broadcast to each client
+#[allow(clippy::large_enum_variant)]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ServerMessage {
     /// Sent when a client connects for the first time.
