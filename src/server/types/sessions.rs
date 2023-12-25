@@ -1,5 +1,5 @@
 use crate::types::{PlayerId, SessionId};
-use ::std::collections::HashMap;
+use std::collections::HashMap;
 
 #[cfg(not(feature = "impersonation"))]
 #[derive(Debug, Default)]
@@ -18,7 +18,7 @@ impl Sessions {
     }
 
     pub fn connect(&mut self, session_id: SessionId, player_id: PlayerId) -> Result<(), SessionId> {
-        use ::std::collections::hash_map;
+        use std::collections::hash_map;
         match self.session_ids.entry(player_id.clone()) {
             hash_map::Entry::Vacant(entry) => {
                 entry.insert(session_id.clone());

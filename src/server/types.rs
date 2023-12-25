@@ -3,13 +3,13 @@ pub use self::sessions::Sessions;
 use super::random::shuffle;
 use crate::constants::*;
 pub use crate::types::*;
-use ::leptos::log;
-use ::std::collections::HashMap;
-use ::tokio::{
+use leptos::log;
+use std::collections::HashMap;
+use tokio::{
     sync::oneshot,
     time::{Duration, Instant},
 };
-pub use ::uuid::Uuid;
+pub use uuid::Uuid;
 
 /// Index into the rotation vector
 type JudgeId = usize;
