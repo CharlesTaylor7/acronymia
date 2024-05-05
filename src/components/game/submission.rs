@@ -77,7 +77,7 @@ fn PlayerPerspective() -> impl IntoView {
         <For
             each=each
             key=|(i, _)| *i
-            view=move |(i, c)| {
+            children=move |(i, c)| {
                 // the macro gets confused and doesn't notice this variable is used
                 #[allow(unused_variables)]
                 let node_ref = get_ref(i);

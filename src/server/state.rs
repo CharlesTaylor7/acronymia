@@ -1,6 +1,7 @@
 use super::types::*;
 use crate::constants::*;
 use crate::server::sync;
+use ::leptos::logging::log;
 use ::std::collections::*;
 use ::tokio::{
     select,
@@ -17,7 +18,7 @@ pub async fn handle_message(
     sessions: &mut Sessions,
     messenger: &Sender<ServerMessage>,
 ) {
-    leptos::log!("session {:#?}", session_id);
+    log!("session {:#?}", session_id);
     match message {
         ClientMessage::Connect(player_id) => match sessions.connect(session_id, player_id) {
             Ok(()) => {

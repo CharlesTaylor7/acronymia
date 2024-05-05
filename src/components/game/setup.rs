@@ -57,7 +57,7 @@ pub fn GameSetup() -> impl IntoView {
                 <For
                     each=players
                     key=|p| format!("{}-{}", p.id, p.name)
-                    view=|p| view! { <li>{p.name}</li> }
+                    children=|p| view! { <li>{p.name}</li> }
                 />
             </ul>
         </div>

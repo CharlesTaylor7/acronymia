@@ -4,7 +4,7 @@ use crate::types::*;
 use ::actix_web::{rt, web, Error, HttpRequest, HttpResponse};
 use ::actix_ws::{CloseCode, CloseReason, Message};
 use ::futures::StreamExt as _;
-use ::leptos::log;
+use ::leptos::logging::log;
 use ::std::time::{Duration, Instant};
 use ::tokio::{
     pin, select,
@@ -116,13 +116,15 @@ async fn handle_client_message(
         return Some(CloseCode::Normal.into());
     }
 
-    if let Some(msg) = msg && let Some(msg) = msg.ok_or_log() {
+    if let Some(msg) = msg
+        && let Some(msg) = msg.ok_or_log()
+    {
         match msg {
             Message::Text(text) => {
                 if let Some(msg) = serde_json::from_str(&text).ok_or_log() {
                     mailer.send((session_id.clone(), msg)).await.ok_or_log();
                 }
-            },
+            }
 
             Message::Close(reason) => {
                 return Some(reason.unwrap_or(CloseCode::Normal.into()));
@@ -138,11 +140,11 @@ async fn handle_client_message(
             }
 
             Message::Binary(_) => {
-                leptos::log!("no support for binary");
+                log!("no support for binary");
             }
 
             Message::Continuation(_) => {
-                leptos::log!("no support for continuation frames");
+                log!("no support for continuation frames");
             }
 
             // no-op; ignore

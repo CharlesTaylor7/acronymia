@@ -1,4 +1,4 @@
-use leptos::log;
+use leptos::logging::log;
 use std::backtrace::Backtrace;
 use std::fmt::Debug;
 

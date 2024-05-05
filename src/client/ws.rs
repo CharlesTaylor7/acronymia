@@ -4,7 +4,9 @@ use crate::types::{ClientGameState, ClientMessage, PlayerId, ServerMessage, Time
 use ::futures::{stream::SplitSink, SinkExt, StreamExt};
 use ::gloo_net::websocket::{futures::WebSocket, Message};
 use ::gloo_timers::future::sleep;
-use ::leptos::*;
+use ::leptos::logging::log;
+use ::leptos::prelude::*;
+use ::leptos::StoredValue;
 use ::std::time::Duration;
 
 define_context!(WS_Writer, RwSignal<Option<SplitSink<WebSocket, Message>>>);
@@ -13,7 +15,7 @@ define_context!(WS_Writer, RwSignal<Option<SplitSink<WebSocket, Message>>>);
 /// # Panics
 /// - May panic if the page url cannot be obtained from the browser
 pub fn connect_to_server(game_state: RwSignal<ClientGameState>, player_id: RwSignal<PlayerId>) {
-    let loc = window().location();
+    let loc = leptos::window().location();
     let host = loc.host().unwrap();
     let protocol = loc.protocol().unwrap();
     let protocol = if protocol == "https:" { "wss:" } else { "ws:" };
@@ -22,7 +24,7 @@ pub fn connect_to_server(game_state: RwSignal<ClientGameState>, player_id: RwSig
     let signal_ws_writer = create_rw_signal(None);
     provide_typed_context::<WS_Writer>(signal_ws_writer);
 
-    spawn_local(async move {
+    leptos::spawn_local(async move {
         let mut backoff = 1;
         loop {
             let (writer, mut reader) = WebSocket::open(&uri).unwrap().split();
@@ -42,12 +44,12 @@ pub fn connect_to_server(game_state: RwSignal<ClientGameState>, player_id: RwSig
         }
     });
 
-    create_effect(move |_| {
+    leptos::create_effect(move |_| {
         signal_ws_writer.with(|ws_writer| {
             if ws_writer.is_some() {
                 let id = player_id();
                 log!("connect as {}", id);
-                spawn_local(async move {
+                leptos::spawn_local(async move {
                     send(signal_ws_writer, ClientMessage::Connect(id)).await;
                 });
             }
@@ -67,7 +69,7 @@ pub fn take_untracked<T>(signal: RwSignal<Option<T>>) -> Option<T> {
     val
 }
 
-pub async fn send_from(owner: Owner, message: ClientMessage) {
+pub async fn send_from(owner: leptos::Owner, message: ClientMessage) {
     let signal_ws_writer = use_typed_context_from::<WS_Writer>(owner);
     send(signal_ws_writer, message).await;
 }

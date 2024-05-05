@@ -14,7 +14,7 @@ pub fn PlayerRoster() -> impl IntoView {
             <For
                 each=players
                 key=|p| format!("{}-{}", p.id, p.name)
-                view=move |p| view! {
+                children=move |p| view! {
                     <PlayerView
                         player=p
                     />

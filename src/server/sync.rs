@@ -1,5 +1,5 @@
 use super::types::*;
-use ::leptos::*;
+use ::leptos::logging::log;
 use ::std::sync::OnceLock;
 use ::tokio::sync::{broadcast, mpsc, Mutex};
 
