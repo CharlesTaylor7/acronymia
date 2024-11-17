@@ -1,4 +1,4 @@
-use leptos::*;
+use leptos::prelude::*;
 use std::marker::*;
 
 #[derive(Clone)]
@@ -8,13 +8,13 @@ struct ContextWrapper<K, T> {
     _marker: PhantomData<K>,
 }
 
-pub trait ContextKey: Clone + 'static {
-    type R: Clone;
+pub trait ContextKey: Send + Clone + 'static {
+    type R: Clone + Sync;
 }
 
 pub fn provide_typed_context<K>(value: K::R)
 where
-    K: ContextKey,
+    K: ContextKey + Sync,
 {
     provide_context(ContextWrapper {
         item: value,
@@ -41,7 +41,7 @@ pub fn use_typed_context_from<K>(owner: Owner) -> K::R
 where
     K: ContextKey,
 {
-    with_owner(owner, move || {
+    owner.with(move || {
         use_context::<ContextWrapper<K, K::R>>()
             .unwrap_or_else(|| panic!("no context with key {k} exists, did you forget to call provide_typed_context::<{k}>?",
                 k = std::any::type_name::<K>()))

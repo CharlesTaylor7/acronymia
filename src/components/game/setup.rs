@@ -2,7 +2,7 @@ use super::context::*;
 use crate::components::state::*;
 use crate::components::styles::*;
 use crate::types::ClientMessage::*;
-use ::leptos::*;
+use ::leptos::prelude::*;
 
 #[component]
 pub fn GameSetup() -> impl IntoView {

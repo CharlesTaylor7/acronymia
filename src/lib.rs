@@ -33,7 +33,7 @@ cfg_if::cfg_if! {
     else if #[cfg(feature = "hydrate")] {
         pub mod client;
 
-        use leptos::*;
+        use leptos::prelude::*;
         use wasm_bindgen::prelude::wasm_bindgen;
         use crate::components::app::App;
 

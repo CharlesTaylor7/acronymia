@@ -5,12 +5,12 @@ use crate::components::state::*;
 use crate::components::styles::*;
 use crate::constants::*;
 use crate::typed_context::*;
-use ::leptos::*;
+use ::leptos::prelude::*;
 
 #[component]
 pub fn DebugView() -> impl IntoView {
     let is_host = use_typed_context::<Memo_IsHost>();
-    let debug_region_expanded = create_rw_signal(false);
+    let debug_region_expanded = RwSignal::new(false);
     let action = create_ws_action();
 
     view! {

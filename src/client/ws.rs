@@ -21,14 +21,15 @@ pub fn connect_to_server(game_state: RwSignal<ClientGameState>, player_id: RwSig
     let protocol = if protocol == "https:" { "wss:" } else { "ws:" };
     let uri = format!("{protocol}//{host}/ws");
 
-    let signal_ws_writer = create_rw_signal(None);
+    let signal_ws_writer = todo!("fixme: 0.7.0");
+    //RwSignal::new(None);
     provide_typed_context::<WS_Writer>(signal_ws_writer);
 
     leptos::spawn_local(async move {
         let mut backoff = 1;
         loop {
             let (writer, mut reader) = WebSocket::open(&uri).unwrap().split();
-            signal_ws_writer.set(Some(writer));
+            // FIXME: signal_ws_writer.set(Some(writer));
 
             while let Some(msg) = reader.next().await {
                 if let Some(Message::Text(m)) = msg.ok_or_log() {
@@ -44,7 +45,7 @@ pub fn connect_to_server(game_state: RwSignal<ClientGameState>, player_id: RwSig
         }
     });
 
-    leptos::create_effect(move |_| {
+    Effect::new(move |_| {
         signal_ws_writer.with(|ws_writer| {
             if ws_writer.is_some() {
                 let id = player_id();
@@ -65,11 +66,11 @@ pub fn take<T>(stored: StoredValue<Option<T>>) -> Option<T> {
 
 pub fn take_untracked<T>(signal: RwSignal<Option<T>>) -> Option<T> {
     let mut val = None;
-    signal.update_untracked(|v| val = v.take());
+    // FIXME: signal.update_untracked(|v| val = v.take());
     val
 }
 
-pub async fn send_from(owner: leptos::Owner, message: ClientMessage) {
+pub async fn send_from(owner: Owner, message: ClientMessage) {
     let signal_ws_writer = use_typed_context_from::<WS_Writer>(owner);
     send(signal_ws_writer, message).await;
 }
@@ -82,7 +83,7 @@ pub async fn send(signal_ws_writer: context_type!(WS_Writer), message: ClientMes
 
         // Put that thing back where it came from (or so help me)
         // Ensures the web socket writer can be reused later.
-        signal_ws_writer.set_untracked(Some(ws_writer));
+        // FIXME: signal_ws_writer.set_untracked(Some(ws_writer));
     } else {
         // TODO: should we buffer writes somewhere on the client side?
         log!("busy, message dropped: {:#?}", &message);

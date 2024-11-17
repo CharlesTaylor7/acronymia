@@ -1,5 +1,5 @@
 use crate::components::state::*;
-use leptos::*;
+use leptos::prelude::*;
 
 /// When the window regains focus, request the current server time.
 pub fn auto_sync_with_server() {

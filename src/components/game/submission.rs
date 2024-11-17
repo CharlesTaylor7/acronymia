@@ -2,14 +2,14 @@ use super::{context::*, prompt::*, timer::*};
 use crate::components::state::*;
 use crate::components::styles::*;
 use crate::types::ClientMessage::*;
-use ::leptos::*;
+use ::leptos::prelude::*;
 
 #[component]
 pub fn GameSubmission() -> impl IntoView {
     let judge = use_typed_context::<Memo_Judge>();
     let round_counter = use_typed_context::<Memo_RoundCounter>();
     let game_state = use_typed_context::<Signal_GameState>();
-    let submission_ratio = create_memo(move |_| {
+    let submission_ratio = Memo::new(move |_| {
         game_state.with(|g| format!("{}/{}", g.submission_count, g.players.len() - 1))
     });
 
@@ -53,7 +53,7 @@ fn JudgeDescription() -> impl IntoView {
 #[component]
 fn PlayerPerspective() -> impl IntoView {
     let game_state = use_typed_context::<Signal_GameState>();
-    let acronym = create_memo(move |_| game_state.with(|g| g.prompt.acronym.clone()));
+    let acronym = Memo::new(move |_| game_state.with(|g| g.prompt.acronym.clone()));
 
     let num_of_words = acronym().len();
     let input_refs = store_value(init_vec(num_of_words, move || {
@@ -61,7 +61,7 @@ fn PlayerPerspective() -> impl IntoView {
     }));
     let get_ref = move |i| input_refs.with_value(|r| r[i]);
 
-    let submission = create_rw_signal::<Vec<Option<String>>>(vec![None; num_of_words]);
+    let submission = RwSignal::new::<Vec<Option<String>>>(vec![None; num_of_words]);
     let submit_args = move || submission.with(|s| all_some(s));
     let last_submission = store_value(None as Option<String>);
     let submit_action = create_ws_action();

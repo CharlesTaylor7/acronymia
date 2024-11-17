@@ -1,5 +1,5 @@
 use crate::components::styles::*;
-use ::leptos::*;
+use ::leptos::prelude::*;
 use ::leptos_router::*;
 
 #[component]

@@ -4,7 +4,8 @@ use crate::components::styles::*;
 use crate::typed_context::*;
 use crate::types::ClientMessage::*;
 use crate::types::*;
-use leptos::*;
+use leptos::either::*;
+use leptos::prelude::*;
 use std::collections::HashMap;
 
 #[component]
@@ -18,9 +19,9 @@ pub fn GameJudging() -> impl IntoView {
         </h2>
         {
             move || match judge.get() {
-                None => view! {<><span>"Error: No judge"</span></>},
-                Some(Judge::Me) => view! { <><JudgePerspective /></>},
-                Some(Judge::Name(name)) => view! { <><PlayerPerspective judge_name=name /></>},
+                None => EitherOf3::A(view! { <span>"Error: No judge"</span>}),
+                Some(Judge::Me) => EitherOf3::B(view! { <JudgePerspective />}),
+                Some(Judge::Name(name)) => EitherOf3::C(view! { <PlayerPerspective judge_name=name />}),
             }
         }
         <Timer />
@@ -29,7 +30,7 @@ pub fn GameJudging() -> impl IntoView {
 
 #[component]
 fn JudgePerspective() -> impl IntoView {
-    let selected = create_rw_signal(None);
+    let selected = RwSignal::new(None);
     let submit_action = create_ws_action();
     let submit_winner = move || {
         if let Some(winner) = selected() {
@@ -67,7 +68,7 @@ fn PlayerPerspective(judge_name: String) -> impl IntoView {
     let game_signal = use_typed_context::<Signal_GameState>();
     view! {
         <Show when=move|| game_signal.with(|g| g.round_winner.is_none()) fallback=move||()>
-            <p><span class=judge_class()>{&judge_name}</span>" is deliberating."</p>
+            <p><span class=judge_class()>|_| {&judge_name}</span>" is deliberating."</p>
         </Show>
         <p><Prompt /></p>
         <Submissions
@@ -116,7 +117,7 @@ where
 
 define_context!(LookupPlayer, Memo<HashMap<PlayerId, PlayerInfo>>);
 fn provide_player_lookup() {
-    let hashmap = create_memo(move |_| {
+    let hashmap = Memo::new(move |_| {
         use_typed_context::<Signal_GameState>().with(|g| {
             g.round_winner
                 .as_ref()

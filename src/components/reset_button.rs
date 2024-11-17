@@ -1,7 +1,7 @@
 use crate::components::state::*;
 use crate::components::styles::*;
 use crate::types::ClientMessage::*;
-use leptos::*;
+use leptos::prelude::*;
 
 #[component]
 pub fn ResetButton() -> impl IntoView {
@@ -9,7 +9,7 @@ pub fn ResetButton() -> impl IntoView {
     view! {
         <button
             class=ButtonStyle::Danger.class()
-            on:click=move|_| action.dispatch(ResetState)
+            on:click=move|_| { action.dispatch(ResetState);}
         >
             "Reset Everything"
         </button>

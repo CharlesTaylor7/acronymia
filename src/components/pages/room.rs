@@ -1,6 +1,6 @@
 use crate::components::game::Game;
-use ::leptos::*;
-use ::leptos_router::*;
+use ::leptos::prelude::*;
+use ::leptos_router::hooks::*;
 use ::std::time::Duration;
 
 #[component]
@@ -13,7 +13,7 @@ pub fn Room() -> impl IntoView {
     view! {
         <Show
             fallback=Game
-            when=move|| params.with(|p| p.get("code") == Option::Some(&stale_code))
+            when=move|| params.with(|p| &p.get("code") == stale_code)
         >
             <RedirectAfter
                 fallback= || "The room you're looking for doesn't exist. Maybe the game ended?  Redirecting to lobby..."
@@ -31,7 +31,7 @@ where
     F: 'static + Fn() -> V,
     V: IntoView,
 {
-    let timeout_signal = create_rw_signal(false);
+    let timeout_signal = RwSignal::new(false);
 
     #[cfg(feature = "hydrate")]
     set_interval(move || timeout_signal.set(true), timeout);

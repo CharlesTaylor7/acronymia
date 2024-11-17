@@ -1,6 +1,6 @@
 use crate::components::game::Game;
 use crate::components::pages;
-use leptos::*;
+use leptos::prelude::*;
 use leptos_meta::*;
 use leptos_router::*;
 
@@ -8,8 +8,9 @@ use leptos_router::*;
 pub fn App() -> impl IntoView {
     // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
+
+    // <Html lang="en"/>
     view! {
-        <Html lang="en"/>
         <Stylesheet id="leptos" href="/pkg/acronymia.css"/>
         <Title text="Acronymia"/>
         <Body class="h-100 font-sans bg-slate-700 text-slate-400"/>

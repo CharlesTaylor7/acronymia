@@ -1,6 +1,6 @@
 use crate::components::game::context::*;
 use crate::components::styles::*;
-use leptos::*;
+use leptos::prelude::*;
 
 #[component]
 pub fn Timer() -> impl IntoView {

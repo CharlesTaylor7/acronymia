@@ -1,5 +1,5 @@
 use crate::components::game::context::*;
-use ::leptos::*;
+use ::leptos::prelude::*;
 use core::iter::once;
 
 /// Shows prompt with acronym.
@@ -11,7 +11,7 @@ use core::iter::once;
 #[component]
 pub fn Prompt() -> impl IntoView {
     let game_state = use_typed_context::<Signal_GameState>();
-    let prompt = create_memo(move |_| game_state.with(|g| g.prompt.clone()));
+    let prompt = Memo::new(move |_| game_state.with(|g| g.prompt.clone()));
     view! {
         <p>
             <span>

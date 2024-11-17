@@ -14,20 +14,27 @@ use self::submission::*;
 use crate::components::debug_view::*;
 use crate::components::state::*;
 use crate::types::*;
-use ::leptos::*;
+use ::leptos::either::*;
+use ::leptos::prelude::*;
 
 #[component]
 pub fn Game() -> impl IntoView {
     provide_game_context();
     let game_state = use_typed_context::<Signal_GameState>();
-    let game_step = create_memo(move |_| game_state.with(|g| g.step.clone()));
+    let game_step = Memo::new(move |_| game_state.with(|g| g.step.clone()));
 
     view! {
         {move|| match game_step.get() {
-            GameStep::Setup => view! { <GameSetup /> },
-            GameStep::Submission => view! { <GameSubmission /> },
-            GameStep::Judging => view! { <GameJudging />},
-            GameStep::Results => view! { <GameResults />},
+            GameStep::Setup =>
+    EitherOf4::A(view! { <GameSetup /> }),
+            GameStep::Submission =>
+            EitherOf4::B(
+            view! { <GameSubmission /> })
+            ,
+            GameStep::Judging =>
+            EitherOf4::C(view! { <GameJudging />}),
+            GameStep::Results =>
+            EitherOf4::D(view! { <GameResults />}),
         }}
         <DebugView />
     }

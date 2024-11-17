@@ -1,5 +1,5 @@
 use crate::components::game::context::*;
-use ::leptos::*;
+use ::leptos::prelude::*;
 
 #[component]
 pub fn GameResults() -> impl IntoView {

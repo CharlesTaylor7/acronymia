@@ -1,6 +1,6 @@
 use crate::constants::*;
 use crate::*;
-use ::leptos::*;
+use ::leptos::prelude::*;
 use leptos_dom::helpers::IntervalHandle;
 pub use typed_context::use_typed_context;
 use typed_context::{define_context, provide_typed_context};
@@ -22,7 +22,7 @@ pub enum Judge {
 }
 
 pub fn provide_game_context() {
-    let game_state = create_rw_signal(Default::default());
+    let game_state = RwSignal::new(Default::default());
     provide_typed_context::<Signal_GameState>(game_state);
 
     let player_id = signal_player_id();
@@ -39,12 +39,12 @@ pub fn provide_game_context() {
     if DEV_MODE {
         // synchronize player id with player name
         // this ensures impersonation works properly
-        create_effect(move |_| {
+        Effect::new(move |_| {
             player_id.set(player_name.get());
         });
     }
 
-    let players = create_memo(move |_| game_state.with(|g| g.players.clone()));
+    let players = Memo::new(move |_| game_state.with(|g| g.players.clone()));
     provide_typed_context::<Memo_Players>(players);
 
     let judge = judge_memo();
@@ -56,7 +56,7 @@ pub fn provide_game_context() {
     let timer_handle = store_value(None);
     provide_typed_context::<TimerHandle>(timer_handle);
 
-    let round_counter = create_memo(move |_| game_state.with(|g| g.round_counter.clone()));
+    let round_counter = Memo::new(move |_| game_state.with(|g| g.round_counter.clone()));
     provide_typed_context::<Memo_RoundCounter>(round_counter);
 }
 
@@ -65,7 +65,7 @@ fn judge_memo() -> Memo<Option<Judge>> {
     let players = use_typed_context::<Memo_Players>();
     let game_state = use_typed_context::<Signal_GameState>();
 
-    create_memo(move |_| {
+    Memo::new(move |_| {
         game_state.with(|g| {
             g.judge.as_ref().and_then(|judge_id| {
                 if player_id.with(|id| id == judge_id) {
@@ -85,7 +85,7 @@ fn judge_memo() -> Memo<Option<Judge>> {
 fn memo_is_host() -> Memo<bool> {
     let player_id = use_typed_context::<Signal_PlayerId>();
     let game_state = use_typed_context::<Signal_GameState>();
-    create_memo(move |_| {
+    Memo::new(move |_| {
         player_id
             .with(|me| {
                 game_state
@@ -101,7 +101,7 @@ fn memo_is_host() -> Memo<bool> {
 
 #[cfg(not(feature = "hydrate"))]
 fn signal_player_id() -> RwSignal<PlayerId> {
-    create_rw_signal(String::new())
+    RwSignal::new(String::new())
 }
 
 /// a signal for the player id
@@ -120,13 +120,13 @@ fn signal_player_id() -> RwSignal<PlayerId> {
         Ok(Some(id)) => id,
         _ => new_player_id(storage),
     };
-    create_rw_signal(id)
+    RwSignal::new(id)
 }
 
 /// a signal for the player name
 /// that caches its value inside local storage
 fn signal_player_name() -> RwSignal<PlayerName> {
-    let player_name: RwSignal<String> = create_rw_signal(String::new());
+    let player_name: RwSignal<String> = RwSignal::new(String::new());
 
     #[cfg(feature = "hydrate")]
     {
@@ -137,7 +137,7 @@ fn signal_player_name() -> RwSignal<PlayerName> {
                 player_name.set(name);
             }
 
-            create_effect(move |_| {
+            Effect::new(move |_| {
                 player_name.with(|name| {
                     _ = storage.set_item(STORAGE_KEY, name);
                 });
